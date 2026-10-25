@@ -36,6 +36,9 @@ async function mountFarmScan() {
     const script = document.createElement('script');
     script.textContent = scannerScript.textContent;
     document.body.appendChild(script);
+    if (typeof window.applyDashboardLanguage === 'function') {
+      window.applyDashboardLanguage(window.dashboardLanguage);
+    }
   } catch (error) {
     mount.textContent = error.message;
     mount.setAttribute('role', 'alert');

@@ -1073,6 +1073,296 @@ const dashboardTranslations = {
   }
 };
 
+const dashboardPhraseRows = [
+  ['Weather', 'मौसम', 'हवामान'],
+  ['Farm planner', 'खेत योजना', 'शेत नियोजन'],
+  ['Schemes', 'योजनाएँ', 'योजना'],
+  ['Calculators', 'कैलकुलेटर', 'गणक'],
+  ['Market prices', 'बाज़ार भाव', 'बाजारभाव'],
+  ['Irrigation', 'सिंचाई', 'सिंचन'],
+  ['Marketplace', 'बाज़ार', 'बाजारपेठ'],
+  ['Needs board', 'ज़रूरत बोर्ड', 'गरज फलक'],
+  ['Disease Detection', 'रोग पहचान', 'रोग ओळख'],
+  ['Smart Agriculture Platform', 'स्मार्ट कृषि प्लेटफ़ॉर्म', 'स्मार्ट कृषी व्यासपीठ'],
+  ['Modern Tools for', 'आधुनिक उपकरण', 'आधुनिक साधने'],
+  ['Smarter Farming', 'बेहतर खेती के लिए', 'स्मार्ट शेतीसाठी'],
+  ['Combining AI, sensors, and direct markets to help Indian farmers grow more, earn more, and waste less.', 'भारतीय किसानों को अधिक उगाने, अधिक कमाने और कम बर्बादी में मदद करने के लिए AI, सेंसर और सीधे बाज़ार।', 'भारतीय शेतकऱ्यांना अधिक उत्पादन, उत्पन्न आणि कमी अपव्ययासाठी AI, सेन्सर आणि थेट बाजारपेठेची मदत.'],
+  ['Smart Projects', 'स्मार्ट परियोजनाएँ', 'स्मार्ट प्रकल्प'],
+  ['Water Savings', 'पानी की बचत', 'पाण्याची बचत'],
+  ['Disease Accuracy', 'रोग पहचान सटीकता', 'रोग ओळख अचूकता'],
+  ['Middlemen', 'बिचौलिए', 'मध्यस्थ'],
+  ['Our Projects', 'हमारी परियोजनाएँ', 'आमचे प्रकल्प'],
+  ['4 Agriculture Solutions', 'खेती के 4 समाधान', 'शेतीसाठी ४ उपाय'],
+  ['Click any project to jump to the interactive demo.', 'इंटरैक्टिव डेमो देखने के लिए किसी परियोजना पर क्लिक करें।', 'इंटरॅक्टिव्ह डेमोसाठी कोणत्याही प्रकल्पावर क्लिक करा.'],
+  ['Crop Price Prediction', 'फसल भाव का अनुमान', 'पीक बाजारभावाचा अंदाज'],
+  ['Smart Irrigation', 'स्मार्ट सिंचाई', 'स्मार्ट सिंचन'],
+  ['Farmer Marketplace', 'किसान बाज़ार', 'शेतकरी बाजारपेठ'],
+  ['Admin console', 'प्रशासक पटल', 'प्रशासक पटल'],
+  ['Platform activity, users, marketplace listings, and orders.', 'प्लेटफ़ॉर्म गतिविधि, उपयोगकर्ता, बाज़ार सूची और ऑर्डर।', 'व्यासपीठावरील हालचाली, वापरकर्ते, बाजारातील यादी आणि ऑर्डर.'],
+  ['User accounts', 'उपयोगकर्ता खाते', 'वापरकर्ता खाती'],
+  ['Marketplace listings', 'बाज़ार सूची', 'बाजारातील उत्पादने'],
+  ['Marketplace orders', 'बाज़ार ऑर्डर', 'बाजारातील ऑर्डर'],
+  ['Farm Planner', 'खेत योजना', 'शेत नियोजन'],
+  ['Track plots, crop health, and daily work in one place.', 'खेत, फसल का स्वास्थ्य और रोज़ का काम एक जगह दर्ज करें।', 'शेत, पिकांचे आरोग्य आणि रोजचे काम एकाच ठिकाणी नोंदवा.'],
+  ['Upcoming task and harvest reminders', 'आने वाले काम और कटाई की याद दिलाएँ', 'आगामी कामे आणि कापणीच्या आठवणी'],
+  ['Overdue items and dates due within 14 days', 'बकाया काम और अगले 14 दिनों की तारीखें', 'थकीत कामे आणि पुढील १४ दिवसांतील तारखा'],
+  ['Loading reminders...', 'याद दिलाने वाली सूचनाएँ लोड हो रही हैं...', 'आठवणी लोड होत आहेत...'],
+  ['Add a field', 'खेत जोड़ें', 'शेत जोडा'],
+  ['Field name', 'खेत का नाम', 'शेताचे नाव'],
+  ['Choose a crop', 'फसल चुनें', 'पीक निवडा'],
+  ['Enter crop name', 'फसल का नाम लिखें', 'पिकाचे नाव लिहा'],
+  ['Growing season', 'फसल का मौसम', 'हंगाम'],
+  ['Kharif (monsoon)', 'खरीफ (मानसून)', 'खरीप (पावसाळा)'],
+  ['Rabi (winter)', 'रबी (सर्दी)', 'रब्बी (हिवाळा)'],
+  ['Zaid (summer)', 'ज़ायद (गर्मी)', 'उन्हाळी (उन्हाळा)'],
+  ['Perennial', 'बारहमासी', 'बहुवार्षिक'],
+  ['Other / not sure', 'अन्य / पता नहीं', 'इतर / खात्री नाही'],
+  ['Area acres', 'क्षेत्र (एकड़)', 'क्षेत्र (एकर)'],
+  ['Location', 'स्थान', 'ठिकाण'],
+  ['Field health', 'खेत का स्वास्थ्य', 'शेताचे आरोग्य'],
+  ['Healthy', 'स्वस्थ', 'निरोगी'],
+  ['Watch', 'निगरानी रखें', 'लक्ष ठेवा'],
+  ['At Risk', 'जोखिम में', 'धोक्यात'],
+  ['Save field', 'खेत सहेजें', 'शेत जतन करा'],
+  ['Add a task', 'काम जोड़ें', 'काम जोडा'],
+  ['Task title', 'काम का नाम', 'कामाचे नाव'],
+  ['High', 'उच्च', 'तातडीचे'],
+  ['Medium', 'मध्यम', 'मध्यम'],
+  ['Low', 'कम', 'कमी'],
+  ['Pending', 'बाकी', 'प्रलंबित'],
+  ['In Progress', 'काम जारी है', 'काम सुरू आहे'],
+  ['Done', 'पूरा', 'पूर्ण'],
+  ['Notes', 'टिप्पणियाँ', 'नोंदी'],
+  ['Save task', 'काम सहेजें', 'काम जतन करा'],
+  ['Record a crop cycle', 'फसल चक्र दर्ज करें', 'पीक चक्र नोंदवा'],
+  ['Crop and harvest ledger', 'फसल और कटाई का लेखा', 'पीक आणि कापणी नोंदवही'],
+  ['Seasonal crop calendar', 'मौसमी फसल कैलेंडर', 'हंगामी पीक दिनदर्शिका'],
+  ['7-day village weather', 'गाँव का 7-दिन का मौसम', 'गावाचा ७ दिवसांचा हवामान अंदाज'],
+  ['Forecast and practical weather alerts for your village or nearby town.', 'आपके गाँव या पास के शहर का मौसम और उपयोगी चेतावनियाँ।', 'तुमच्या गावातील किंवा जवळच्या शहरातील हवामानाचा अंदाज आणि सूचना.'],
+  ['Village or town', 'गाँव या शहर', 'गाव किंवा शहर'],
+  ['Show 7-day forecast', '7-दिन का मौसम दिखाएँ', '७ दिवसांचा अंदाज दाखवा'],
+  ['📍 Use my location', '📍 मेरा स्थान उपयोग करें', '📍 माझे स्थान वापरा'],
+  ['🎙️ Speak', '🎙️ बोलें', '🎙️ बोला'],
+  ['Government scheme guide', 'सरकारी योजना मार्गदर्शिका', 'शासकीय योजना मार्गदर्शक'],
+  ['Farm calculators', 'खेती के कैलकुलेटर', 'शेतीसाठी गणक'],
+  ['Crop Market Prices', 'फसल बाज़ार भाव', 'पीक बाजारभाव'],
+  ['Source-dated mandi observations and a transparent trend estimate', 'स्रोत और तारीख सहित मंडी भाव तथा स्पष्ट रुझान अनुमान', 'स्रोत व दिनांकासह बाजारभाव आणि पारदर्शक कल अंदाज'],
+  ['Market / mandi', 'बाज़ार / मंडी', 'बाजार / मंडई'],
+  ['Price (₹ per quintal)', 'भाव (₹ प्रति क्विंटल)', 'भाव (₹ प्रति क्विंटल)'],
+  ['Reported date', 'रिपोर्ट की तारीख', 'नोंदवलेली तारीख'],
+  ['Source', 'स्रोत', 'स्रोत'],
+  ['＋ Add observation', '＋ भाव जोड़ें', '＋ बाजारभाव नोंदवा'],
+  ['↻ Refresh', '↻ रीफ़्रेश', '↻ रीफ्रेश'],
+  ['Auto-refresh', 'अपने आप रीफ़्रेश', 'स्वयंचलित रीफ्रेश'],
+  ['Cotton', 'कपास', 'कापूस'],
+  ['Soybean', 'सोयाबीन', 'सोयाबीन'],
+  ['Wheat', 'गेहूँ', 'गहू'],
+  ['Crop', 'फसल', 'पीक'],
+  ['Current (₹/q)', 'वर्तमान (₹/क्विंटल)', 'सध्याचा भाव (₹/क्विंटल)'],
+  ['Last Month', 'पिछला महीना', 'मागील महिना'],
+  ['Forecast (30d)', 'अनुमान (30 दिन)', 'अंदाज (३० दिवस)'],
+  ['Trend', 'रुझान', 'कल'],
+  ['Smart Irrigation System', 'स्मार्ट सिंचाई प्रणाली', 'स्मार्ट सिंचन प्रणाली'],
+  ['Real-time soil sensor data with automatic water control', 'मिट्टी सेंसर से वास्तविक समय का डेटा और स्वचालित जल नियंत्रण', 'मातीच्या सेन्सरचा रिअल-टाइम डेटा आणि स्वयंचलित पाणी नियंत्रण'],
+  ['Soil Moisture', 'मिट्टी की नमी', 'मातीतील ओलावा'],
+  ['Temperature', 'तापमान', 'तापमान'],
+  ['Sunlight', 'धूप', 'सूर्यप्रकाश'],
+  ['Rainfall Today', 'आज की बारिश', 'आजचा पाऊस'],
+  ['Moisture threshold — trigger irrigation below:', 'नमी सीमा — इससे नीचे सिंचाई शुरू करें:', 'ओलाव्याची मर्यादा — याखाली सिंचन सुरू करा:'],
+  ['Water flow rate:', 'पानी का प्रवाह:', 'पाण्याचा प्रवाह:'],
+  ['⏸ Turn OFF Irrigation', '⏸ सिंचाई बंद करें', '⏸ सिंचन बंद करा'],
+  ['▶ Turn ON Irrigation', '▶ सिंचाई चालू करें', '▶ सिंचन सुरू करा'],
+  ['🔄 Refresh Sensor Data', '🔄 सेंसर डेटा रीफ़्रेश करें', '🔄 सेन्सर डेटा रीफ्रेश करा'],
+  ['Farmer Marketplace', 'किसान बाज़ार', 'शेतकरी बाजारपेठ'],
+  ['Buy directly from local farmers — fresh, fair price, no middlemen', 'स्थानीय किसानों से सीधे खरीदें — ताज़ा, उचित भाव, बिना बिचौलियों के', 'स्थानिक शेतकऱ्यांकडून थेट खरेदी — ताजे उत्पादन, योग्य भाव, मध्यस्थ नाहीत'],
+  ['List a product', 'उत्पाद सूचीबद्ध करें', 'उत्पादनाची नोंद करा'],
+  ['Product name', 'उत्पाद का नाम', 'उत्पादनाचे नाव'],
+  ['Category', 'श्रेणी', 'प्रकार'],
+  ['Price (₹)', 'भाव (₹)', 'किंमत (₹)'],
+  ['Unit', 'इकाई', 'एकक'],
+  ['Stock quantity', 'स्टॉक की मात्रा', 'साठ्याचे प्रमाण'],
+  ['Save listing', 'सूची सहेजें', 'यादी जतन करा'],
+  ['All Products', 'सभी उत्पाद', 'सर्व उत्पादने'],
+  ['🌾 Grains', '🌾 अनाज', '🌾 धान्य'],
+  ['🥦 Vegetables', '🥦 सब्ज़ियाँ', '🥦 भाज्या'],
+  ['🍎 Fruits', '🍎 फल', '🍎 फळे'],
+  ['🫘 Pulses', '🫘 दालें', '🫘 कडधान्ये'],
+  ['Clear', 'खाली करें', 'रिकामे करा'],
+  ['Place order', 'ऑर्डर करें', 'ऑर्डर द्या'],
+  ['My orders', 'मेरे ऑर्डर', 'माझ्या ऑर्डर'],
+  ['PM-KISAN', 'PM-KISAN', 'PM-KISAN'],
+  ['Crop insurance (PMFBY)', 'फसल बीमा (PMFBY)', 'पीक विमा (PMFBY)'],
+  ['Kisan Credit Card', 'किसान क्रेडिट कार्ड', 'किसान क्रेडिट कार्ड'],
+  ['Soil Health Card', 'मृदा स्वास्थ्य कार्ड', 'मृदा आरोग्य पत्रिका'],
+  ['Crop profit and loss', 'फसल का लाभ और नुकसान', 'पिकाचा नफा आणि तोटा'],
+  ['Seed and fertilizer quantity', 'बीज और खाद की मात्रा', 'बियाणे आणि खताचे प्रमाण'],
+  ['Irrigation water estimate', 'सिंचाई के पानी का अनुमान', 'सिंचनाच्या पाण्याचा अंदाज'],
+  ['Loan EMI estimate', 'ऋण EMI का अनुमान', 'कर्जाच्या EMI चा अंदाज'],
+  ['Total crop costs (₹)', 'फसल की कुल लागत (₹)', 'पिकाचा एकूण खर्च (₹)'],
+  ['Harvest quantity (kg)', 'कटाई की मात्रा (किलो)', 'कापणीचे प्रमाण (किलो)'],
+  ['Sale price (₹ per kg)', 'बिक्री भाव (₹ प्रति किलो)', 'विक्री किंमत (₹ प्रति किलो)'],
+  ['Calculate crop result', 'फसल का हिसाब करें', 'पिकाचा हिशेब करा'],
+  ['Area (acres)', 'क्षेत्र (एकड़)', 'क्षेत्र (एकर)'],
+  ['Seed rate (kg per acre)', 'बीज दर (किलो प्रति एकड़)', 'बियाणे दर (किलो प्रति एकर)'],
+  ['Fertilizer rate (kg per acre)', 'खाद दर (किलो प्रति एकड़)', 'खताचा दर (किलो प्रति एकर)'],
+  ['Calculate quantities', 'मात्रा की गणना करें', 'प्रमाण मोजा'],
+  ['Water depth (mm)', 'पानी की गहराई (मिमी)', 'पाण्याची खोली (मिमी)'],
+  ['Estimate water volume', 'पानी की मात्रा का अनुमान', 'पाण्याच्या प्रमाणाचा अंदाज'],
+  ['Loan amount (₹)', 'ऋण राशि (₹)', 'कर्जाची रक्कम (₹)'],
+  ['Annual interest rate (%)', 'वार्षिक ब्याज दर (%)', 'वार्षिक व्याजदर (%)'],
+  ['Repayment period (months)', 'चुकौती अवधि (महीने)', 'परतफेडीचा कालावधी (महिने)'],
+  ['Estimate monthly EMI', 'मासिक EMI का अनुमान', 'मासिक EMI चा अंदाज'],
+  ['Farm diary and season report', 'खेत डायरी और मौसम रिपोर्ट', 'शेत डायरी आणि हंगाम अहवाल'],
+  ['FarmScan AI Disease Detection', 'FarmScan AI रोग पहचान', 'FarmScan AI रोग ओळख'],
+  ['Crop scanning, treatment guidance, weather risk, and farming advice', 'फसल की जाँच, उपचार मार्गदर्शन, मौसम जोखिम और खेती की सलाह', 'पीक तपासणी, उपचार मार्गदर्शन, हवामानाचा धोका आणि शेतीविषयक सल्ला'],
+  ['High', 'अधिकतम', 'कमाल'],
+  ['Low', 'न्यूनतम', 'किमान'],
+  ['Rain', 'बारिश', 'पाऊस'],
+  ['chance', 'संभावना', 'शक्यता'],
+  ['Wind', 'हवा', 'वारा'],
+  ['Forecast for', 'मौसम का पूर्वानुमान', 'हवामानाचा अंदाज'],
+  ['Forecast loaded.', 'मौसम पूर्वानुमान लोड हो गया।', 'हवामानाचा अंदाज लोड झाला.'],
+  ['Loading forecast…', 'मौसम पूर्वानुमान लोड हो रहा है…', 'हवामानाचा अंदाज लोड होत आहे…'],
+  ['Enter a village or town name first.', 'पहले गाँव या शहर का नाम लिखें।', 'आधी गाव किंवा शहराचे नाव लिहा.'],
+  ['Location is not supported in this browser. Type your village or town instead.', 'यह ब्राउज़र स्थान सुविधा का समर्थन नहीं करता। अपना गाँव या शहर लिखें।', 'या ब्राउझरमध्ये स्थान सुविधा उपलब्ध नाही. गाव किंवा शहराचे नाव लिहा.'],
+  ['Location permission was not allowed. Type your village or town instead.', 'स्थान की अनुमति नहीं मिली। अपना गाँव या शहर लिखें।', 'स्थानाची परवानगी मिळाली नाही. गाव किंवा शहराचे नाव लिहा.'],
+  ['Could not determine your location. Check device location settings or type your village.', 'आपका स्थान नहीं मिल सका। डिवाइस की स्थान सेटिंग जाँचें या गाँव का नाम लिखें।', 'तुमचे स्थान मिळाले नाही. डिव्हाइसची स्थान सेटिंग तपासा किंवा गावाचे नाव लिहा.'],
+  ['Location lookup timed out. Please try again or type your village.', 'स्थान खोजने में समय समाप्त हुआ। फिर कोशिश करें या गाँव का नाम लिखें।', 'स्थान शोधण्याची वेळ संपली. पुन्हा प्रयत्न करा किंवा गावाचे नाव लिहा.'],
+  ['Could not get your location. Please type your village or town.', 'आपका स्थान नहीं मिल सका। अपना गाँव या शहर लिखें।', 'तुमचे स्थान मिळाले नाही. गाव किंवा शहराचे नाव लिहा.'],
+  ['Waiting for location permission…', 'स्थान की अनुमति की प्रतीक्षा हो रही है…', 'स्थान परवानगीची प्रतीक्षा करत आहे…'],
+  ['No rule-based alerts in this forecast. Continue checking local advisories.', 'इस पूर्वानुमान में कोई नियम-आधारित चेतावनी नहीं है। स्थानीय सूचनाएँ देखते रहें।', 'या अंदाजात नियमाधारित सूचना नाहीत. स्थानिक सूचना तपासत राहा.'],
+  ['Heavy rain possible', 'भारी बारिश की संभावना', 'मुसळधार पावसाची शक्यता'],
+  ['Thunderstorm forecast', 'आंधी-तूफ़ान का पूर्वानुमान', 'वादळाचा अंदाज'],
+  ['Cold conditions possible', 'ठंड पड़ने की संभावना', 'थंडीची शक्यता'],
+  ['Little or no rain forecast', 'कम या बिल्कुल बारिश नहीं होने का अनुमान', 'कमी किंवा पाऊस नसण्याचा अंदाज'],
+  ['No products in this category yet.', 'इस श्रेणी में अभी उत्पाद नहीं हैं।', 'या प्रकारात सध्या उत्पादने नाहीत.'],
+  ['No marketplace products are available.', 'बाज़ार में अभी उत्पाद उपलब्ध नहीं हैं।', 'बाजारात सध्या उत्पादने उपलब्ध नाहीत.'],
+  ['Add verified market observations to build a price history.', 'भाव का इतिहास बनाने के लिए सत्यापित बाज़ार भाव जोड़ें।', 'बाजारभावाचा इतिहास तयार करण्यासाठी पडताळलेले भाव नोंदवा.'],
+  ['Not refreshed yet', 'अभी रीफ़्रेश नहीं हुआ', 'अद्याप रीफ्रेश झालेले नाही'],
+  ['No fields yet. Add your first field to begin planning.', 'अभी खेत नहीं हैं। योजना शुरू करने के लिए पहला खेत जोड़ें।', 'अद्याप शेत नाही. नियोजन सुरू करण्यासाठी पहिले शेत जोडा.'],
+  ['No tasks scheduled. Add irrigation, spraying, or harvest tasks here.', 'कोई काम तय नहीं है। सिंचाई, छिड़काव या कटाई के काम यहाँ जोड़ें।', 'काम नियोजित नाही. सिंचन, फवारणी किंवा कापणीची कामे येथे जोडा.'],
+  ['No crop cycles recorded yet.', 'अभी फसल चक्र दर्ज नहीं है।', 'अद्याप पीक चक्र नोंदवलेले नाही.'],
+  ['No fields yet', 'अभी खेत नहीं हैं', 'अद्याप शेत नाही'],
+  ['Add a field first', 'पहले खेत जोड़ें', 'आधी शेत जोडा'],
+  ['Create a field to receive seasonal guidance and irrigation reminders.', 'मौसमी सलाह और सिंचाई की याद पाने के लिए खेत बनाएँ।', 'हंगामी सल्ला आणि सिंचनाच्या आठवणी मिळवण्यासाठी शेत तयार करा.'],
+  ['Create a field to begin moisture monitoring.', 'नमी की निगरानी शुरू करने के लिए खेत बनाएँ।', 'ओलावा निरीक्षण सुरू करण्यासाठी शेत तयार करा.'],
+  ['Unable to load farm planner.', 'खेत योजना लोड नहीं हो सकी।', 'शेत नियोजन लोड करता आले नाही.'],
+  ['Unable to load farm tasks.', 'खेत के काम लोड नहीं हो सके।', 'शेतातील कामे लोड करता आली नाहीत.'],
+  ['Seasonal advice unavailable right now.', 'मौसमी सलाह अभी उपलब्ध नहीं है।', 'हंगामी सल्ला सध्या उपलब्ध नाही.'],
+  ['Crop records are unavailable.', 'फसल के रिकॉर्ड उपलब्ध नहीं हैं।', 'पीक नोंदी उपलब्ध नाहीत.'],
+  ['Loading farmer requests...', 'किसानों की ज़रूरतें लोड हो रही हैं...', 'शेतकऱ्यांच्या गरजा लोड होत आहेत...'],
+  ['No active farmer requests right now.', 'अभी किसानों की कोई सक्रिय ज़रूरत नहीं है।', 'सध्या शेतकऱ्यांच्या सक्रिय गरजा नाहीत.'],
+  ['Loading marketplace listings...', 'बाज़ार सूची लोड हो रही है...', 'बाजारातील यादी लोड होत आहे...'],
+  ['Loading orders...', 'ऑर्डर लोड हो रहे हैं...', 'ऑर्डर लोड होत आहेत...'],
+  ['Loading your orders...', 'आपके ऑर्डर लोड हो रहे हैं...', 'तुमचे ऑर्डर लोड होत आहेत.'],
+  ['AI Detection', 'AI पहचान', 'AI ओळख'],
+  ['Medicine Guide', 'दवा मार्गदर्शिका', 'औषध मार्गदर्शक'],
+  ['Spread Risk', 'फैलाव का जोखिम', 'प्रसाराचा धोका'],
+  ['Cost Estimate', 'लागत का अनुमान', 'खर्चाचा अंदाज'],
+  ['5 Languages', '5 भाषाएँ', '५ भाषा'],
+  ['Detect Crop Disease', 'फसल का रोग पहचानें', 'पिकाचा रोग ओळखा'],
+  ['Instantly', 'तुरंत', 'त्वरित'],
+  ['Photo Upload', 'फ़ोटो अपलोड', 'फोटो अपलोड'],
+  ['Scan Crop', 'फसल जाँचें', 'पीक तपासा'],
+  ['AI Advisor', 'AI सलाहकार', 'AI सल्लागार'],
+  ['Scan History', 'जाँच इतिहास', 'तपासणी इतिहास'],
+  ['Weather Risk', 'मौसम का जोखिम', 'हवामानाचा धोका'],
+  ['Crop Calendar', 'फसल कैलेंडर', 'पीक दिनदर्शिका'],
+  ['Learn & Tips', 'सीखें और सुझाव', 'शिका आणि टिप्स'],
+  ['Sales estimate:', 'बिक्री का अनुमान:', 'विक्रीचा अंदाज:'],
+  ['Net ', 'शुद्ध ', 'निव्वळ '],
+  ['surplus', 'बचत', 'शिल्लक'],
+  ['loss', 'नुकसान', 'तोटा'],
+  ['Estimated seed:', 'अनुमानित बीज:', 'अंदाजे बियाणे:'],
+  ['Fertilizer:', 'खाद:', 'खत:'],
+  ['Verify both rates locally before buying.', 'खरीदने से पहले दोनों दरों की स्थानीय स्तर पर पुष्टि करें।', 'खरेदीपूर्वी दोन्ही दरांची स्थानिक पातळीवर खात्री करा.'],
+  ['Estimated volume:', 'अनुमानित मात्रा:', 'अंदाजे पाणी:'],
+  ['before runoff and application losses.', 'बहाव और उपयोग की हानि से पहले।', 'वाहून जाणारे आणि वापरातील नुकसान वगळून.'],
+  ['Estimated monthly EMI:', 'अनुमानित मासिक EMI:', 'अंदाजे मासिक EMI:'],
+  ['Total repayment:', 'कुल चुकौती:', 'एकूण परतफेड:'],
+  ["Check the lender's final schedule and fees.", 'ऋणदाता की अंतिम योजना और शुल्क जाँचें।', 'कर्जदात्याचे अंतिम वेळापत्रक आणि शुल्क तपासा.']
+];
+
+const dashboardPhraseTranslations = {
+  Hindi: Object.fromEntries(dashboardPhraseRows.map(([english, hindi]) => [english, hindi])),
+  Marathi: Object.fromEntries(dashboardPhraseRows.map(([english, hindi, marathi]) => [english, marathi]))
+};
+const localizedTextNodes = new WeakMap();
+const localizedAttributes = new WeakMap();
+
+function translateDashboardPhrase(value) {
+  const source = String(value);
+  const phrases = dashboardPhraseTranslations[window.dashboardLanguage];
+  if (!phrases) return source;
+  const trimmed = source.trim();
+  if (phrases[trimmed]) return source.replace(trimmed, phrases[trimmed]);
+  return Object.entries(phrases)
+    .sort(([first], [second]) => second.length - first.length)
+    .reduce((translated, [english, localized]) => translated.split(english).join(localized), source);
+}
+
+function localizeTextNode(node) {
+  const current = node.data;
+  let state = localizedTextNodes.get(node);
+  if (!state || current !== state.rendered) state = {source: current, rendered: current};
+  const localized = translateDashboardPhrase(state.source);
+  if (localized !== current) node.data = localized;
+  state.rendered = localized;
+  localizedTextNodes.set(node, state);
+}
+
+function localizeElement(element) {
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    if (!node.parentElement.closest('script, style, noscript')) localizeTextNode(node);
+  }
+  const attributes = ['placeholder', 'aria-label', 'title'];
+  const elements = element.nodeType === Node.ELEMENT_NODE
+    ? [element, ...element.querySelectorAll('*')]
+    : [];
+  elements.forEach(child => {
+    for (const attribute of attributes) {
+      if (!child.hasAttribute(attribute)) continue;
+      let state = localizedAttributes.get(child);
+      if (!state) {
+        state = new Map();
+        localizedAttributes.set(child, state);
+      }
+      const current = child.getAttribute(attribute);
+      const previous = state.get(attribute);
+      const source = previous && current === previous.rendered ? previous.source : current;
+      const localized = translateDashboardPhrase(source);
+      if (localized !== current) child.setAttribute(attribute, localized);
+      state.set(attribute, {source, rendered: localized});
+    }
+  });
+}
+
+function applyDashboardInterfaceTranslations() {
+  localizeElement(document.body);
+  if (!window.dashboardLocalizationObserver) {
+    window.dashboardLocalizationObserver = new MutationObserver(records => {
+      for (const record of records) {
+        if (record.type === 'characterData') {
+          localizeTextNode(record.target);
+        } else if (record.type === 'attributes') {
+          localizeElement(record.target);
+        } else {
+          record.addedNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) localizeTextNode(node);
+            else if (node.nodeType === Node.ELEMENT_NODE) localizeElement(node);
+          });
+        }
+      }
+    });
+    window.dashboardLocalizationObserver.observe(document.body, {
+      childList: true, characterData: true, attributes: true,
+      attributeFilter: ['placeholder', 'aria-label', 'title'], subtree: true
+    });
+  }
+}
+
 function dashboardText(key) {
   return dashboardTranslations[window.dashboardLanguage]?.[key]
     || dashboardTranslations.English[key]
@@ -1081,12 +1371,18 @@ function dashboardText(key) {
 
 function applyDashboardLanguage(language) {
   window.dashboardLanguage = dashboardTranslations[language] ? language : 'English';
+  document.documentElement.lang = {English:'en', Hindi:'hi', Marathi:'mr', Telugu:'te', Tamil:'ta'}[window.dashboardLanguage] || 'en';
   document.querySelectorAll('[data-i18n]').forEach(element => {
     element.textContent = dashboardText(element.dataset.i18n);
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
     element.placeholder = dashboardText(element.dataset.i18nPlaceholder);
   });
+  applyDashboardInterfaceTranslations();
+  const scannerLanguage = {English:'en', Hindi:'hi', Marathi:'mr', Telugu:'te', Tamil:'ta'}[window.dashboardLanguage];
+  if (scannerLanguage && typeof window.setFarmScanLanguage === 'function') {
+    window.setFarmScanLanguage(scannerLanguage);
+  }
   updateNeedStatusLabel();
   renderNeedsBoard();
   renderNeedInbox();

@@ -562,7 +562,7 @@ const labels = {
   ta: { heroSub:"பயிர் படத்தை பதிவேற்றவும், உடனடி AI கண்டறிவு பெறவும்।", uploadTitle:"இங்கே பயிர் படம் போடுங்கள்", uploadSub:"JPG, PNG, WEBP — 10MB", langLabel:"பதில் மொழி", cropLabel:"பயிர் வகை", browseBtn:"கோப்பு தேர்வு", analyzeBtn:"🔬 பயிரை பகுப்பாய்வு", loadingTitle:"ஆய்வு செய்கிறோம்...", loadingSub:"AI சோதிக்கிறது", transNote:"தேர்ந்த மொழியில்" }
 };
 
-function setLang(code, btn) {
+function setLang(code, btn, syncDashboard = true) {
   currentLang = code;
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -577,7 +577,15 @@ function setLang(code, btn) {
   document.getElementById('loading-sub').textContent = l.loadingSub;
   const map = {en:'English',hi:'Hindi',mr:'Marathi',te:'Telugu',ta:'Tamil'};
   document.getElementById('lang-select').value = map[code];
+  if (syncDashboard && typeof window.applyDashboardLanguage === 'function') {
+    window.applyDashboardLanguage(map[code]);
+  }
 }
+
+window.setFarmScanLanguage = code => {
+  const button = document.querySelector(`.lang-btn[onclick="setLang('${code}',this)"]`);
+  if (button) setLang(code, button, false);
+};
 
 // ============================================================
 // FILE HANDLING
