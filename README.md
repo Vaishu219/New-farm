@@ -31,7 +31,24 @@ Do not open the HTML files directly from Explorer. The database-backed features 
 
 The app also works without an API key, but AI-powered scanning, chat, and weather estimates return a setup message until a key is configured. Gemini is selected when `GEMINI_API_KEY` is set; otherwise the server uses `ANTHROPIC_API_KEY`. Requests go through the local backend; keys are never sent to the browser.
 
-## Deploy a Public Demo on Render
+## Deploy a Public Demo on Railway
+
+The frontend and API are served by the same FastAPI service, so Railway provides one public URL; separate frontend hosting and CORS configuration are not needed. `railway.json` configures the Python build, app start command, and `/api/health` health check. SQLite and uploaded scan images must live on a Railway persistent volume because the service filesystem is not durable across deployments.
+
+1. In Railway, create a project and choose **Deploy from GitHub repo**. Connect GitHub if prompted, then select `Vaishu219/New-farm`.
+2. In the service's **Volumes** settings, add a persistent volume mounted at `/data`.
+3. In the service's **Variables** settings, add:
+   - `DATABASE_PATH=/data/farm_scans.sqlite3`
+   - `COOKIE_SECURE=true`
+   - `ADMIN_EMAIL` and `ADMIN_PASSWORD` with your desired administrator credentials
+   - `GEMINI_API_KEY` with your private Gemini API key if you want AI scanning/chat
+   - Optionally set `GEMINI_MODEL=gemini-2.5-flash`
+4. Deploy the service. `railway.json` supplies the start and health-check settings. In **Networking** / **Settings**, generate a public domain, then open that domain and create a farmer/customer account.
+5. Keep the admin credentials available until the app has started successfully and provisioned the admin account. On subsequent starts, an existing account at `ADMIN_EMAIL` is promoted to admin; its password is not reset.
+
+Enter secrets only in Railway's private Variables interface—never commit them to GitHub. A public URL means anyone can access the demo; do not enter sensitive or real farm/customer data. A volume preserves data, but is not a backup. Configure email delivery and review backups, request limits, and deployment security before production use.
+
+## Alternate: Deploy a Public Demo on Render
 
 The frontend and API are served by the same FastAPI service, so the app uses one public URL and does not need separate frontend hosting or CORS configuration. The checked-in `render.yaml` configures a Render web service, HTTPS-only session cookies, and a persistent disk for SQLite and uploaded scan images. The `starter` instance and persistent disk are paid Render resources; do not remove the disk if you need the database and uploads to persist.
 
