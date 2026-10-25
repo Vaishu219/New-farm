@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriSmart — Agriculture Projects</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --green-50: #EAF3DE;
+    --green-100: #C0DD97;
+    --green-400: #639922;
+    --green-600: #3B6D11;
+    --green-800: #27500A;
+    --amber-50: #FAEEDA;
+    --amber-100: #FAC775;
+    --amber-400: #BA7517;
+    --amber-600: #854F0B;
+    --teal-50: #E1F5EE;
+    --teal-400: #1D9E75;
+    --teal-600: #0F6E56;
+    --blue-50: #E6F1FB;
+    --blue-400: #378ADD;
+    --blue-600: #185FA5;
+    --gray-50: #F1EFE8;
+    --gray-100: #D3D1C7;
+    --gray-400: #888780;
+    --gray-600: #5F5E5A;
+    --gray-800: #444441;
+    --coral-50: #FAECE7;
+    --coral-400: #D85A30;
+    --coral-600: #993C1D;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f7f6f2;
+    color: #1a1a18;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-100);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 1.2rem; color: var(--green-600);
+  }
+  .nav-brand .leaf { font-size: 1.5rem; }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    text-decoration: none; font-size: 0.88rem; color: var(--gray-600);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--green-600); }
+  .account-menu { display:flex; align-items:center; gap:10px; margin-left:1rem; }
+  .account-name { color:var(--green-600); font-size:.8rem; font-weight:700; max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .logout-btn { border:1px solid var(--gray-100); border-radius:7px; padding:6px 10px; color:var(--gray-600); background:#fff; font:inherit; font-size:.75rem; cursor:pointer; }
+  .logout-btn:hover { border-color:var(--green-400); color:var(--green-600); }
+  .role-hidden { display:none !important; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #2d5a1b 0%, #3B6D11 50%, #639922 100%);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-tag {
+    display: inline-block; background: rgba(255,255,255,0.15);
+    color: #d4edb8; font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 20px; margin-bottom: 1.2rem;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800;
+    color: #fff; line-height: 1.15; margin-bottom: 1rem;
+  }
+  .hero h1 span { color: #a8d96c; }
+  .hero p { color: rgba(255,255,255,0.8); font-size: 1.05rem; max-width: 560px; margin: 0 auto 2rem; }
+  .hero-stats {
+    display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+    margin-top: 2.5rem;
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat .num { font-size: 2rem; font-weight: 700; color: #a8d96c; }
+  .hero-stat .lbl { font-size: 0.78rem; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+  /* SECTION */
+  section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--green-400); margin-bottom: 0.5rem;
+  }
+  .section-label .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--green-400);
+  }
+  .section-title { font-size: 1.7rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .section-sub { color: var(--gray-600); margin-bottom: 2.5rem; font-size: 0.95rem; }
+
+  /* PROJECT CARDS */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+  .proj-card {
+    background: #fff;
+    border: 1px solid var(--gray-100);
+    border-radius: 14px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    text-decoration: none; color: inherit;
+  }
+  .proj-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.09);
+    border-color: var(--green-100);
+  }
+  .proj-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 1rem;
+  }
+  .proj-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .proj-card p { font-size: 0.85rem; color: var(--gray-600); line-height: 1.5; margin-bottom: 1rem; }
+  .proj-tag {
+    display: inline-block; font-size: 0.72rem; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+  }
+
+  /* FEATURE SECTIONS */
+  .feature-section {
+    background: #fff; border: 1px solid var(--gray-100);
+    border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem;
+    scroll-margin-top: 80px;
+  }
+  .feature-header {
+    display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 2rem;
+  }
+  .feature-icon {
+    width: 54px; height: 54px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+  }
+  .feature-header h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .feature-header p { font-size: 0.9rem; color: var(--gray-600); }
+
+  /* PRICE PREDICTION */
+  #price-prediction .chart-area {
+    background: var(--gray-50); border-radius: 12px;
+    padding: 1.5rem; margin-bottom: 1.5rem; overflow: hidden;
+  }
+  .chart-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+  }
+  .chart-header h4 { font-size: 0.9rem; font-weight: 600; }
+  .legend { display: flex; gap: 1rem; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--gray-600); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .price-table {
+    width: 100%; border-collapse: collapse; font-size: 0.88rem;
+  }
+  .price-table th {
+    text-align: left; padding: 10px 12px; background: var(--gray-50);
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--gray-600); border-bottom: 1px solid var(--gray-100);
+  }
+  .price-table td { padding: 10px 12px; border-bottom: 1px solid #f4f3ef; }
+  .price-table tr:last-child td { border-bottom: none; }
+  .price-entry { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; align-items: end; margin-bottom: 1.2rem; }
+  .price-entry label { display: block; margin-bottom: 5px; font-size: 0.75rem; font-weight: 600; color: var(--gray-600); }
+  .price-entry input { width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid var(--gray-100); border-radius: 6px; font: inherit; font-size: 0.85rem; }
+  .price-entry button { min-height: 38px; border: 0; border-radius: 6px; padding: 8px 14px; background: var(--green-600); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  .price-note { margin: -0.6rem 0 1.2rem; color: var(--gray-600); font-size: 0.78rem; }
+  .price-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 0.8rem; color: var(--gray-600); font-size: 0.82rem; }
+  .price-controls button, .price-controls select { min-height: 34px; padding: 6px 10px; border: 1px solid var(--gray-100); border-radius: 6px; background: #fff; color: inherit; font: inherit; }
+  .price-controls button { cursor: pointer; color: var(--green-600); font-weight: 600; }
+  .price-controls label { display: inline-flex; align-items: center; gap: 5px; }
+  #price-updated { margin-left: auto; }
+  .badge-up { background: var(--green-50); color: var(--green-600); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .badge-dn { background: var(--coral-50); color: var(--coral-600); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .badge-stbl { background: var(--amber-50); color: var(--amber-600); padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .crop-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .crop-btn {
+    border: 1px solid var(--gray-100); background: #fff;
+    padding: 6px 16px; border-radius: 20px; font-size: 0.82rem;
+    cursor: pointer; transition: all 0.15s; font-weight: 500;
+  }
+  .crop-btn.active { background: var(--green-600); color: #fff; border-color: var(--green-600); }
+  .crop-btn:hover:not(.active) { border-color: var(--green-400); color: var(--green-600); }
+
+  /* IRRIGATION */
+  .sensor-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .sensor-card {
+    background: var(--gray-50); border-radius: 12px; padding: 1rem; text-align: center;
+  }
+  .sensor-card .sensor-val { font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0 0.2rem; }
+  .sensor-card .sensor-lbl { font-size: 0.75rem; color: var(--gray-600); }
+  .sensor-card .sensor-icon { font-size: 1.5rem; }
+  .irrigation-status {
+    display: flex; align-items: center; gap: 1rem;
+    background: var(--green-50); border-radius: 12px; padding: 1.2rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .status-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.on { background: var(--green-400); box-shadow: 0 0 0 3px rgba(99,153,34,0.25); animation: pulse 1.5s infinite; }
+  .status-dot.off { background: var(--gray-400); }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(99,153,34,0.25)} 50%{box-shadow:0 0 0 6px rgba(99,153,34,0.1)} }
+  .water-slider-wrap { margin-bottom: 1rem; }
+  .water-slider-wrap label { font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; display: block; color: var(--gray-800); }
+  input[type=range].water {
+    width: 100%; accent-color: var(--teal-400); height: 6px;
+  }
+  .slider-row { display: flex; align-items: center; gap: 1rem; }
+  .slider-row input { flex: 1; }
+  .slider-val { font-size: 0.9rem; font-weight: 700; color: var(--teal-600); min-width: 40px; text-align: right; }
+  .toggle-btn {
+    padding: 10px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s;
+  }
+  .toggle-btn.on { background: var(--green-600); color: #fff; }
+  .toggle-btn.off { background: var(--coral-50); color: var(--coral-600); border: 1px solid var(--coral-400); }
+
+  /* MARKETPLACE */
+  .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .product-card { background: var(--gray-50); border-radius: 12px; overflow: hidden; border: 1px solid var(--gray-100); transition: transform 0.2s; cursor: pointer; }
+  .product-card:hover { transform: translateY(-2px); }
+  .product-img { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+  .product-info { padding: 0.8rem; }
+  .product-info h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 2px; }
+  .product-info .farmer { font-size: 0.75rem; color: var(--gray-600); margin-bottom: 6px; }
+  .product-info .price { font-size: 1rem; font-weight: 700; color: var(--green-600); }
+  .product-info .unit { font-size: 0.72rem; color: var(--gray-400); }
+  .add-to-cart {
+    width: 100%; background: var(--green-600); color: #fff;
+    border: none; padding: 7px; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: background 0.2s; border-radius: 0 0 12px 12px;
+  }
+  .add-to-cart:hover { background: var(--green-800); }
+  .market-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .filter-btn { border: 1px solid var(--gray-100); background: #fff; padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+  .filter-btn.active { background: var(--amber-400); color: #fff; border-color: var(--amber-400); }
+  .cart-bar {
+    background: var(--green-600); color: #fff; border-radius: 12px;
+    padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+  }
+  .cart-bar span { font-size: 0.9rem; }
+  .cart-bar .cart-total { font-size: 1.1rem; font-weight: 700; }
+  .market-listing-form { border: 1px solid var(--gray-100); border-radius: 10px; padding: 1rem; margin-bottom: 1.2rem; }
+  .market-listing-form h3, .market-orders h3 { font-size: 0.95rem; margin-bottom: 0.8rem; }
+  .market-listing-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); align-items: end; gap: 0.7rem; }
+  .market-listing-fields label { display: grid; gap: 4px; font-size: 0.75rem; color: var(--gray-600); }
+  .market-listing-fields input, .market-listing-fields select { width: 100%; min-height: 36px; padding: 6px 8px; border: 1px solid var(--gray-100); border-radius: 6px; font: inherit; }
+  .market-listing-fields button, .cart-actions button { min-height: 36px; padding: 7px 12px; border: 0; border-radius: 6px; background: var(--green-600); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  .market-listing-form p, .market-note, #market-status { margin-top: 0.6rem; color: var(--gray-600); font-size: 0.78rem; }
+  .cart-actions { display: flex; gap: 8px; }
+  .cart-actions button:first-child { background: transparent; border: 1px solid rgba(255,255,255,.65); }
+  .market-orders { margin-top: 1.5rem; }
+  .market-order { border-top: 1px solid var(--gray-100); padding: 0.75rem 0; font-size: 0.82rem; }
+  .market-order-summary { display: flex; justify-content: space-between; gap: 1rem; font-weight: 600; }
+  .market-order-items { margin-top: 0.3rem; color: var(--gray-600); }
+
+  /* DISEASE DETECTION */
+  .upload-zone {
+    border: 2px dashed var(--gray-100); border-radius: 14px;
+    padding: 3rem 2rem; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: var(--gray-50); margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--green-400); background: var(--green-50); }
+  .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-zone .upload-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+  .upload-zone h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .upload-zone p { font-size: 0.82rem; color: var(--gray-600); }
+  .preview-img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 10px; display: none; margin-bottom: 1rem; }
+  .analyze-btn {
+    width: 100%; background: var(--green-600); color: #fff; border: none;
+    padding: 13px; border-radius: 10px; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: background 0.2s; display: none;
+  }
+  .analyze-btn:hover { background: var(--green-800); }
+  .result-panel { background: var(--gray-50); border-radius: 14px; padding: 1.5rem; display: none; margin-top: 1.5rem; }
+  .result-panel h4 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+  .disease-name { font-size: 1.3rem; font-weight: 700; color: var(--coral-600); margin-bottom: 0.3rem; }
+  .confidence-bar-wrap { margin: 1rem 0; }
+  .conf-label { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px; font-weight: 600; color: var(--gray-600); }
+  .conf-bar { height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 4px; background: var(--green-400); transition: width 1s ease; }
+  .treatment-list { margin-top: 1rem; }
+  .treatment-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-top: 1px solid var(--gray-100); font-size: 0.88rem;
+  }
+  .treatment-num {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--green-600);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+  }
+  .sample-diseases { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .disease-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: #fff; border: 1px solid var(--gray-100);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.82rem;
+    transition: all 0.15s;
+  }
+  .disease-chip:hover { border-color: var(--green-400); color: var(--green-600); }
+  .disease-chip .chip-icon { font-size: 1rem; }
+
+  /* FOOTER */
+  footer {
+    background: #1a1a18; color: rgba(255,255,255,0.5);
+    text-align: center; padding: 2rem; font-size: 0.82rem; margin-top: 4rem;
+  }
+  footer strong { color: rgba(255,255,255,0.85); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    .account-menu { margin-left:auto; }
+    .account-name { display:none; }
+    section { padding: 2.5rem 1rem; }
+    .feature-section { padding: 1.5rem; }
+    .hero { padding: 3rem 1rem 2.5rem; }
+    .hero-stats { gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <span class="leaf">🌿</span>
+    AgriSmart
+  </div>
+  <div class="nav-links">
+    <a href="#price-prediction">Price Prediction</a>
+    <a href="#irrigation" data-roles="farmer admin">Irrigation</a>
+    <a href="#marketplace">Marketplace</a>
+    <a href="#disease-detection">Disease Detection</a>
+  </div>
+  <div class="account-menu">
+    <span class="account-name" id="account-name">Your workspace</span>
+    <button class="logout-btn" type="button" onclick="signOut()">Sign out</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">🌾 Smart Agriculture Platform</div>
+  <h1>Modern Tools for <span>Smarter Farming</span></h1>
+  <p>Combining AI, sensors, and direct markets to help Indian farmers grow more, earn more, and waste less.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">4</div><div class="lbl">Smart Projects</div></div>
+    <div class="hero-stat"><div class="num">35%</div><div class="lbl">Water Savings</div></div>
+    <div class="hero-stat"><div class="num">92%</div><div class="lbl">Disease Accuracy</div></div>
+    <div class="hero-stat"><div class="num">0</div><div class="lbl">Middlemen</div></div>
+  </div>
+</div>
+
+<!-- INCLUDE:admin-overview -->
+
+<!-- FARM PLANNER -->
+<section data-roles="farmer admin">
+  <div class="feature-section">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--green-50);">🧭</div>
+      <div>
+        <h2>Farm Planner</h2>
+        <p>Track plots, crop health, and daily work in one place.</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem;">
+      <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:14px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Add a field</h3>
+        <form id="field-form" onsubmit="submitField(event)">
+          <div style="display:grid;gap:0.75rem;">
+            <input name="name" placeholder="Field name" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <input name="crop" placeholder="Crop" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;">
+              <input name="area_acres" type="number" min="0.1" step="0.1" placeholder="Area acres" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="location" placeholder="Location" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            </div>
+            <input name="status" placeholder="Status e.g. Healthy" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <button type="submit" style="border:none;border-radius:8px;background:var(--green-600);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;">Save field</button>
+          </div>
+        </form>
+      </div>
+
+      <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:14px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Add a task</h3>
+        <form id="task-form" onsubmit="submitTask(event)">
+          <div style="display:grid;gap:0.75rem;">
+            <input name="title" placeholder="Task title" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <input name="due_date" type="date" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;">
+              <select name="priority" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;">
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <select name="status" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;">
+                <option value="Pending" selected>Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+            <textarea name="notes" placeholder="Notes" rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;resize:vertical;"></textarea>
+            <button type="submit" style="border:none;border-radius:8px;background:var(--green-600);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;">Save task</button>
+          </div>
+        </form>
+      </div>
+
+      <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:14px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Record a crop cycle</h3>
+        <form id="crop-record-form" onsubmit="submitCropRecord(event)">
+          <div style="display:grid;gap:0.65rem;">
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.5rem;">
+              <input name="crop_name" placeholder="Crop name" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="variety" placeholder="Variety" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="sowing_date" type="date" aria-label="Sowing date" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="expected_harvest_date" type="date" aria-label="Expected harvest date" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="quantity_kg" type="number" min="0" step="0.1" placeholder="Expected quantity (kg)" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <select name="health" aria-label="Crop health" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;"><option>Healthy</option><option>Watch</option><option>At Risk</option></select>
+              <input name="expenses" type="number" min="0" step="0.01" placeholder="Expenses (₹)" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="sales_income" type="number" min="0" step="0.01" placeholder="Sales income (₹)" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            </div>
+            <textarea name="fertilizer_notes" placeholder="Fertilizer record" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;resize:vertical;"></textarea>
+            <textarea name="pesticide_notes" placeholder="Pesticide record" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;resize:vertical;"></textarea>
+            <button type="submit" style="border:none;border-radius:8px;background:var(--green-600);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;">Save crop record</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;">
+      <div style="background:#fff;border:1px solid var(--gray-100);border-radius:12px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Field overview</h3>
+        <div id="field-list" style="display:grid;gap:0.75rem;"></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--gray-100);border-radius:12px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Upcoming tasks</h3>
+        <div id="task-list" style="display:grid;gap:0.75rem;"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;background:#fff;border:1px solid var(--gray-100);border-radius:12px;padding:1rem;">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Crop and harvest ledger</h3>
+      <div id="crop-record-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.75rem;"></div>
+    </div>
+
+    <div style="margin-top:1rem;background:var(--gray-50);border:1px solid var(--gray-100);border-radius:12px;padding:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <h3 style="font-size:1rem;font-weight:700;">Seasonal crop calendar</h3>
+        <span id="season-badge" style="padding:4px 10px;border-radius:20px;background:var(--green-50);color:var(--green-600);font-size:0.72rem;font-weight:700;">—</span>
+      </div>
+      <div id="seasonal-calendar" style="display:grid;gap:0.75rem;margin-top:0.9rem;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECT OVERVIEW -->
+<section>
+  <div class="section-label"><span class="dot"></span> Our Projects</div>
+  <h2 class="section-title">4 Agriculture Solutions</h2>
+  <p class="section-sub">Click any project to jump to the interactive demo.</p>
+  <div class="projects-grid">
+    <a href="#price-prediction" class="proj-card">
+      <div class="proj-icon" style="background:var(--blue-50);">📈</div>
+      <h3>Crop Price Prediction</h3>
+      <p>ML-powered forecasts for cotton, soybean & wheat prices.</p>
+      <span class="proj-tag" style="background:var(--blue-50);color:var(--blue-600);">Machine Learning</span>
+    </a>
+    <a href="#irrigation" class="proj-card">
+      <div class="proj-icon" style="background:var(--teal-50);">💧</div>
+      <h3>Smart Irrigation</h3>
+      <p>Soil sensors + automatic control to save water and boost yield.</p>
+      <span class="proj-tag" style="background:var(--teal-50);color:var(--teal-600);">IoT Sensors</span>
+    </a>
+    <a href="#marketplace" class="proj-card">
+      <div class="proj-icon" style="background:var(--amber-50);">🛒</div>
+      <h3>Farmer Marketplace</h3>
+      <p>Farmers sell directly to customers — no middlemen involved.</p>
+      <span class="proj-tag" style="background:var(--amber-50);color:var(--amber-600);">Direct Trade</span>
+    </a>
+    <a href="#disease-detection" class="proj-card">
+      <div class="proj-icon" style="background:var(--green-50);">🔬</div>
+      <h3>Disease Detection</h3>
+      <p>Upload a leaf photo — AI diagnoses disease and suggests treatment.</p>
+      <span class="proj-tag" style="background:var(--green-50);color:var(--green-600);">AI Vision</span>
+    </a>
+  </div>
+</section>
+
+<!-- PRICE PREDICTION -->
+<section>
+  <div id="price-prediction" class="feature-section">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--blue-50);">📈</div>
+      <div>
+        <h2>Crop Market Prices</h2>
+        <p>Source-dated mandi observations and a transparent trend estimate</p>
+      </div>
+    </div>
+
+    <form class="price-entry" onsubmit="submitPriceObservation(event)">
+      <div>
+        <label for="price-market">Market / mandi</label>
+        <input id="price-market" name="market" placeholder="e.g. Nanded APMC" required maxlength="100">
+      </div>
+      <div>
+        <label for="price-value">Price (₹ per quintal)</label>
+        <input id="price-value" name="price" type="number" min="0.01" step="0.01" required>
+      </div>
+      <div>
+        <label for="price-date">Reported date</label>
+        <input id="price-date" name="reported_on" type="date" required>
+      </div>
+      <div>
+        <label for="price-source">Source</label>
+        <input id="price-source" name="source" placeholder="e.g. APMC notice" required maxlength="160">
+      </div>
+      <button type="submit">＋ Add observation</button>
+    </form>
+    <p class="price-note">Only entered observations are displayed. Auto-refresh checks saved observations, not an external market feed. The 30-day line is a simple trend estimate, not an official forecast.</p>
+    <div class="price-controls">
+      <button type="button" id="price-refresh" onclick="loadPriceData()" aria-label="Refresh market observations">↻ Refresh</button>
+      <label><input type="checkbox" id="price-auto-refresh" checked> Auto-refresh</label>
+      <label for="price-refresh-interval">Every</label>
+      <select id="price-refresh-interval" aria-label="Auto-refresh interval">
+        <option value="20000">20 seconds</option>
+        <option value="60000">1 minute</option>
+        <option value="300000">5 minutes</option>
+      </select>
+      <span id="price-updated" aria-live="polite">Not refreshed yet</span>
+    </div>
+    <p id="price-status" role="status" aria-live="polite"></p>
+
+    <div class="crop-selector">
+      <button class="crop-btn active" onclick="selectCrop('cotton', this)">🟤 Cotton</button>
+      <button class="crop-btn" onclick="selectCrop('soybean', this)">🟢 Soybean</button>
+      <button class="crop-btn" onclick="selectCrop('wheat', this)">🌾 Wheat</button>
+    </div>
+
+    <div class="chart-area">
+      <div class="chart-header">
+        <h4 id="chart-title">Cotton price history (₹/quintal)</h4>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>Actual</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#639922; border:2px dashed #639922; background:none; width:12px; border-radius:0; height:2px; margin-top:3px"></div>30-day trend</div>
+        </div>
+      </div>
+      <canvas id="priceChart" width="700" height="180" style="width:100%;max-width:100%;height:180px;"></canvas>
+    </div>
+
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th>Crop</th>
+          <th>Current (₹/q)</th>
+          <th>Last Month</th>
+          <th>Forecast (30d)</th>
+          <th>Trend</th>
+        </tr>
+      </thead>
+      <tbody id="price-summary">
+        <tr><td colspan="5">Add verified market observations to build a price history.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- IRRIGATION -->
+<section data-roles="farmer admin">
+  <div id="irrigation" class="feature-section">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--teal-50);">💧</div>
+      <div>
+        <h2>Smart Irrigation System</h2>
+        <p>Real-time soil sensor data with automatic water control</p>
+      </div>
+    </div>
+
+    <div class="sensor-grid">
+      <div class="sensor-card">
+        <div class="sensor-icon">🌱</div>
+        <div class="sensor-val" id="moisture-val" style="color:var(--teal-600)">62%</div>
+        <div class="sensor-lbl">Soil Moisture</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">🌡️</div>
+        <div class="sensor-val" id="temp-val" style="color:var(--coral-600)">28°C</div>
+        <div class="sensor-lbl">Temperature</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">☀️</div>
+        <div class="sensor-val" id="light-val" style="color:var(--amber-400)">7.4 lux</div>
+        <div class="sensor-lbl">Sunlight</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">🌧️</div>
+        <div class="sensor-val" id="rain-val" style="color:var(--blue-600)">0 mm</div>
+        <div class="sensor-lbl">Rainfall Today</div>
+      </div>
+    </div>
+
+    <div class="irrigation-status" id="irrigation-status">
+      <div class="status-dot on" id="status-dot"></div>
+      <div>
+        <div style="font-weight:700;font-size:0.95rem" id="status-text">Irrigation is ON — Field A running</div>
+        <div style="font-size:0.8rem;color:var(--gray-600);margin-top:2px" id="status-sub">Moisture below threshold (65%). Auto-mode active.</div>
+      </div>
+    </div>
+
+    <div class="water-slider-wrap">
+      <label>Moisture threshold — trigger irrigation below:</label>
+      <div class="slider-row">
+        <input type="range" class="water" min="30" max="90" value="65" id="threshold-slider"
+          oninput="document.getElementById('threshold-val').textContent=this.value+'%'">
+        <div class="slider-val" id="threshold-val">65%</div>
+      </div>
+    </div>
+    <div class="water-slider-wrap">
+      <label>Water flow rate:</label>
+      <div class="slider-row">
+        <input type="range" class="water" min="1" max="10" value="5" id="flow-slider"
+          oninput="document.getElementById('flow-val').textContent=this.value+' L/min'">
+        <div class="slider-val" id="flow-val">5 L/min</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem">
+      <button class="toggle-btn on" id="irrigation-toggle" onclick="toggleIrrigation()">⏸ Turn OFF Irrigation</button>
+      <button class="toggle-btn" style="background:var(--blue-50);color:var(--blue-600);border:1px solid var(--blue-400)" onclick="refreshSensors()">🔄 Refresh Sensor Data</button>
+    </div>
+  </div>
+</section>
+
+<!-- INCLUDE:farm-planner -->
+    <!-- 4 -->
+    <div style="background:#fff;border:1px solid var(--gray-100);border-radius:14px;padding:1.5rem;border-top:4px solid var(--green-400);">
+      <div style="font-size:2rem;margin-bottom:0.75rem;">🦠</div>
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;">Crop Disease & Late Detection</h3>
+      <p style="font-size:0.84rem;color:var(--gray-600);line-height:1.6;margin-bottom:0.8rem;">
+        Diseases like blight, rust, and mosaic virus can wipe out an entire crop within weeks. Most farmers detect disease too late or misidentify it, leading to wrong chemical treatment and total loss.
+      </p>
+      <div style="background:var(--green-50);border-radius:8px;padding:0.7rem 1rem;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--green-600);margin-bottom:4px;">Stat</div>
+        <div style="font-size:0.85rem;color:var(--green-600);font-weight:600;">Plant diseases cause 20–40% crop loss in India every year</div>
+      </div>
+      <div style="margin-top:0.75rem;font-size:0.78rem;background:var(--green-50);color:var(--green-600);padding:5px 10px;border-radius:20px;display:inline-block;font-weight:600;">✅ Solved by: Disease Detection AI</div>
+    </div>
+
+  </div>
+
+  <!-- ADDITIONAL PROBLEMS TABLE -->
+  <div style="background:#fff;border:1px solid var(--gray-100);border-radius:16px;padding:2rem;margin-bottom:2rem;">
+    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.3rem;">⚠️ Other Major Challenges Farmers Face</h3>
+    <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:1.5rem;">Beyond crop issues, Indian farmers face deep structural, financial, and environmental problems.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:1.4rem;flex-shrink:0;">🏦</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Lack of Credit & Loans</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.5;">Small farmers struggle to get bank loans and often borrow from moneylenders at 30–60% interest, pushing them into debt traps.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:1.4rem;flex-shrink:0;">🌩️</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Extreme Weather & Climate Change</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.5;">Unseasonal rain, hailstorms, droughts, and floods are increasing. Farmers have no early warning systems and suffer sudden total losses.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:1.4rem;flex-shrink:0;">🌱</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Soil Degradation</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.5;">Overuse of chemical fertilizers and pesticides has degraded topsoil across India. Soil loses fertility over years, reducing yields despite more inputs.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:1.4rem;flex-shrink:0;">📦</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Poor Storage & Post-Harvest Loss</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.5;">India loses 15–18% of food due to lack of cold storage near farms. Perishables rot before they reach the market, especially in rural areas.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:1.4rem;flex-shrink:0;">📶</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">No Digital Access or Tech Literacy</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.5;">Many farmers, especially elderly ones, have no smartphones or internet. Even when government schemes exist, farmers don't know how to access them.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:1.4rem;flex-shrink:0;">👩‍🌾</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Labour Shortage in Rural Areas</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.5;">Young people are migrating to cities, leaving an aging farming population. Harvesting and sowing seasons face severe labour shortages, raising costs.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:1.4rem;flex-shrink:0;">💊</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Overuse of Pesticides</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.5;">Without proper guidance, farmers spray excessive pesticides. This harms soil health, pollutes water bodies, and causes serious health risks to the farmers themselves.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:1.4rem;flex-shrink:0;">📋</div>
+        <div>
+          <div style="font-size:0.88rem;font-weight:700;margin-bottom:3px;">Lack of Government Scheme Awareness</div>
+          <div style="font-size:0.8rem;color:var(--gray-600);line-height:1.5;">PM-KISAN, crop insurance (PMFBY), soil health cards — most farmers are unaware of these benefits or face heavy paperwork to claim them.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- IMPACT STATS BANNER -->
+  <div style="background:linear-gradient(135deg,#2d5a1b,#639922);border-radius:16px;padding:2rem;margin-bottom:4rem;">
+    <h3 style="color:#fff;font-size:1.1rem;font-weight:700;text-align:center;margin-bottom:1.5rem;">📊 Farming Crisis — Key Numbers in India</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;text-align:center;">
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:1rem;">
+        <div style="font-size:1.8rem;font-weight:800;color:#a8d96c;">58%</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px;">population depends on agriculture</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:1rem;">
+        <div style="font-size:1.8rem;font-weight:800;color:#a8d96c;">10,000+</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px;">farmer suicides per year (NCRB)</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:1rem;">
+        <div style="font-size:1.8rem;font-weight:800;color:#a8d96c;">₹77/day</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px;">avg. daily income of a farm household</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:1rem;">
+        <div style="font-size:1.8rem;font-weight:800;color:#a8d96c;">40%</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px;">of produce lost before reaching market</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:1rem;">
+        <div style="font-size:1.8rem;font-weight:800;color:#a8d96c;">86%</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-top:4px;">are small & marginal farmers (&lt;2 ha)</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<footer>
+  <strong>AgriSmart</strong> — Smart Agriculture for Indian Farmers<br>
+  Built with HTML, CSS & JavaScript · Pimpri, Maharashtra
+</footer>
+
+<script>
+async function loadAccount() {
+  const response = await fetch('/api/auth/me');
+  if (!response.ok) { location.href = '/login.html'; return; }
+  const data = await response.json();
+  const role = data.user.role || 'farmer';
+  window.currentAccount = data.user;
+  document.getElementById('account-name').textContent = `${data.user.name} - ${role}`;
+  document.querySelectorAll('[data-roles]').forEach(element => {
+    element.classList.toggle('role-hidden', !element.dataset.roles.split(/\s+/).includes(role));
+  });
+  await loadMarketplace();
+  if (role === 'farmer' || role === 'admin') await loadFarmPlanner();
+  if (role === 'admin') await loadAdminOverview();
+}
+
+async function loadAdminOverview() {
+  const response = await fetch('/api/admin/overview');
+  const container = document.getElementById('admin-overview');
+  if (!response.ok) {
+    container.textContent = 'Admin metrics are unavailable.';
+    return;
+  }
+  const data = await response.json();
+  const metrics = [
+    ['Farmers', data.users_by_role.farmer || 0],
+    ['Customers', data.users_by_role.customer || 0],
+    ['Fields', data.farm_fields],
+    ['Crop scans', data.crop_scans],
+    ['Market reports', data.market_observations],
+    ['Active listings', data.active_listings],
+    ['Open orders', data.open_orders],
+  ];
+  container.innerHTML = metrics.map(([label, value]) => `<div style="border:1px solid var(--gray-100);padding:.9rem;border-radius:8px;"><div style="font-size:1.35rem;font-weight:700;color:var(--green-700);">${Number(value) || 0}</div><div style="font-size:.8rem;color:var(--gray-600);">${label}</div></div>`).join('');
+  await Promise.all([loadAdminUsers(), loadAdminProducts(), loadAdminOrders()]);
+}
+
+function setAdminStatus(message, isError = false) {
+  const status = document.getElementById('admin-status');
+  status.textContent = message;
+  status.style.color = isError ? 'var(--coral-600)' : 'var(--green-600)';
+}
+
+async function loadAdminUsers() {
+  const container = document.getElementById('admin-users');
+  const response = await fetch('/api/admin/users');
+  if (!response.ok) {
+    container.textContent = 'Unable to load users.';
+    return;
+  }
+  const users = await response.json();
+  if (!users.length) {
+    container.textContent = 'No user accounts yet.';
+    return;
+  }
+  const adminId = window.currentAccount?.id;
+  container.innerHTML = users.map(user => `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;border:1px solid var(--gray-100);border-radius:8px;padding:.7rem;margin-bottom:.5rem;">
+      <div><strong>${escapeHtml(user.name)}</strong><div style="font-size:.8rem;color:var(--gray-600);">${escapeHtml(user.email)} · Joined ${escapeHtml(user.created_at.slice(0, 10))}</div></div>
+      <label style="font-size:.82rem;">Role
+        <select aria-label="Role for ${escapeHtml(user.email)}" ${user.id === adminId ? 'disabled' : ''} onchange="updateAdminUserRole(${user.id}, this.value)">
+          ${['farmer', 'customer', 'admin'].map(role => `<option value="${role}" ${user.role === role ? 'selected' : ''}>${role}</option>`).join('')}
+        </select>
+      </label>
+    </div>
+  `).join('');
+}
+
+async function updateAdminUserRole(userId, role) {
+  const response = await fetch(`/api/admin/users/${userId}/role`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role })
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    setAdminStatus(result.detail || 'Could not update the user role.', true);
+    await loadAdminUsers();
+    return;
+  }
+  setAdminStatus('User role updated.');
+  await loadAdminOverview();
+}
+
+async function loadAdminProducts() {
+  const container = document.getElementById('admin-products');
+  const response = await fetch('/api/admin/products');
+  if (!response.ok) {
+    container.textContent = 'Unable to load marketplace listings.';
+    return;
+  }
+  const products = await response.json();
+  if (!products.length) {
+    container.textContent = 'No marketplace listings yet.';
+    return;
+  }
+  container.innerHTML = products.map(product => `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;border:1px solid var(--gray-100);border-radius:8px;padding:.7rem;margin-bottom:.5rem;">
+      <div><strong>${escapeHtml(product.name)}</strong><div style="font-size:.8rem;color:var(--gray-600);">${escapeHtml(product.seller)} · ₹${Number(product.price).toLocaleString('en-IN')} ${escapeHtml(product.unit)} · Stock ${product.quantity} · ${product.active ? 'Active' : 'Hidden'}</div></div>
+      <button type="button" onclick="updateAdminProductStatus(${product.id}, ${!product.active})">${product.active ? 'Hide listing' : 'Restore listing'}</button>
+    </div>
+  `).join('');
+}
+
+async function updateAdminProductStatus(productId, active) {
+  const response = await fetch(`/api/admin/products/${productId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ active })
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    setAdminStatus(result.detail || 'Could not update the listing.', true);
+    return;
+  }
+  setAdminStatus(active ? 'Listing restored.' : 'Listing hidden from the marketplace.');
+  await loadAdminOverview();
+}
+
+async function loadAdminOrders() {
+  const container = document.getElementById('admin-orders');
+  const response = await fetch('/api/admin/orders');
+  if (!response.ok) {
+    container.textContent = 'Unable to load marketplace orders.';
+    return;
+  }
+  const orders = await response.json();
+  if (!orders.length) {
+    container.textContent = 'No marketplace orders yet.';
+    return;
+  }
+  container.innerHTML = orders.map(order => {
+    const nextStatuses = {
+      placed: ['confirmed', 'cancelled'],
+      confirmed: ['completed', 'cancelled'],
+      completed: [],
+      cancelled: []
+    }[order.status] || [];
+    return `<article style="border:1px solid var(--gray-100);border-radius:8px;padding:.75rem;margin-bottom:.5rem;">
+      <div style="display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap;">
+        <strong>Order #${order.id} · ₹${Number(order.total).toLocaleString('en-IN')}</strong>
+        <label style="font-size:.82rem;">Status: ${escapeHtml(order.status)}
+          ${nextStatuses.length ? `<select aria-label="Update order ${order.id} status" onchange="updateAdminOrderStatus(${order.id}, this.value)"><option value="">Update...</option>${nextStatuses.map(status => `<option value="${status}">${status}</option>`).join('')}</select>` : ''}
+        </label>
+      </div>
+      <div style="font-size:.8rem;color:var(--gray-600);margin-top:.25rem;">${escapeHtml(order.buyer_name)} · ${escapeHtml(order.buyer_email)} · ${escapeHtml(order.created_at.slice(0, 10))}</div>
+      <div style="font-size:.8rem;margin-top:.3rem;">${order.items.map(item => `${escapeHtml(item.name)} × ${item.quantity} (₹${Number(item.unit_price).toLocaleString('en-IN')})`).join(' · ')}</div>
+    </article>`;
+  }).join('');
+}
+
+async function updateAdminOrderStatus(orderId, status) {
+  if (!status) return;
+  const response = await fetch(`/api/admin/orders/${orderId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    setAdminStatus(result.detail || 'Could not update the order.', true);
+    await loadAdminOrders();
+    return;
+  }
+  setAdminStatus(`Order #${orderId} marked ${status}.`);
+  await loadAdminOverview();
+}
+async function signOut() {
+  await fetch('/api/auth/logout', { method:'POST' });
+  location.href = '/login.html';
+}
+
+async function loadFarmPlanner() {
+  const response = await fetch('/api/farm/summary');
+  if (!response.ok) {
+    if (response.status === 401) {
+      location.href = '/login.html';
+      return;
+    }
+    document.getElementById('field-list').innerHTML = '<div style="color:var(--gray-600);font-size:0.85rem;">Unable to load farm planner.</div>';
+    document.getElementById('task-list').innerHTML = '<div style="color:var(--gray-600);font-size:0.85rem;">Unable to load farm tasks.</div>';
+    document.getElementById('seasonal-calendar').innerHTML = '<div style="color:var(--gray-600);font-size:0.85rem;">Unable to load seasonal advice.</div>';
+    return;
+  }
+  const data = await response.json();
+  renderFields(data.fields || []);
+  renderTasks(data.tasks || []);
+  await Promise.all([loadFarmCalendar(), loadSoilStatus(), loadFarmCrops(), loadFarmReminders()]);
+}
+
+async function loadFarmCrops() {
+  const container = document.getElementById('crop-record-list');
+  const response = await fetch('/api/farm/crops');
+  if (!response.ok) {
+    container.textContent = 'Crop records are unavailable.';
+    return;
+  }
+  const records = await response.json();
+  if (!records.length) {
+    container.textContent = 'No crop cycles recorded yet.';
+    return;
+  }
+  container.innerHTML = records.map(record => {
+    const net = Number(record.sales_income) - Number(record.expenses);
+    return `<article style="border:1px solid var(--gray-100);border-radius:8px;padding:.85rem;background:var(--gray-50);">
+      <div style="display:flex;justify-content:space-between;gap:.5rem;"><strong>${escapeHtml(record.crop_name)}${record.variety ? ` · ${escapeHtml(record.variety)}` : ''}</strong><span>${escapeHtml(record.health)}</span></div>
+      <div style="font-size:.8rem;color:var(--gray-600);margin-top:.4rem;">Sown ${escapeHtml(record.sowing_date)} · Harvest ${escapeHtml(record.expected_harvest_date || 'not set')}</div>
+      <div style="font-size:.8rem;color:var(--gray-600);margin-top:.25rem;">${Number(record.quantity_kg).toLocaleString('en-IN')} kg · Expenses ₹${Number(record.expenses).toLocaleString('en-IN')} · Income ₹${Number(record.sales_income).toLocaleString('en-IN')} · Net ₹${net.toLocaleString('en-IN')}</div>
+      ${record.fertilizer_notes ? `<div style="font-size:.78rem;margin-top:.35rem;">Fertilizer: ${escapeHtml(record.fertilizer_notes)}</div>` : ''}
+      ${record.pesticide_notes ? `<div style="font-size:.78rem;margin-top:.25rem;">Pesticide: ${escapeHtml(record.pesticide_notes)}</div>` : ''}
+    </article>`;
+  }).join('');
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
+}
+
+async function loadFarmCalendar() {
+  const response = await fetch('/api/farm/calendar');
+  if (!response.ok) {
+    document.getElementById('seasonal-calendar').innerHTML = '<div style="color:var(--gray-600);font-size:0.85rem;">Seasonal advice unavailable right now.</div>';
+    return;
+  }
+  const data = await response.json();
+  document.getElementById('season-badge').textContent = data.season || 'Season plan';
+  const container = document.getElementById('seasonal-calendar');
+  container.innerHTML = (data.recommendations || []).map(item => `
+    <div style="border:1px solid var(--gray-100);border-radius:10px;padding:0.75rem;background:#fff;">
+      <div style="display:flex;justify-content:space-between;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+        <strong style="font-size:0.88rem;">${item.field_name}</strong>
+        <span style="padding:3px 8px;border-radius:12px;background:var(--green-50);color:var(--green-600);font-size:0.68rem;font-weight:700;">${item.season}</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.35rem;">${item.crop}</div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.25rem;">💧 ${item.irrigation_hint}</div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.25rem;">📌 ${item.advice}</div>
+    </div>
+  `).join('');
+}
+
+async function loadFarmReminders() {
+  const container = document.getElementById('farm-reminders');
+  const response = await fetch('/api/farm/reminders');
+  if (!response.ok) {
+    container.textContent = 'Task and harvest reminders are unavailable right now.';
+    return;
+  }
+  const reminders = await response.json();
+  if (!reminders.length) {
+    container.textContent = 'Nothing overdue or due in the next 14 days.';
+    return;
+  }
+  container.innerHTML = reminders.map(reminder => `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;background:#fff;border:1px solid var(--gray-100);border-radius:8px;padding:.65rem;">
+      <div><strong>${escapeHtml(reminder.title)}</strong><div style="font-size:.8rem;color:var(--gray-600);">${escapeHtml(reminder.message)} · ${escapeHtml(reminder.due_date)} · ${reminder.kind === 'harvest' ? 'Harvest' : 'Farm task'}</div></div>
+      ${reminder.kind === 'task' ? `<button type="button" onclick="completeFarmTask(${reminder.record_id})">Mark done</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function loadSoilStatus() {
+  try {
+    const response = await fetch('/api/farm/soil-status');
+    if (!response.ok) {
+      if (response.status === 401) {
+        location.href = '/login.html';
+        return;
+      }
+      throw new Error('Soil monitoring unavailable.');
+    }
+    const data = await response.json();
+    const status = Array.isArray(data) && data.length ? data[0] : null;
+    if (!status) {
+      document.getElementById('moisture-val').textContent = '0%';
+      document.getElementById('status-text').textContent = 'No field data yet';
+      document.getElementById('status-sub').textContent = 'Create a field to receive irrigation recommendations.';
+      return;
+    }
+    const moisture = Number(status.moisture_percent ?? 0);
+    document.getElementById('moisture-val').textContent = `${moisture}%`;
+
+    const level = String(status.alert_level || 'low').toLowerCase();
+    const dot = document.getElementById('status-dot');
+    const box = document.getElementById('irrigation-status');
+    const txt = document.getElementById('status-text');
+    const sub = document.getElementById('status-sub');
+
+    if (level === 'high') {
+      dot.className = 'status-dot on';
+      box.style.background = 'var(--coral-50)';
+      txt.textContent = `High irrigation alert — ${status.field_name || 'Field'} needs attention`;
+      sub.textContent = status.recommendation || 'Reduce watering and inspect root stress.';
+    } else if (level === 'medium') {
+      dot.className = 'status-dot on';
+      box.style.background = 'var(--amber-50)';
+      txt.textContent = `Moderate stress — ${status.field_name || 'Field'} is drying out`;
+      sub.textContent = status.recommendation || 'Schedule irrigation soon.';
+    } else {
+      dot.className = 'status-dot on';
+      box.style.background = 'var(--green-50)';
+      txt.textContent = `Healthy moisture — ${status.field_name || 'Field'} is in range`;
+      sub.textContent = status.recommendation || 'Soil conditions look stable.';
+    }
+  } catch (error) {
+    document.getElementById('status-text').textContent = 'Soil sensor data unavailable';
+    document.getElementById('status-sub').textContent = 'Live moisture data could not be loaded right now.';
+  }
+}
+
+function renderFields(fields) {
+  const container = document.getElementById('field-list');
+  if (!fields.length) {
+    container.innerHTML = '<div style="font-size:0.85rem;color:var(--gray-600);padding:0.75rem;border:1px dashed var(--gray-100);border-radius:8px;">No fields yet. Add your first field to begin planning.</div>';
+    return;
+  }
+  container.innerHTML = fields.map(field => `
+    <div style="border:1px solid var(--gray-100);border-radius:10px;padding:0.75rem;background:var(--gray-50);">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+        <strong style="font-size:0.9rem;">${field.name}</strong>
+        <span style="padding:3px 8px;border-radius:12px;background:var(--green-50);color:var(--green-600);font-size:0.7rem;font-weight:700;">${field.status}</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.4rem;">${field.crop} · ${field.area_acres} acres</div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.15rem;">📍 ${field.location}</div>
+    </div>
+  `).join('');
+}
+
+function renderTasks(tasks) {
+  const container = document.getElementById('task-list');
+  if (!tasks.length) {
+    container.innerHTML = '<div style="font-size:0.85rem;color:var(--gray-600);padding:0.75rem;border:1px dashed var(--gray-100);border-radius:8px;">No tasks scheduled. Add irrigation, spraying, or harvest tasks here.</div>';
+    return;
+  }
+  container.innerHTML = tasks.map(task => `
+    <div style="border:1px solid var(--gray-100);border-radius:10px;padding:0.75rem;background:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;">
+        <strong style="font-size:0.88rem;">${escapeHtml(task.title)}</strong>
+        <span style="padding:3px 8px;border-radius:12px;background:${task.priority === 'High' ? 'var(--coral-50)' : task.priority === 'Medium' ? 'var(--amber-50)' : 'var(--green-50)'};color:${task.priority === 'High' ? 'var(--coral-600)' : task.priority === 'Medium' ? 'var(--amber-600)' : 'var(--green-600)'};font-size:0.68rem;font-weight:700;">${task.priority}</span>
+      </div>
+      <div style="font-size:0.78rem;color:var(--gray-600);margin-top:0.35rem;">${task.due_date ? `📅 ${escapeHtml(task.due_date)}` : '📅 No date'} · ${escapeHtml(task.status)}</div>
+      ${task.notes ? `<div style="font-size:0.78rem;color:var(--gray-600);margin-top:0.25rem;">${escapeHtml(task.notes)}</div>` : ''}
+      ${task.status !== 'Done' ? `<button type="button" style="margin-top:.5rem;" onclick="completeFarmTask(${task.id})">Mark done</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function completeFarmTask(taskId) {
+  const response = await fetch(`/api/farm/tasks/${taskId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'Done' })
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    alert(result.detail || 'Could not complete task.');
+    return;
+  }
+  await loadFarmPlanner();
+}
+
+async function submitField(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const response = await fetch('/api/farm/fields', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: data.name,
+      crop: data.crop,
+      area_acres: Number(data.area_acres),
+      location: data.location,
+      status: data.status
+    })
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    alert(result.detail || 'Could not save field.');
+    return;
+  }
+  form.reset();
+  await loadFarmPlanner();
+}
+
+async function submitTask(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const response = await fetch('/api/farm/tasks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: data.title,
+      due_date: data.due_date || null,
+      priority: data.priority,
+      status: data.status,
+      notes: data.notes || null,
+      field_id: null
+    })
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    alert(result.detail || 'Could not save task.');
+    return;
+  }
+  form.reset();
+  await loadFarmPlanner();
+}
+
+async function submitCropRecord(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const response = await fetch('/api/farm/crops', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...data,
+      expected_harvest_date: data.expected_harvest_date || null,
+      quantity_kg: Number(data.quantity_kg),
+      expenses: Number(data.expenses),
+      sales_income: Number(data.sales_income),
+    })
+  });
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    alert(result.detail || 'Could not save crop record.');
+    return;
+  }
+  form.reset();
+  await loadFarmCrops();
+}
+
+/* ===== PRICE CHART ===== */
+let activeCrop = 'cotton';
+const cropNames = { cotton: 'Cotton', soybean: 'Soybean', wheat: 'Wheat' };
+const rupees = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 });
+
+function marketApiError(error) {
+  if (location.protocol === 'file:' || error.message === 'Failed to fetch') {
+    return 'Cannot reach the AgriSmart API or database. Start the server and open http://127.0.0.1:8001/ instead of opening the HTML file directly.';
+  }
+  return error.message;
+}
+
+function selectCrop(c, btn) {
+  activeCrop = c;
+  document.querySelectorAll('.crop-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadPriceData();
+}
+
+async function submitPriceObservation(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById('price-status');
+  const formData = new FormData(form);
+  const button = form.querySelector('button[type="submit"]');
+  button.disabled = true;
+  status.textContent = 'Saving observation...';
+  try {
+    const response = await fetch('/api/market-prices', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        crop: activeCrop,
+        market: formData.get('market'),
+        price_per_quintal: Number(formData.get('price')),
+        reported_on: formData.get('reported_on'),
+        source: formData.get('source')
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Could not save this observation.');
+    form.reset();
+    status.textContent = 'Observation saved.';
+    await loadPriceData();
+  } catch (error) {
+    status.textContent = marketApiError(error);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function loadLiveMarketData() {
+  try {
+    const response = await fetch('/api/market-live');
+    if (!response.ok) throw new Error('Could not refresh market alerts.');
+    const live = await response.json();
+    const active = live.find(item => item.crop === activeCrop);
+    if (!active) return;
+    const status = document.getElementById('price-status');
+    status.style.color = '';
+    const direction = active.trend === 'up' ? '↑' : active.trend === 'down' ? '↓' : '→';
+    const reportDetails = active.reported_on ? ` Latest report: ${active.reported_on}, ${active.market} (${active.source}).` : '';
+    status.textContent = `${active.trend ? `${direction} ` : ''}${active.notification}${reportDetails}`;
+    if (active.trend) status.style.color = active.trend === 'down' ? 'var(--coral-600)' : active.trend === 'up' ? 'var(--green-600)' : 'var(--gray-600)';
+  } catch (error) {
+    document.getElementById('price-status').textContent = marketApiError(error);
+    throw error;
+  }
+}
+
+async function loadPriceData() {
+  document.getElementById('chart-title').textContent = `${cropNames[activeCrop]} price history (₹/quintal)`;
+  try {
+    const response = await fetch('/api/market-prices');
+    const summaries = await response.json();
+    if (!response.ok) throw new Error(summaries.detail || 'Could not load market observations.');
+    renderPriceSummary(summaries);
+    drawPriceChart(summaries.find(item => item.crop === activeCrop));
+    await loadLiveMarketData();
+    document.getElementById('price-updated').textContent = `Checked ${new Date().toLocaleTimeString()}`;
+  } catch (error) {
+    document.getElementById('price-status').textContent = marketApiError(error);
+  }
+}
+
+let priceRefreshTimer;
+function updatePriceRefresh() {
+  clearInterval(priceRefreshTimer);
+  if (document.getElementById('price-auto-refresh').checked) {
+    const interval = Number(document.getElementById('price-refresh-interval').value);
+    priceRefreshTimer = setInterval(loadPriceData, interval);
+  }
+}
+
+function renderPriceSummary(summaries) {
+  const body = document.getElementById('price-summary');
+  body.replaceChildren();
+  summaries.forEach(summary => {
+    const row = document.createElement('tr');
+    const crop = document.createElement('td');
+    crop.textContent = cropNames[summary.crop];
+    row.appendChild(crop);
+    [summary.latest_price, summary.previous_price, summary.forecast_30d].forEach((value, index) => {
+      const cell = document.createElement('td');
+      if (index === 2 && value !== null) cell.style.color = 'var(--green-600)';
+      cell.textContent = value === null ? '—' : `₹${rupees.format(value)}`;
+      row.appendChild(cell);
+    });
+    const trend = document.createElement('td');
+    const badge = document.createElement('span');
+    const trendClass = { up: 'badge-up', down: 'badge-dn', stable: 'badge-stbl' }[summary.trend];
+    if (trendClass) {
+      badge.className = trendClass;
+      badge.textContent = { up: '↑ Upward', down: '↓ Downward', stable: '→ Stable' }[summary.trend];
+    } else {
+      badge.textContent = 'Need 2 dates';
+    }
+    trend.appendChild(badge);
+    row.appendChild(trend);
+    body.appendChild(row);
+  });
+}
+
+function drawPriceChart(summary) {
+  const canvas = document.getElementById('priceChart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 700;
+  const pixelRatio = window.devicePixelRatio || 1;
+  canvas.width = W * pixelRatio;
+  canvas.height = 180 * pixelRatio;
+  ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  ctx.clearRect(0, 0, W, 180);
+  const pad = {l:55,r:20,t:10,b:28};
+  const cW = W - pad.l - pad.r, cH = 180 - pad.t - pad.b;
+  const observations = summary?.observations || [];
+  const prices = observations.map(item => item.price_per_quintal);
+  const forecast = summary?.forecast_30d ?? null;
+  const allValues = [...prices, ...(forecast === null ? [] : [forecast])];
+  if (allValues.length === 0) {
+    ctx.fillStyle = '#5F5E5A';
+    ctx.font = '14px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('No observations for this crop yet', W / 2, 92);
+    return;
+  }
+  const low = Math.min(...allValues), high = Math.max(...allValues);
+  const padding = Math.max((high - low) * 0.12, high * 0.02, 10);
+  const minV = low - padding, maxV = high + padding;
+  const pointCount = observations.length + (forecast === null ? 0 : 1);
+  const xStep = cW / Math.max(pointCount - 1, 1);
+  const yScale = v => pad.t + cH - ((v-minV)/(maxV-minV))*cH;
+  ctx.strokeStyle='#e8e6e0'; ctx.lineWidth=1;
+  for(let i=0;i<5;i++){
+    const y=pad.t+i*(cH/4);
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cW,y); ctx.stroke();
+    const val=maxV-i*(maxV-minV)/4;
+    ctx.fillStyle='#888'; ctx.font='11px system-ui'; ctx.textAlign='right';
+    ctx.fillText('₹'+Math.round(val).toLocaleString(),pad.l-4,y+4);
+  }
+  const points = observations.map((item, index) => ({
+    x: pad.l + index * xStep,
+    y: yScale(item.price_per_quintal),
+    label: item.reported_on.slice(5)
+  }));
+  if (forecast !== null) points.push({ x: pad.l + points.length * xStep, y: yScale(forecast), label: '+30d' });
+  points.forEach((point, index) => {
+    ctx.fillStyle = '#aaa'; ctx.font = '11px system-ui'; ctx.textAlign = 'center';
+    ctx.fillText(point.label, point.x, 180 - 5);
+    if (index > 0) {
+      ctx.beginPath();
+      ctx.strokeStyle = index === points.length - 1 && forecast !== null ? '#639922' : '#378ADD';
+      ctx.lineWidth = 2.5;
+      if (index === points.length - 1 && forecast !== null) ctx.setLineDash([6, 4]);
+      ctx.moveTo(points[index - 1].x, points[index - 1].y);
+      ctx.lineTo(point.x, point.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = index === points.length - 1 && forecast !== null ? '#639922' : '#378ADD';
+    ctx.fill();
+  });
+}
+window.addEventListener('load', () => {
+  loadAccount();
+  document.getElementById('price-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('price-auto-refresh').addEventListener('change', updatePriceRefresh);
+  document.getElementById('price-refresh-interval').addEventListener('change', updatePriceRefresh);
+  loadPriceData();
+  updatePriceRefresh();
+});
+window.addEventListener('resize', loadPriceData);
+
+/* ===== IRRIGATION ===== */
+let irrigationOn = true;
+function toggleIrrigation(){
+  irrigationOn = !irrigationOn;
+  const btn=document.getElementById('irrigation-toggle');
+  const dot=document.getElementById('status-dot');
+  const txt=document.getElementById('status-text');
+  const sub=document.getElementById('status-sub');
+  const box=document.getElementById('irrigation-status');
+  if(irrigationOn){
+    btn.textContent='⏸ Turn OFF Irrigation'; btn.className='toggle-btn on';
+    dot.className='status-dot on'; txt.textContent='Irrigation is ON — Field A running';
+    sub.textContent='Moisture below threshold. Auto-mode active.';
+    box.style.background='var(--green-50)';
+  } else {
+    btn.textContent='▶ Turn ON Irrigation'; btn.className='toggle-btn off';
+    dot.className='status-dot off'; txt.textContent='Irrigation is OFF';
+    sub.textContent='Manually stopped. Click to restart.';
+    box.style.background='var(--coral-50)';
+  }
+}
+async function refreshSensors(){
+  await loadSoilStatus();
+  document.getElementById('temp-val').textContent=Math.round(25+Math.random()*8)+'°C';
+  document.getElementById('light-val').textContent=(5+Math.random()*5).toFixed(1)+' lux';
+  document.getElementById('rain-val').textContent=Math.round(Math.random()*5)+' mm';
+}
+
+/* ===== MARKETPLACE ===== */
+let products = [];
+let cartItems = new Map();
+let activeFilter='all';
+
+async function loadMarketplace() {
+  const status = document.getElementById('market-status');
+  try {
+    const [productsResponse, ordersResponse] = await Promise.all([
+      fetch('/api/marketplace/products'),
+      fetch('/api/marketplace/orders')
+    ]);
+    const productData = await productsResponse.json();
+    const orderData = await ordersResponse.json();
+    if (!productsResponse.ok) throw new Error(productData.detail || 'Could not load marketplace listings.');
+    if (!ordersResponse.ok) throw new Error(orderData.detail || 'Could not load your orders.');
+    products = productData;
+    renderProducts();
+    renderMarketplaceOrders(orderData);
+    status.textContent = '';
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+function filterProducts(cat, btn){
+  activeFilter=cat;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderProducts();
+}
+function renderProducts(){
+  const filtered = activeFilter==='all' ? products : products.filter(p=>p.category===activeFilter);
+  const grid = document.getElementById('product-grid');
+  if (!filtered.length) {
+    grid.textContent = products.length ? 'No products in this category yet.' : 'No marketplace products are available.';
+    return;
+  }
+  grid.innerHTML = filtered.map(p=>`
+    <div class="product-card">
+      <div class="product-img" style="background:var(--gray-50)">${escapeHtml(p.emoji)}</div>
+      <div class="product-info">
+        <h4>${escapeHtml(p.name)}</h4>
+        <div class="farmer">👨‍🌾 ${escapeHtml(p.farmer)} · ${p.quantity} in stock</div>
+        <div class="price">₹${Number(p.price).toFixed(2)} <span class="unit">${escapeHtml(p.unit)}</span></div>
+      </div>
+      <button class="add-to-cart" onclick="addToCart(${Number(p.id)})">Add one to Cart +</button>
+    </div>
+  `).join('');
+}
+
+function addToCart(productId){
+  const product = products.find(item => item.id === productId);
+  if (!product) return;
+  const quantity = cartItems.get(productId) || 0;
+  if (quantity >= product.quantity) {
+    document.getElementById('market-status').textContent = 'You have added all available stock for this product.';
+    return;
+  }
+  cartItems.set(productId, quantity + 1);
+  updateCartDisplay();
+}
+
+function updateCartDisplay() {
+  let count = 0;
+  let total = 0;
+  cartItems.forEach((quantity, productId) => {
+    const product = products.find(item => item.id === productId);
+    if (!product) return;
+    count += quantity;
+    total += quantity * Number(product.price);
+  });
+  document.getElementById('cart-count').textContent = count;
+  document.getElementById('cart-total').textContent = `₹${total.toFixed(2)}`;
+}
+
+function clearCart() {
+  cartItems.clear();
+  updateCartDisplay();
+  document.getElementById('market-status').textContent = '';
+}
+
+async function submitMarketplaceListing(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById('market-listing-status');
+  const button = form.querySelector('button[type="submit"]');
+  const values = Object.fromEntries(new FormData(form));
+  button.disabled = true;
+  status.textContent = 'Saving listing...';
+  try {
+    const response = await fetch('/api/marketplace/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...values, price: Number(values.price), quantity: Number(values.quantity) })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Could not save this listing.');
+    form.reset();
+    status.textContent = 'Listing saved.';
+    await loadMarketplace();
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function checkoutMarketplace() {
+  const status = document.getElementById('market-status');
+  const items = Array.from(cartItems, ([product_id, quantity]) => ({ product_id, quantity }));
+  if (!items.length) {
+    status.textContent = 'Add a product before placing an order.';
+    return;
+  }
+  try {
+    const response = await fetch('/api/marketplace/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Could not place this order.');
+    clearCart();
+    status.textContent = `Order #${data.id} saved. Payment and delivery are not connected.`;
+    await loadMarketplace();
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+function renderMarketplaceOrders(orders) {
+  const container = document.getElementById('market-orders');
+  if (!orders.length) {
+    container.textContent = 'No orders yet.';
+    return;
+  }
+  container.innerHTML = orders.map(order => `
+    <div class="market-order">
+      <div class="market-order-summary"><span>Order #${Number(order.id)} · ${escapeHtml(order.status)}</span><span>₹${Number(order.total).toFixed(2)}</span></div>
+      <div class="market-order-items">${order.items.map(item => `${escapeHtml(item.name)} × ${Number(item.quantity)}`).join(', ')}</div>
+    </div>
+  `).join('');
+}
+
+</script>
+</body>
+</html>

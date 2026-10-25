@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FarmScan AI – Smart Crop Disease System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gd: #1a3a1f; --gm: #4fac5b; --gl: #4caf58; --gp: #e8f5e9; --ga: #76d275;
+  --soil: #8B5E3C; --cream: #fdfaf4;
+  --td: #1a1a18; --tm: #4a4a42; --tl: #888880;
+  --danger: #c0392b; --warn: #e67e22; --safe: #27ae60; --info: #2980b9;
+  --r: 16px; --rs: 8px;
+}
+body { font-family:'DM Sans',sans-serif; background:var(--gd); color:var(--td); min-height:100vh; overflow-x:hidden; }
+body::before { content:''; position:fixed; inset:0; background-image:radial-gradient(circle at 20% 20%,rgba(76,175,88,.08) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(139,94,60,.1) 0%,transparent 50%); pointer-events:none; z-index:0; }
+.page-wrap { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:0 20px 80px; }
+
+/* ---- NAV TABS ---- */
+header { padding:28px 0 0; margin-bottom:0; }
+.top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.logo-block { display:flex; align-items:center; gap:12px; }
+.logo-icon { width:44px; height:44px; background:var(--gl); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+.logo-text { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#fff; letter-spacing:-.5px; }
+.logo-text span { color:var(--ga); }
+.lang-bar { display:flex; gap:5px; flex-wrap:wrap; }
+.lang-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.7); font-family:'DM Sans',sans-serif; font-size:11px; padding:4px 10px; border-radius:20px; cursor:pointer; transition:all .2s; }
+.lang-btn.active,.lang-btn:hover { background:var(--gl); border-color:var(--gl); color:#fff; }
+
+.nav-tabs { display:flex; gap:4px; border-bottom:1px solid rgba(76,175,88,.2); margin-bottom:32px; overflow-x:auto; }
+.nav-tab { font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; padding:10px 18px; border:none; background:none; color:rgba(255,255,255,.45); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:all .2s; }
+.nav-tab.active { color:var(--ga); border-bottom-color:var(--ga); }
+.nav-tab:hover:not(.active) { color:rgba(255,255,255,.75); }
+
+/* ---- TAB PANELS ---- */
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* ---- UPLOAD CARD ---- */
+.upload-card { background:var(--cream); border-radius:var(--r); padding:32px; margin-bottom:24px; }
+.upload-zone { border:2px dashed rgba(45,106,53,.3); border-radius:var(--r); padding:44px 24px; text-align:center; cursor:pointer; transition:all .25s; background:rgba(45,106,53,.03); position:relative; }
+.upload-zone:hover,.upload-zone.dragover { border-color:var(--gl); background:var(--gp); }
+.upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+.upload-icon { font-size:44px; margin-bottom:14px; display:block; }
+.upload-zone h3 { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--gd); margin-bottom:6px; }
+.upload-zone p { font-size:13px; color:var(--tl); }
+.btn-browse { display:inline-block; margin-top:14px; background:var(--gm); color:#fff; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; padding:9px 22px; border-radius:8px; border:none; pointer-events:none; }
+#preview-wrap { display:none; margin-top:20px; text-align:center; }
+#preview-img { max-width:100%; max-height:280px; border-radius:12px; border:3px solid var(--gl); object-fit:cover; }
+.preview-meta { display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px; }
+.preview-meta span { font-size:13px; color:var(--tm); }
+.btn-remove { background:none; border:1px solid rgba(192,57,43,.3); color:var(--danger); font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.form-row { display:flex; gap:14px; margin-top:20px; align-items:flex-end; flex-wrap:wrap; }
+.form-group { flex:1; min-width:150px; }
+.form-group label { display:block; font-size:12px; font-weight:500; color:var(--tm); margin-bottom:5px; }
+.form-group select, .form-group input[type=text] { width:100%; padding:9px 12px; border:1.5px solid rgba(45,106,53,.2); border-radius:var(--rs); background:#fff; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--td); }
+.form-group select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232d6a35' fill='none' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; cursor:pointer; }
+.btn-analyze { flex:1; min-width:160px; background:var(--gm); color:#fff; border:none; font-family:'Syne',sans-serif; font-size:14px; font-weight:700; padding:11px 24px; border-radius:var(--rs); cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:7px; }
+.btn-analyze:hover:not(:disabled) { background:var(--gd); transform:translateY(-1px); }
+.btn-analyze:disabled { opacity:.5; cursor:not-allowed; }
+.error-msg { background:#fdecea; border:1px solid rgba(192,57,43,.2); border-radius:8px; padding:12px 16px; font-size:13px; color:var(--danger); margin-top:10px; display:none; }
+
+/* ---- LOADING ---- */
+#loading-block { display:none; text-align:center; padding:40px; background:var(--cream); border-radius:var(--r); margin-bottom:24px; }
+.spinner { width:44px; height:44px; border:4px solid rgba(45,106,53,.15); border-top-color:var(--gm); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 14px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+#loading-block h3 { font-family:'Syne',sans-serif; font-size:18px; color:var(--gd); margin-bottom:6px; }
+#loading-block p { font-size:13px; color:var(--tl); }
+.loading-steps { display:flex; justify-content:center; gap:24px; margin-top:20px; flex-wrap:wrap; }
+.lstep { font-size:12px; color:var(--tl); display:flex; align-items:center; gap:6px; }
+.lstep.done { color:var(--safe); }
+.lstep-dot { width:8px; height:8px; border-radius:50%; background:rgba(45,106,53,.2); }
+.lstep.done .lstep-dot { background:var(--safe); }
+
+/* ---- RESULTS ---- */
+#result-block { display:none; }
+.result-header { background:var(--cream); border-radius:var(--r); padding:26px 30px; margin-bottom:18px; display:flex; align-items:flex-start; gap:18px; }
+.severity-badge { padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700; font-family:'Syne',sans-serif; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; margin-top:4px; }
+.severity-high { background:#fdecea; color:var(--danger); }
+.severity-medium { background:#fef3e2; color:var(--warn); }
+.severity-low { background:#e8f5e9; color:var(--safe); }
+.severity-healthy { background:#e8f5e9; color:var(--safe); }
+.disease-name { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; color:var(--gd); margin-bottom:5px; line-height:1.2; }
+.confidence-bar-wrap { display:flex; align-items:center; gap:10px; margin-top:10px; }
+.confidence-bar { flex:1; height:6px; background:rgba(45,106,53,.12); border-radius:3px; overflow:hidden; max-width:180px; }
+.confidence-fill { height:100%; background:var(--gl); border-radius:3px; transition:width 1s ease; }
+.confidence-label { font-size:12px; color:var(--tm); font-weight:500; }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin-bottom:16px; }
+.info-card { background:var(--cream); border-radius:var(--r); padding:22px; }
+.card-title { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--tl); margin-bottom:12px; display:flex; align-items:center; gap:5px; }
+.medicine-list,.symptom-list { list-style:none; display:flex; flex-direction:column; gap:7px; }
+.medicine-list li { background:#fff; border:1px solid rgba(45,106,53,.12); border-radius:8px; padding:9px 12px; font-size:13px; color:var(--td); display:flex; align-items:center; gap:7px; }
+.medicine-list li::before { content:'💊'; font-size:13px; }
+.symptom-list li { font-size:13px; color:var(--tm); display:flex; align-items:flex-start; gap:7px; line-height:1.5; }
+.symptom-list li::before { content:'•'; color:var(--gl); font-weight:700; flex-shrink:0; }
+.prevention-card { background:linear-gradient(135deg,#1a3a1f 0%,#2d6a35 100%); border-radius:var(--r); padding:26px; margin-bottom:16px; }
+.prevention-card .card-title { color:rgba(255,255,255,.5); margin-bottom:14px; }
+.prev-list { list-style:none; display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:9px; }
+.prev-list li { background:rgba(255,255,255,.08); border-radius:8px; padding:9px 13px; font-size:12px; color:rgba(255,255,255,.85); display:flex; align-items:center; gap:7px; }
+.prev-list li::before { content:'✓'; color:var(--ga); font-weight:700; flex-shrink:0; }
+.btn-new { display:inline-flex; align-items:center; gap:7px; background:transparent; border:1.5px solid rgba(255,255,255,.2); color:rgba(255,255,255,.7); font-family:'Syne',sans-serif; font-size:13px; font-weight:600; padding:9px 20px; border-radius:8px; cursor:pointer; transition:all .2s; }
+.btn-new:hover { border-color:var(--ga); color:var(--ga); }
+
+/* ---- URGENCY ALERT ---- */
+.urgency-alert { border-radius:var(--r); padding:18px 22px; margin-bottom:16px; display:none; }
+.urgency-alert.high { background:#fdecea; border-left:4px solid var(--danger); }
+.urgency-alert.medium { background:#fef3e2; border-left:4px solid var(--warn); }
+.urgency-alert.low { background:#e8f5e9; border-left:4px solid var(--safe); }
+.urgency-alert h4 { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; margin-bottom:4px; }
+.urgency-alert.high h4 { color:var(--danger); }
+.urgency-alert.medium h4 { color:var(--warn); }
+.urgency-alert.low h4 { color:var(--safe); }
+.urgency-alert p { font-size:13px; color:var(--tm); }
+
+/* ---- SPREAD RISK METER ---- */
+.risk-section { background:var(--cream); border-radius:var(--r); padding:22px; margin-bottom:16px; }
+.risk-title { font-family:'Syne',sans-serif; font-size:12px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--tl); margin-bottom:14px; }
+.risk-meters { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+.risk-meter { text-align:center; }
+.risk-meter-label { font-size:12px; color:var(--tm); margin-bottom:6px; }
+.risk-circle { width:70px; height:70px; border-radius:50%; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:16px; font-weight:800; position:relative; }
+.risk-circle-val { font-size:11px; font-weight:700; }
+.risk-meter-sub { font-size:11px; color:var(--tl); }
+
+/* ---- COST ESTIMATOR ---- */
+.cost-section { background:var(--cream); border-radius:var(--r); padding:22px; margin-bottom:16px; }
+.cost-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-top:12px; }
+.cost-item { background:#fff; border:1px solid rgba(45,106,53,.1); border-radius:10px; padding:14px; text-align:center; }
+.cost-item .cost-label { font-size:11px; color:var(--tl); margin-bottom:4px; }
+.cost-item .cost-val { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--gm); }
+.cost-item .cost-unit { font-size:10px; color:var(--tl); }
+
+/* ---- AI CHATBOT ---- */
+.chat-container { background:var(--cream); border-radius:var(--r); overflow:hidden; margin-bottom:24px; }
+.chat-header { background:var(--gm); padding:16px 20px; display:flex; align-items:center; gap:10px; }
+.chat-header-icon { width:34px; height:34px; background:rgba(255,255,255,.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.chat-header h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:#fff; }
+.chat-header p { font-size:12px; color:rgba(255,255,255,.6); }
+.chat-messages { height:360px; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; }
+.msg { max-width:78%; display:flex; flex-direction:column; gap:4px; }
+.msg.user { align-self:flex-end; align-items:flex-end; }
+.msg.ai { align-self:flex-start; align-items:flex-start; }
+.msg-bubble { padding:10px 14px; border-radius:12px; font-size:13px; line-height:1.6; }
+.msg.user .msg-bubble { background:var(--gm); color:#fff; border-bottom-right-radius:3px; }
+.msg.ai .msg-bubble { background:#fff; color:var(--td); border:1px solid rgba(45,106,53,.12); border-bottom-left-radius:3px; }
+.msg-time { font-size:10px; color:var(--tl); }
+.chat-input-row { display:flex; gap:10px; padding:14px 16px; border-top:1px solid rgba(45,106,53,.1); background:#fff; }
+.chat-input-row input { flex:1; border:1.5px solid rgba(45,106,53,.2); border-radius:8px; padding:9px 13px; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--td); outline:none; }
+.chat-input-row input:focus { border-color:var(--gl); }
+.chat-send { background:var(--gm); color:#fff; border:none; border-radius:8px; padding:9px 18px; font-family:'Syne',sans-serif; font-size:12px; font-weight:700; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.chat-send:hover { background:var(--gd); }
+.chat-send:disabled { opacity:.5; cursor:not-allowed; }
+.quick-questions { display:flex; gap:6px; flex-wrap:wrap; padding:10px 16px; background:#f8f6f0; border-top:1px solid rgba(45,106,53,.08); }
+.quick-q { background:#fff; border:1px solid rgba(45,106,53,.15); border-radius:20px; padding:5px 12px; font-size:11px; color:var(--gm); cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif; }
+.quick-q:hover { background:var(--gp); border-color:var(--gl); }
+
+/* ---- SCAN HISTORY ---- */
+.history-grid { display:flex; flex-direction:column; gap:12px; }
+.history-item { background:var(--cream); border-radius:var(--r); padding:18px 20px; display:flex; align-items:center; gap:16px; cursor:pointer; transition:all .2s; border:1.5px solid transparent; }
+.history-item:hover { border-color:var(--gl); }
+.hist-thumb { width:60px; height:60px; border-radius:10px; object-fit:cover; border:2px solid rgba(76,175,88,.3); flex-shrink:0; }
+.hist-thumb-placeholder { width:60px; height:60px; border-radius:10px; background:var(--gp); display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+.hist-info { flex:1; }
+.hist-disease { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:var(--gd); margin-bottom:3px; }
+.hist-meta { font-size:12px; color:var(--tl); display:flex; gap:10px; flex-wrap:wrap; }
+.hist-badge { display:inline-block; }
+.hist-actions { display:flex; gap:6px; }
+.hist-btn { background:none; border:1px solid rgba(45,106,53,.2); color:var(--gm); font-size:11px; padding:5px 10px; border-radius:6px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.hist-btn:hover { background:var(--gp); }
+.hist-btn.del { border-color:rgba(192,57,43,.2); color:var(--danger); }
+.hist-btn.del:hover { background:#fdecea; }
+.empty-hist { text-align:center; padding:60px 20px; }
+.empty-hist .empty-icon { font-size:48px; margin-bottom:14px; display:block; }
+.empty-hist h3 { font-family:'Syne',sans-serif; font-size:18px; color:rgba(255,255,255,.5); margin-bottom:8px; }
+.empty-hist p { font-size:13px; color:rgba(255,255,255,.3); }
+
+/* ---- WEATHER WIDGET ---- */
+.weather-card { background:var(--cream); border-radius:var(--r); padding:26px; margin-bottom:24px; }
+.weather-top { display:flex; align-items:center; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+.weather-icon { font-size:52px; }
+.weather-main { flex:1; }
+.weather-main h2 { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:var(--gd); }
+.weather-main p { font-size:13px; color:var(--tl); margin-top:2px; }
+.weather-loc { font-size:13px; color:var(--gm); font-weight:500; }
+.weather-details { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:20px; }
+.weather-detail { background:#fff; border:1px solid rgba(45,106,53,.1); border-radius:10px; padding:12px; text-align:center; }
+.weather-detail .wd-label { font-size:11px; color:var(--tl); margin-bottom:4px; }
+.weather-detail .wd-val { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; color:var(--gd); }
+.disease-risk-weather { border-radius:10px; padding:14px 16px; font-size:13px; }
+.disease-risk-weather.high { background:#fdecea; color:var(--danger); }
+.disease-risk-weather.medium { background:#fef3e2; color:var(--warn); }
+.disease-risk-weather.low { background:#e8f5e9; color:var(--safe); }
+.weather-form { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+.weather-form input { flex:1; min-width:180px; border:1.5px solid rgba(45,106,53,.2); border-radius:8px; padding:9px 13px; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--td); }
+.weather-form button { background:var(--gm); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-family:'Syne',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+.weather-loading { text-align:center; padding:30px; color:var(--tl); font-size:13px; display:none; }
+
+/* ---- CROP CALENDAR ---- */
+.calendar-card { background:var(--cream); border-radius:var(--r); padding:26px; margin-bottom:24px; }
+.calendar-card h2 { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; color:var(--gd); margin-bottom:6px; }
+.calendar-card .sub { font-size:13px; color:var(--tl); margin-bottom:20px; }
+.season-row { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-bottom:20px; border-radius:10px; overflow:hidden; }
+.season-cell { padding:10px 6px; text-align:center; font-size:11px; }
+.season-cell.kharif { background:#e8f5e9; color:var(--gm); }
+.season-cell.rabi { background:#e3f2fd; color:#1565c0; }
+.season-cell.zaid { background:#fff8e1; color:#f57f17; }
+.season-cell.off { background:#f5f5f5; color:var(--tl); }
+.season-cell .sc-month { font-weight:700; font-size:12px; display:block; margin-bottom:2px; }
+.season-cell .sc-name { font-size:10px; display:block; }
+.disease-calendar { display:flex; flex-direction:column; gap:8px; }
+.dc-row { background:#fff; border:1px solid rgba(45,106,53,.1); border-radius:10px; padding:12px 16px; display:flex; align-items:center; gap:12px; }
+.dc-season-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.dc-row .dc-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:var(--gd); margin-bottom:2px; }
+.dc-row .dc-desc { font-size:12px; color:var(--tl); }
+
+/* ---- TIPS & LEARN ---- */
+.tips-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-bottom:24px; }
+.tip-card { background:var(--cream); border-radius:var(--r); padding:22px; cursor:pointer; transition:all .2s; border:1.5px solid transparent; }
+.tip-card:hover { border-color:var(--gl); transform:translateY(-2px); }
+.tip-emoji { font-size:32px; margin-bottom:10px; display:block; }
+.tip-card h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:var(--gd); margin-bottom:6px; }
+.tip-card p { font-size:13px; color:var(--tm); line-height:1.6; }
+.tip-tag { display:inline-block; background:var(--gp); color:var(--gm); font-size:10px; font-weight:600; padding:3px 9px; border-radius:20px; margin-top:10px; }
+.learn-ask-btn { display:block; width:100%; background:var(--gm); color:#fff; border:none; font-family:'Syne',sans-serif; font-size:14px; font-weight:700; padding:13px; border-radius:var(--rs); cursor:pointer; margin-top:16px; transition:all .2s; }
+.learn-ask-btn:hover { background:var(--gd); }
+
+/* ---- STATS DASHBOARD ---- */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+.stat-card { background:var(--cream); border-radius:var(--r); padding:18px; text-align:center; }
+.stat-card .stat-num { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:var(--gm); }
+.stat-card .stat-label { font-size:12px; color:var(--tl); margin-top:4px; }
+.stat-card .stat-icon { font-size:22px; margin-bottom:8px; display:block; }
+
+/* ---- COMMON ---- */
+.section-header { margin-bottom:20px; }
+.section-header h2 { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#fff; margin-bottom:4px; }
+.section-header p { font-size:13px; color:rgba(255,255,255,.45); }
+.pill-strip { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:32px; }
+.pill-item { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:12px; text-align:center; }
+.pill-item .pi-icon { font-size:22px; margin-bottom:5px; display:block; }
+.pill-item .pi-label { font-size:11px; color:rgba(255,255,255,.45); }
+.divider-label { font-size:11px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:rgba(255,255,255,.3); padding:4px 0 12px; }
+.share-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.share-btn { display:flex; align-items:center; gap:6px; border:1px solid rgba(45,106,53,.2); background:#fff; color:var(--gm); font-size:12px; padding:7px 14px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+.share-btn:hover { background:var(--gp); }
+.print-note { font-size:11px; color:var(--tl); margin-top:8px; }
+@media(max-width:560px){ .upload-card{padding:18px;} .result-header{flex-direction:column;} .top-bar{flex-direction:column;align-items:flex-start;gap:10px;} .season-row{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<header>
+  <div class="top-bar">
+    <div class="logo-block">
+      <div class="logo-icon">🌿</div>
+      <div class="logo-text">Farm<span>Scan</span> AI</div>
+    </div>
+    <div class="lang-bar">
+      <button class="lang-btn active" onclick="setLang('en',this)">EN</button>
+      <button class="lang-btn" onclick="setLang('hi',this)">हिंदी</button>
+      <button class="lang-btn" onclick="setLang('mr',this)">मराठी</button>
+      <button class="lang-btn" onclick="setLang('te',this)">తెలుగు</button>
+      <button class="lang-btn" onclick="setLang('ta',this)">தமிழ்</button>
+    </div>
+  </div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('scan',this)">🔬 Scan Crop</button>
+    <button class="nav-tab" onclick="switchTab('chat',this)">💬 AI Advisor</button>
+    <button class="nav-tab" onclick="switchTab('history',this)">📋 Scan History</button>
+    <button class="nav-tab" onclick="switchTab('weather',this)">🌦 Weather Risk</button>
+    <button class="nav-tab" onclick="switchTab('calendar',this)">📅 Crop Calendar</button>
+    <button class="nav-tab" onclick="switchTab('learn',this)">📚 Learn & Tips</button>
+  </nav>
+</header>
+
+<!-- ==================== TAB: SCAN ==================== -->
+<div class="tab-panel active" id="tab-scan">
+  <div class="section-header">
+    <h2>Detect Crop Disease <span style="color:var(--ga)">Instantly</span></h2>
+    <p>Upload a photo — AI identifies disease, risk level, medicines & more</p>
+  </div>
+
+  <div class="pill-strip">
+    <div class="pill-item"><span class="pi-icon">📸</span><span class="pi-label">Photo Upload</span></div>
+    <div class="pill-item"><span class="pi-icon">🤖</span><span class="pi-label">AI Detection</span></div>
+    <div class="pill-item"><span class="pi-icon">💊</span><span class="pi-label">Medicine Guide</span></div>
+    <div class="pill-item"><span class="pi-icon">📊</span><span class="pi-label">Spread Risk</span></div>
+    <div class="pill-item"><span class="pi-icon">💰</span><span class="pi-label">Cost Estimate</span></div>
+    <div class="pill-item"><span class="pi-icon">🌍</span><span class="pi-label">5 Languages</span></div>
+  </div>
+
+  <div class="upload-card" id="upload-card">
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" id="file-input" accept="image/*" onchange="handleFile(event)">
+      <span class="upload-icon">🌾</span>
+      <h3 id="upload-title">Drop your crop photo here</h3>
+      <p id="upload-sub">Supports JPG, PNG, WEBP — max 10MB</p>
+      <button class="btn-browse" id="browse-btn">Browse Files</button>
+    </div>
+    <div id="preview-wrap">
+      <img id="preview-img" src="" alt="Crop preview">
+      <div class="preview-meta">
+        <span id="file-name-label">image.jpg</span>
+        <button class="btn-remove" onclick="removeImage()">✕ Remove</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label id="lang-label">Response Language</label>
+        <select id="lang-select">
+          <option value="English">English</option>
+          <option value="Hindi">Hindi (हिंदी)</option>
+          <option value="Marathi">Marathi (मराठी)</option>
+          <option value="Telugu">Telugu (తెలుగు)</option>
+          <option value="Tamil">Tamil (தமிழ்)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label id="crop-label">Crop Type (optional)</label>
+        <select id="crop-select">
+          <option value="">Auto-detect</option>
+          <option value="Wheat">Wheat</option>
+          <option value="Rice">Rice / Paddy</option>
+          <option value="Cotton">Cotton</option>
+          <option value="Tomato">Tomato</option>
+          <option value="Potato">Potato</option>
+          <option value="Maize">Maize / Corn</option>
+          <option value="Sugarcane">Sugarcane</option>
+          <option value="Soybean">Soybean</option>
+          <option value="Groundnut">Groundnut</option>
+          <option value="Onion">Onion</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Farm Size (acres)</label>
+        <input type="text" id="farm-size" placeholder="e.g. 2.5" value="1">
+      </div>
+      <button class="btn-analyze" id="analyze-btn" onclick="analyzeCropImage()" disabled>🔬 Analyze Crop</button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <div id="loading-block">
+    <div class="spinner"></div>
+    <h3 id="loading-title">Analyzing your crop...</h3>
+    <p id="loading-sub">AI is scanning for diseases and preparing full report</p>
+    <div class="loading-steps">
+      <div class="lstep" id="ls1"><div class="lstep-dot"></div> Identifying crop</div>
+      <div class="lstep" id="ls2"><div class="lstep-dot"></div> Detecting disease</div>
+      <div class="lstep" id="ls3"><div class="lstep-dot"></div> Risk assessment</div>
+      <div class="lstep" id="ls4"><div class="lstep-dot"></div> Treatment plan</div>
+    </div>
+  </div>
+
+  <div id="result-block">
+    <div class="urgency-alert" id="urgency-alert">
+      <h4 id="urgency-title">⚠️ Immediate Action Required</h4>
+      <p id="urgency-text"></p>
+    </div>
+
+    <div class="result-header">
+      <div style="flex:1">
+        <div class="disease-name" id="res-disease">—</div>
+        <div id="res-desc" style="margin-top:6px;font-size:14px;color:var(--tm);line-height:1.7;"></div>
+        <div class="confidence-bar-wrap">
+          <div class="confidence-bar"><div class="confidence-fill" id="conf-fill" style="width:0%"></div></div>
+          <span class="confidence-label" id="conf-label">—</span>
+        </div>
+        <div class="share-row">
+          <button class="share-btn" onclick="printResult()">🖨️ Print Report</button>
+          <button class="share-btn" onclick="copyResult()">📋 Copy Summary</button>
+          <button class="share-btn" onclick="switchTab('history', document.querySelectorAll('.nav-tab')[2])">📋 View Scan History</button>
+        </div>
+        <p class="print-note" id="print-note-el">Save as PDF to share with agronomist or Krishi Kendra</p>
+      </div>
+      <div class="severity-badge" id="severity-badge">—</div>
+    </div>
+
+    <div class="risk-section">
+      <div class="risk-title">📊 Spread & Yield Impact Analysis</div>
+      <div class="risk-meters" id="risk-meters"></div>
+    </div>
+
+    <div class="cost-section">
+      <div class="card-title" style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--tl);display:flex;align-items:center;gap:5px;">💰 Treatment Cost Estimate</div>
+      <div class="cost-grid" id="cost-grid"></div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="info-card">
+        <div class="card-title">🔍 Symptoms Detected</div>
+        <ul class="symptom-list" id="symptoms-list"></ul>
+      </div>
+      <div class="info-card">
+        <div class="card-title">💊 Recommended Medicines</div>
+        <ul class="medicine-list" id="medicine-list"></ul>
+      </div>
+    </div>
+
+    <div class="prevention-card">
+      <div class="card-title">🛡️ Prevention & Treatment Steps</div>
+      <ul class="prev-list" id="prevention-list"></ul>
+    </div>
+
+    <div style="text-align:center;margin-top:8px;">
+      <button class="btn-new" onclick="resetAll()">↩ Scan Another Crop</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: CHAT ==================== -->
+<div class="tab-panel" id="tab-chat">
+  <div class="section-header">
+    <h2>AI Farm <span style="color:var(--ga)">Advisor</span></h2>
+    <p>Ask any farming question — diseases, pesticides, soil, seasons, markets</p>
+  </div>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="chat-header-icon">🤖</div>
+      <div><h3>KrishiBot — Expert Farm Advisor</h3><p>Powered by Claude AI • Available 24/7</p></div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg ai">
+        <div class="msg-bubble">🌾 Namaste! I am KrishiBot, your AI farming advisor. I can help you with crop diseases, pesticide doses, soil health, irrigation, market prices, and more. What is your question today?</div>
+        <div class="msg-time">Now</div>
+      </div>
+    </div>
+    <div class="quick-questions" id="quick-questions">
+      <button class="quick-q" onclick="sendQuick(this)">What is leaf blight?</button>
+      <button class="quick-q" onclick="sendQuick(this)">Best pesticide for cotton?</button>
+      <button class="quick-q" onclick="sendQuick(this)">How to improve soil health?</button>
+      <button class="quick-q" onclick="sendQuick(this)">Rice farming tips</button>
+      <button class="quick-q" onclick="sendQuick(this)">Organic farming methods</button>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="Ask about any crop, disease, or farming tip..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" id="chat-send-btn" onclick="sendChat()">Send ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: HISTORY ==================== -->
+<div class="tab-panel" id="tab-history">
+  <div class="section-header">
+    <h2>Scan <span style="color:var(--ga)">History</span></h2>
+    <p>Review all your previous crop scans and reports</p>
+  </div>
+  <div class="stats-grid" id="history-stats">
+    <div class="stat-card"><span class="stat-icon">🔬</span><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Scans</div></div>
+    <div class="stat-card"><span class="stat-icon">🦠</span><div class="stat-num" id="stat-diseases">0</div><div class="stat-label">Diseases Found</div></div>
+    <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-num" id="stat-healthy">0</div><div class="stat-label">Healthy Crops</div></div>
+    <div class="stat-card"><span class="stat-icon">🌾</span><div class="stat-num" id="stat-crops">0</div><div class="stat-label">Crop Types</div></div>
+  </div>
+  <div class="history-grid" id="history-grid">
+    <div class="empty-hist">
+      <span class="empty-icon">📋</span>
+      <h3>No scans yet</h3>
+      <p>Go to Scan Crop tab, analyze a crop and save the result here</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: WEATHER ==================== -->
+<div class="tab-panel" id="tab-weather">
+  <div class="section-header">
+    <h2>Weather <span style="color:var(--ga)">Disease Risk</span></h2>
+    <p>AI-generated estimate only. It is not live weather data or a field measurement.</p>
+  </div>
+  <div class="weather-card">
+    <div class="weather-form">
+      <input type="text" id="weather-city" placeholder="Enter your city (e.g. Nanded, Pune, Nagpur)" value="Nanded">
+      <button onclick="getWeatherRisk()">🌦 Check Risk</button>
+    </div>
+    <div class="weather-loading" id="weather-loading"><div class="spinner" style="width:30px;height:30px;margin-bottom:10px;"></div>Preparing estimate...</div>
+    <div id="weather-result" style="display:none">
+      <div class="weather-top">
+        <div class="weather-icon" id="w-icon">🌤</div>
+        <div class="weather-main">
+          <h2 id="w-temp">—</h2>
+          <p id="w-desc">—</p>
+          <div class="weather-loc" id="w-city">—</div>
+        </div>
+      </div>
+      <div class="weather-details" id="w-details"></div>
+      <div class="disease-risk-weather" id="w-risk-box"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: CALENDAR ==================== -->
+<div class="tab-panel" id="tab-calendar">
+  <div class="section-header">
+    <h2>Crop <span style="color:var(--ga)">Calendar</span></h2>
+    <p>Seasonal farming guide with disease alerts by month</p>
+  </div>
+  <div class="calendar-card">
+    <h2>Indian Crop Seasons — Disease Alert Calendar</h2>
+    <p class="sub">Current month highlighted • Color-coded by season</p>
+    <div class="season-row" id="season-row"></div>
+    <div class="divider-label">🦠 High-Risk Disease Periods</div>
+    <div class="disease-calendar">
+      <div class="dc-row"><div class="dc-season-dot" style="background:#27ae60"></div><div><div class="dc-title">Kharif Season (Jun–Nov): Blast & Blight</div><div class="dc-desc">Rice blast, maize blight, cotton bollworm risk — high humidity favors fungal spread</div></div></div>
+      <div class="dc-row"><div class="dc-season-dot" style="background:#1565c0"></div><div><div class="dc-title">Rabi Season (Nov–Apr): Rust & Smut</div><div class="dc-desc">Wheat rust, barley smut, mustard downy mildew — cool dry conditions</div></div></div>
+      <div class="dc-row"><div class="dc-season-dot" style="background:#f57f17"></div><div><div class="dc-title">Zaid Season (Mar–Jun): Aphids & Mites</div><div class="dc-desc">Watermelon mosaic virus, cucumber beetles, mite infestations during summer</div></div></div>
+      <div class="dc-row"><div class="dc-season-dot" style="background:#c0392b"></div><div><div class="dc-title">Monsoon (Jun–Sep): Maximum Risk Period</div><div class="dc-desc">Fungal spores spread rapidly in wet conditions — scout fields every 3–4 days</div></div></div>
+    </div>
+    <div style="margin-top:20px">
+      <div class="divider-label">📅 Current Month Advisory</div>
+      <div id="month-advisory" style="background:#fff;border:1px solid rgba(45,106,53,.15);border-radius:10px;padding:16px;font-size:13px;color:var(--tm);line-height:1.7;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: LEARN ==================== -->
+<div class="tab-panel" id="tab-learn">
+  <div class="section-header">
+    <h2>Learn & <span style="color:var(--ga)">Tips</span></h2>
+    <p>Farming knowledge library — click any topic to learn more</p>
+  </div>
+  <div class="tips-grid" id="tips-grid"></div>
+  <button class="learn-ask-btn" onclick="switchTab('chat', document.querySelectorAll('.nav-tab')[1]); document.getElementById('chat-input').value='Give me top 10 tips for organic pest control'; sendChat();">
+    🤖 Ask AI for Personalized Farming Advice ↗
+  </button>
+</div>
+
+</div><!-- end page-wrap -->
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let currentImage = null;
+let currentImageFile = null;
+let currentLang = 'en';
+let scanHistory = [];
+let lastResult = null;
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'history') renderHistory();
+  if (id === 'calendar') renderCalendar();
+  if (id === 'learn') renderLearn();
+}
+
+// ============================================================
+// LANGUAGE
+// ============================================================
+const labels = {
+  en: { heroSub:"Upload a photo of your crop and get instant AI diagnosis.", uploadTitle:"Drop your crop photo here", uploadSub:"Supports JPG, PNG, WEBP — max 10MB", langLabel:"Response Language", cropLabel:"Crop Type (optional)", browseBtn:"Browse Files", analyzeBtn:"🔬 Analyze Crop", loadingTitle:"Analyzing your crop...", loadingSub:"AI is scanning for diseases and preparing full report", transNote:"Results shown in selected language" },
+  hi: { heroSub:"फसल की फोटो अपलोड करें, तुरंत AI निदान पाएं।", uploadTitle:"यहाँ फसल की फोटो डालें", uploadSub:"JPG, PNG, WEBP — अधिकतम 10MB", langLabel:"उत्तर की भाषा", cropLabel:"फसल का प्रकार", browseBtn:"फ़ाइल चुनें", analyzeBtn:"🔬 फसल जाँचें", loadingTitle:"विश्लेषण हो रहा है...", loadingSub:"AI जाँच कर रहा है", transNote:"परिणाम चुनी भाषा में" },
+  mr: { heroSub:"पिकाचा फोटो अपलोड करा, त्वरित AI निदान मिळवा।", uploadTitle:"येथे पिकाचा फोटो टाका", uploadSub:"JPG, PNG, WEBP — 10MB", langLabel:"उत्तराची भाषा", cropLabel:"पिकाचा प्रकार", browseBtn:"फाइल निवडा", analyzeBtn:"🔬 पीक तपासा", loadingTitle:"विश्लेषण होत आहे...", loadingSub:"AI तपासत आहे", transNote:"निकाल निवडलेल्या भाषेत" },
+  te: { heroSub:"పంట ఫోటో అప్‌లోడ్ చేయండి, వెంటనే AI నిర్ధారణ పొందండి।", uploadTitle:"పంట ఫోటోను ఇక్కడ వేయండి", uploadSub:"JPG, PNG, WEBP — 10MB", langLabel:"సమాధాన భాష", cropLabel:"పంట రకం", browseBtn:"ఫైల్ ఎంచుకోండి", analyzeBtn:"🔬 పంట విశ్లేషించండి", loadingTitle:"విశ్లేషిస్తున్నాం...", loadingSub:"AI తనిఖీ చేస్తోంది", transNote:"ఎంచుకున్న భాషలో" },
+  ta: { heroSub:"பயிர் படத்தை பதிவேற்றவும், உடனடி AI கண்டறிவு பெறவும்।", uploadTitle:"இங்கே பயிர் படம் போடுங்கள்", uploadSub:"JPG, PNG, WEBP — 10MB", langLabel:"பதில் மொழி", cropLabel:"பயிர் வகை", browseBtn:"கோப்பு தேர்வு", analyzeBtn:"🔬 பயிரை பகுப்பாய்வு", loadingTitle:"ஆய்வு செய்கிறோம்...", loadingSub:"AI சோதிக்கிறது", transNote:"தேர்ந்த மொழியில்" }
+};
+
+function setLang(code, btn) {
+  currentLang = code;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const l = labels[code];
+  document.getElementById('upload-title').textContent = l.uploadTitle;
+  document.getElementById('upload-sub').textContent = l.uploadSub;
+  document.getElementById('lang-label').textContent = l.langLabel;
+  document.getElementById('crop-label').textContent = l.cropLabel;
+  document.getElementById('browse-btn').textContent = l.browseBtn;
+  document.getElementById('analyze-btn').innerHTML = l.analyzeBtn;
+  document.getElementById('loading-title').textContent = l.loadingTitle;
+  document.getElementById('loading-sub').textContent = l.loadingSub;
+  const map = {en:'English',hi:'Hindi',mr:'Marathi',te:'Telugu',ta:'Tamil'};
+  document.getElementById('lang-select').value = map[code];
+}
+
+// ============================================================
+// FILE HANDLING
+// ============================================================
+const uploadZone = document.getElementById('upload-zone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('dragover'); const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('image/')) loadFile(f); });
+
+function handleFile(e) { const f = e.target.files[0]; if (f) loadFile(f); }
+
+function loadFile(file) {
+  if (file.size > 10 * 1024 * 1024) { showError('File too large. Max 10MB.'); return; }
+  currentImageFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentImage = e.target.result;
+    document.getElementById('preview-img').src = currentImage;
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('file-name-label').textContent = file.name;
+    document.getElementById('analyze-btn').disabled = false;
+    hideError();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage() {
+  currentImage = null;
+  currentImageFile = null;
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  document.getElementById('analyze-btn').disabled = true;
+}
+
+function showError(msg) { const el = document.getElementById('error-msg'); el.textContent = msg; el.style.display = 'block'; }
+function hideError() { document.getElementById('error-msg').style.display = 'none'; }
+function apiErrorMessage(error) {
+  if (location.protocol === 'file:' || error.message === 'Failed to fetch') {
+    return 'Cannot reach the AgriSmart API or database. Start the server and open http://127.0.0.1:8001/ instead of opening this HTML file directly.';
+  }
+  return error.message;
+}
+
+// ============================================================
+// ANALYZE IMAGE — MAIN AI CALL
+// ============================================================
+async function analyzeCropImage() {
+  if (!currentImage) return;
+  const lang = document.getElementById('lang-select').value;
+  const cropType = document.getElementById('crop-select').value;
+  const farmSize = parseFloat(document.getElementById('farm-size').value) || 1;
+
+  document.getElementById('upload-card').style.display = 'none';
+  document.getElementById('loading-block').style.display = 'block';
+  document.getElementById('result-block').style.display = 'none';
+  hideError();
+
+  // Animate loading steps
+  const steps = ['ls1','ls2','ls3','ls4'];
+  steps.forEach((s,i) => setTimeout(() => document.getElementById(s).classList.add('done'), 800 + i*900));
+
+  try {
+    const formData = new FormData();
+    formData.append('image', currentImageFile);
+    formData.append('crop_type', cropType);
+    formData.append('farm_size', String(farmSize));
+    formData.append('language', lang);
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Analysis failed.');
+    lastResult = { ...data.result, _scanId: data.id };
+    await renderHistory();
+    showResults(lastResult);
+  } catch(err) {
+    document.getElementById('loading-block').style.display = 'none';
+    document.getElementById('upload-card').style.display = 'block';
+    showError('Analysis failed. ' + apiErrorMessage(err));
+  }
+}
+
+function showResults(r) {
+  document.getElementById('loading-block').style.display = 'none';
+  document.getElementById('result-block').style.display = 'block';
+
+  // Urgency alert
+  const ua = document.getElementById('urgency-alert');
+  const sev = (r.severity||'').toLowerCase();
+  if (sev === 'high') {
+    ua.className = 'urgency-alert high'; ua.style.display = 'block';
+    document.getElementById('urgency-title').textContent = '🚨 Immediate Action Required!';
+    document.getElementById('urgency-text').textContent = r.urgency || 'High severity disease detected. Treat immediately to prevent major crop loss.';
+  } else if (sev === 'medium') {
+    ua.className = 'urgency-alert medium'; ua.style.display = 'block';
+    document.getElementById('urgency-title').textContent = '⚠️ Action Needed Soon';
+    document.getElementById('urgency-text').textContent = r.urgency || 'Medium severity detected. Apply treatment within a week.';
+  } else if (sev === 'healthy') {
+    ua.className = 'urgency-alert low'; ua.style.display = 'block';
+    document.getElementById('urgency-title').textContent = '✅ Your Crop Looks Healthy!';
+    document.getElementById('urgency-text').textContent = 'No significant disease detected. Continue regular monitoring and preventive care.';
+  } else { ua.style.display = 'none'; }
+
+  document.getElementById('res-disease').textContent = r.disease + (r.cropDetected ? ' — ' + r.cropDetected : '');
+  document.getElementById('res-desc').textContent = r.description;
+
+  const conf = Math.min(Math.max(r.confidence||80,0),100);
+  document.getElementById('conf-label').textContent = conf + '% confidence';
+  setTimeout(() => { document.getElementById('conf-fill').style.width = conf + '%'; }, 150);
+
+  const badge = document.getElementById('severity-badge');
+  badge.textContent = r.severity;
+  badge.className = 'severity-badge severity-' + sev;
+
+  // Risk meters
+  const meters = document.getElementById('risk-meters');
+  meters.innerHTML = '';
+  const risks = [
+    { label:'Spread Risk', val:r.spreadRisk||0, color:'#c0392b', bg:'#fdecea' },
+    { label:'Yield Loss', val:r.yieldLoss||0, color:'#e67e22', bg:'#fef3e2' },
+    { label:'Soil Impact', val:r.soilImpact||0, color:'#2980b9', bg:'#e3f2fd' }
+  ];
+  risks.forEach(risk => {
+    const d = document.createElement('div');
+    d.className = 'risk-meter';
+    d.innerHTML = `<div class="risk-meter-label">${risk.label}</div>
+      <div class="risk-circle" style="background:${risk.bg};border:3px solid ${risk.color};">
+        <span class="risk-circle-val" style="color:${risk.color}">${risk.val}%</span>
+      </div>
+      <div class="risk-meter-sub">${risk.val<30?'Low':risk.val<60?'Medium':'High'} risk</div>`;
+    meters.appendChild(d);
+  });
+
+  // Cost estimator
+  const cg = document.getElementById('cost-grid');
+  const fs = r._farmSize || 1;
+  const treatCost = (r.treatmentCostPerAcre || 800) * fs;
+  const lossNT = (r.lossWithoutTreatment || 5000) * fs;
+  const savings = (r.savingsWithTreatment || 4200) * fs;
+  cg.innerHTML = `
+    <div class="cost-item"><div class="cost-label">Treatment Cost</div><div class="cost-val">₹${treatCost.toLocaleString('en-IN')}</div><div class="cost-unit">for ${fs} acre(s)</div></div>
+    <div class="cost-item"><div class="cost-label">Loss Without Treatment</div><div class="cost-val" style="color:var(--danger)">₹${lossNT.toLocaleString('en-IN')}</div><div class="cost-unit">estimated loss</div></div>
+    <div class="cost-item"><div class="cost-label">Net Savings</div><div class="cost-val" style="color:var(--safe)">₹${savings.toLocaleString('en-IN')}</div><div class="cost-unit">by treating now</div></div>
+  `;
+
+  // Symptoms
+  const symList = document.getElementById('symptoms-list');
+  symList.innerHTML = '';
+  (r.symptoms||[]).forEach(s => { const li = document.createElement('li'); li.textContent = s; symList.appendChild(li); });
+
+  // Medicines
+  const medList = document.getElementById('medicine-list');
+  medList.innerHTML = '';
+  (r.medicines||[]).forEach(m => { const li = document.createElement('li'); li.textContent = m; medList.appendChild(li); });
+
+  // Prevention
+  const prevList = document.getElementById('prevention-list');
+  prevList.innerHTML = '';
+  (r.prevention||[]).forEach(p => { const li = document.createElement('li'); li.textContent = p; prevList.appendChild(li); });
+}
+
+// ============================================================
+// SHARE / SAVE
+// ============================================================
+function printResult() { window.print(); }
+
+function copyResult() {
+  if (!lastResult) return;
+  const txt = `FarmScan AI Report\nDisease: ${lastResult.disease}\nCrop: ${lastResult.cropDetected||'—'}\nSeverity: ${lastResult.severity}\nConfidence: ${lastResult.confidence}%\n\nDescription: ${lastResult.description}\n\nMedicines:\n${(lastResult.medicines||[]).map(m=>'• '+m).join('\n')}\n\nPrevention:\n${(lastResult.prevention||[]).map(p=>'• '+p).join('\n')}`;
+  navigator.clipboard.writeText(txt).then(() => alert('Report copied to clipboard!')).catch(()=>alert('Copy failed'));
+}
+
+function resetAll() {
+  currentImage = null; currentImageFile = null; lastResult = null;
+  document.getElementById('file-input').value = '';
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('result-block').style.display = 'none';
+  document.getElementById('upload-card').style.display = 'block';
+  document.getElementById('urgency-alert').style.display = 'none';
+  document.querySelectorAll('.lstep').forEach(l => l.classList.remove('done'));
+  hideError();
+}
+
+// ============================================================
+// HISTORY TAB
+// ============================================================
+function farmScanEscapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
+}
+
+async function renderHistory() {
+  const grid = document.getElementById('history-grid');
+  try {
+    const response = await fetch('/api/scans');
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Could not load scan history.');
+    scanHistory = data;
+  } catch (error) {
+    grid.textContent = 'Scan history could not be loaded: ' + error.message;
+    return;
+  }
+
+  const stats_total = document.getElementById('stat-total');
+  const stats_diseases = document.getElementById('stat-diseases');
+  const stats_healthy = document.getElementById('stat-healthy');
+  const stats_crops = document.getElementById('stat-crops');
+
+  stats_total.textContent = scanHistory.length;
+  stats_diseases.textContent = scanHistory.filter(h => h.severity !== 'Healthy' && h.disease !== 'Healthy Crop').length;
+  stats_healthy.textContent = scanHistory.filter(h => h.severity === 'Healthy' || h.disease === 'Healthy Crop').length;
+  const uniqueCrops = new Set(scanHistory.map(h => h.crop).filter(c => c && c !== '—'));
+  stats_crops.textContent = uniqueCrops.size;
+
+  if (scanHistory.length === 0) {
+    grid.innerHTML = `<div class="empty-hist"><span class="empty-icon">📋</span><h3>No scans yet</h3><p>Analyzed crops will be saved here automatically</p></div>`;
+    return;
+  }
+  grid.innerHTML = '';
+  scanHistory.forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const sevClass = (h.severity||'').toLowerCase();
+    const sevColors = {high:'#c0392b',medium:'#e67e22',low:'#27ae60',healthy:'#27ae60'};
+    const sevColor = sevColors[sevClass] || '#888';
+    item.innerHTML = `
+      ${h.image ? `<img class="hist-thumb" src="${h.image}" alt="">` : `<div class="hist-thumb-placeholder">🌾</div>`}
+      <div class="hist-info">
+        <div class="hist-disease">${farmScanEscapeHtml(h.result.disease)}</div>
+        <div class="hist-meta">
+          <span>🌱 ${farmScanEscapeHtml(h.result.cropDetected || '—')}</span>
+          <span>📅 ${farmScanEscapeHtml(h.date)} ${farmScanEscapeHtml(h.time)}</span>
+          <span style="color:${sevColor};font-weight:600">${farmScanEscapeHtml(h.result.severity)}</span>
+          <span>🎯 ${farmScanEscapeHtml(h.result.confidence)}% confidence</span>
+        </div>
+      </div>
+      <div class="hist-actions">
+        <button class="hist-btn" onclick="viewHistoryScan(${h.id})">View</button>
+        <button class="hist-btn del" onclick="deleteHistoryScan(${h.id})">Delete</button>
+      </div>`;
+    grid.appendChild(item);
+  });
+}
+
+function viewHistoryScan(id) {
+  const h = scanHistory.find(x => x.id === id);
+  if (!h) return;
+  lastResult = h.result;
+  currentImage = h.image;
+  currentImageFile = null;
+  switchTab('scan', document.querySelector('.nav-tab'));
+  document.getElementById('upload-card').style.display = 'none';
+  showResults(h.result);
+}
+
+async function deleteHistoryScan(id) {
+  if (!confirm('Delete this scan?')) return;
+  try {
+    const response = await fetch(`/api/scans/${id}`, { method: 'DELETE' });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Could not delete this scan.');
+    await renderHistory();
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+// ============================================================
+// WEATHER TAB
+// ============================================================
+async function getWeatherRisk() {
+  const city = document.getElementById('weather-city').value.trim() || 'Nanded';
+  document.getElementById('weather-loading').style.display = 'block';
+  document.getElementById('weather-result').style.display = 'none';
+
+  try {
+    const response = await fetch('/api/weather-risk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ city })
+    });
+    const w = await response.json();
+    if (!response.ok) throw new Error(w.detail || 'Could not prepare an estimate.');
+    document.getElementById('weather-loading').style.display = 'none';
+    document.getElementById('weather-result').style.display = 'block';
+    document.getElementById('w-icon').textContent = w.icon || '🌤';
+    document.getElementById('w-temp').textContent = w.temp || '—';
+    document.getElementById('w-desc').textContent = w.condition || 'AI-generated estimate';
+    document.getElementById('w-city').textContent = '📍 ' + (w.city || city);
+    const details = document.getElementById('w-details');
+    details.replaceChildren();
+    [['Humidity', w.humidity], ['Wind', w.wind], ['Rainfall', w.rainfall], ['UV Index', w.uvIndex], ['Feels Like', w.feels]].forEach(([label, value]) => {
+      const detail = document.createElement('div');
+      detail.className = 'weather-detail';
+      const detailLabel = document.createElement('div');
+      detailLabel.className = 'wd-label';
+      detailLabel.textContent = label;
+      const detailValue = document.createElement('div');
+      detailValue.className = 'wd-val';
+      detailValue.textContent = value || '—';
+      detail.append(detailLabel, detailValue);
+      details.appendChild(detail);
+    });
+    const rb = document.getElementById('w-risk-box');
+    const rl = (w.riskLevel||'medium').toLowerCase();
+    rb.className = 'disease-risk-weather ' + (['low', 'medium', 'high'].includes(rl) ? rl : 'medium');
+    const riskTitle = document.createElement('strong');
+    riskTitle.textContent = '🦠 ' + (w.riskTitle || 'Disease risk estimate');
+    rb.replaceChildren(riskTitle, document.createElement('br'), document.createTextNode(w.riskDetails || 'This is an AI-generated estimate, not verified weather data.'));
+  } catch(err) {
+    document.getElementById('weather-loading').style.display = 'none';
+    document.getElementById('weather-result').style.display = 'block';
+    document.getElementById('w-risk-box').className = 'disease-risk-weather medium';
+    const errorTitle = document.createElement('strong');
+    errorTitle.textContent = '⚠️ Could not prepare estimate';
+    document.getElementById('w-risk-box').replaceChildren(errorTitle, document.createElement('br'), document.createTextNode(err.message));
+  }
+}
+
+// ============================================================
+// CALENDAR TAB
+// ============================================================
+function renderCalendar() {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const seasons = ['rabi','rabi','zaid','zaid','zaid','kharif','kharif','kharif','kharif','kharif','rabi','rabi'];
+  const snames = {kharif:'Kharif',rabi:'Rabi',zaid:'Zaid'};
+  const curMonth = new Date().getMonth();
+  const row = document.getElementById('season-row');
+  row.innerHTML = '';
+  months.forEach((m,i) => {
+    const d = document.createElement('div');
+    d.className = 'season-cell ' + seasons[i];
+    d.style.border = i === curMonth ? '2px solid var(--gl)' : 'none';
+    d.innerHTML = `<span class="sc-month">${m}</span><span class="sc-name">${snames[seasons[i]]}</span>`;
+    row.appendChild(d);
+  });
+  const advisories = [
+    'Monitor wheat and chickpea for rust. Check soil moisture. Apply potassium fertilizer.',
+    'Watch for aphids on mustard. Late wheat sowing possible. Cold nights—watch for frost.',
+    'Prepare fields for Zaid crops. Manage aphids and mites. Irrigate regularly.',
+    'Sow vegetables and melons. High temperature—mulch soil. Water at dawn.',
+    'Summer crops at risk from mites and aphids. Shade seedlings. Watch water stress.',
+    'Kharif sowing begins. Pre-monsoon fungal risk rises. Apply preventive fungicide.',
+    'Peak monsoon—fungal diseases at maximum risk. Scout rice/maize every 3 days.',
+    'Rice blast, maize blight season. Drain waterlogged fields. Apply copper fungicide.',
+    'Cotton bollworm season. Apply neem-based pesticide. Watch for late blight on potato.',
+    'Harvest Kharif crops. Prepare Rabi fields. Treat stored grains with fumigant.',
+    'Rabi sowing: wheat, barley, mustard. Apply pre-emergence herbicide. Prevent smut.',
+    'Wheat tillering stage—watch for yellow rust. Apply nitrogen top-dressing.'
+  ];
+  document.getElementById('month-advisory').textContent = `📅 ${months[curMonth]} Advisory: ` + advisories[curMonth];
+}
+
+// ============================================================
+// LEARN TAB
+// ============================================================
+const tipsData = [
+  { emoji:'🍃', title:'Leaf Diseases', desc:'Leaf blight, rust, and spot diseases are the most common. Caused by fungi and bacteria—spread by water splash and wind.', tag:'Fungal' },
+  { emoji:'🌱', title:'Soil Health Tips', desc:'Healthy soil = healthy crop. Test soil pH every season. Add organic compost to improve water retention and microbial activity.', tag:'Soil' },
+  { emoji:'💧', title:'Smart Irrigation', desc:'Over-watering promotes fungal diseases. Use drip irrigation where possible. Water in the morning to allow leaves to dry.', tag:'Irrigation' },
+  { emoji:'🐛', title:'Pest Management', desc:'Integrated Pest Management (IPM) uses a mix of biological, cultural, and chemical methods for sustainable pest control.', tag:'IPM' },
+  { emoji:'🧪', title:'Pesticide Safety', desc:'Always wear gloves and mask when applying pesticides. Never spray on windy days. Follow dosage instructions strictly.', tag:'Safety' },
+  { emoji:'🌿', title:'Organic Farming', desc:'Neem oil, copper sulfate, and Trichoderma are effective organic treatments. Reduce chemical use to preserve soil microbiome.', tag:'Organic' },
+  { emoji:'📊', title:'Crop Rotation', desc:'Rotate crops every season to break disease cycles. Legumes fix nitrogen—alternate with cereals for best results.', tag:'Practice' },
+  { emoji:'🌾', title:'Post-Harvest Care', desc:'Store grains at <13% moisture. Use hermetic bags to prevent weevil damage. Treat seeds with fungicide before next sowing.', tag:'Storage' },
+  { emoji:'☀️', title:'Climate Adaptation', desc:'Plant heat-tolerant varieties for summer. Use windbreaks to protect crops in open fields during dry spells.', tag:'Climate' },
+];
+
+function renderLearn() {
+  const grid = document.getElementById('tips-grid');
+  grid.innerHTML = '';
+  tipsData.forEach(t => {
+    const card = document.createElement('div');
+    card.className = 'tip-card';
+    card.innerHTML = `<span class="tip-emoji">${t.emoji}</span><h3>${t.title}</h3><p>${t.desc}</p><span class="tip-tag">${t.tag}</span>`;
+    card.onclick = () => {
+      switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+      document.getElementById('chat-input').value = 'Tell me more about ' + t.title + ' in farming';
+      sendChat();
+    };
+    grid.appendChild(card);
+  });
+}
+
+// ============================================================
+// CHATBOT
+// ============================================================
+let chatHistory = [];
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  document.getElementById('chat-send-btn').disabled = true;
+  addChatMsg(msg, 'user');
+  chatHistory.push({role:'user', content: msg});
+
+  const typing = addChatMsg('...', 'ai', true);
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatHistory.slice(-10) })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Could not connect to the advisor.');
+    const reply = data.reply;
+    chatHistory.push({role:'assistant', content:reply});
+    typing.remove();
+    addChatMsg(reply, 'ai');
+  } catch(err) {
+    typing.remove();
+    addChatMsg('Sorry, I could not connect. Please try again.', 'ai');
+  }
+  document.getElementById('chat-send-btn').disabled = false;
+}
+
+function addChatMsg(text, who, isTyping=false) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  const now = new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = text;
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = isTyping ? 'Typing...' : now;
+  div.append(bubble, time);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function sendQuick(btn) {
+  document.getElementById('chat-input').value = btn.textContent;
+  sendChat();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderCalendar();
+renderHistory();
+renderLearn();
+</script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<section data-roles="admin" class="role-hidden">
+  <div class="feature-section">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--amber-50);">A</div>
+      <div><h2>Admin console</h2><p>Platform activity, users, marketplace listings, and orders.</p></div>
+    </div>
+    <div id="admin-overview" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin-bottom:1.5rem;" aria-live="polite"></div>
+    <div style="display:grid;gap:1rem;">
+      <div>
+        <h3 style="margin-bottom:.5rem;">User accounts</h3>
+        <div id="admin-users" aria-live="polite">Loading users...</div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:.5rem;">Marketplace listings</h3>
+        <div id="admin-products" aria-live="polite">Loading listings...</div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:.5rem;">Marketplace orders</h3>
+        <div id="admin-orders" aria-live="polite">Loading orders...</div>
+      </div>
+    </div>
+    <p id="admin-status" role="status" aria-live="polite" style="margin-top:.75rem;"></p>
+  </div>
+</section>

@@ -1,0 +1,46 @@
+<!-- DISEASE DETECTION -->
+<section>
+  <div id="disease-detection" class="feature-section">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--green-50);">🔬</div>
+      <div>
+        <h2>FarmScan AI Disease Detection</h2>
+        <p>Crop scanning, treatment guidance, weather risk, and farming advice</p>
+      </div>
+    </div>
+    <div id="farm-scan-app" aria-live="polite">Loading crop scanner...</div>
+  </div>
+</section>
+<script>
+async function mountFarmScan() {
+  const mount = document.getElementById('farm-scan-app');
+  try {
+    const response = await fetch('/detector-embed');
+    if (!response.ok) throw new Error('Could not load the crop scanner.');
+    const source = new DOMParser().parseFromString(await response.text(), 'text/html');
+    const content = source.body.querySelector('.page-wrap');
+    const scannerScript = source.body.querySelector('script');
+    if (!content || !scannerScript) throw new Error('Crop scanner content is incomplete.');
+
+    source.querySelectorAll('style').forEach(style => {
+      const scopedStyle = document.createElement('style');
+      const rules = style.textContent
+        .replace(':root {', ':scope {')
+        .replace('body {', ':scope {')
+        .replace('body::before {', ':scope::before {');
+      scopedStyle.textContent = `@scope (#farm-scan-app) { ${rules} }`;
+      mount.appendChild(scopedStyle);
+    });
+    content.id = 'farm-scan-content';
+    mount.appendChild(content);
+    const script = document.createElement('script');
+    script.textContent = scannerScript.textContent;
+    document.body.appendChild(script);
+  } catch (error) {
+    mount.textContent = error.message;
+    mount.setAttribute('role', 'alert');
+  }
+}
+
+mountFarmScan();
+</script>

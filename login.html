@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in | AgriSmart</title>
+<style>
+  :root { --forest:#173d2a; --forest-deep:#0d2b1d; --leaf:#6da542; --lime:#b7d96b; --cream:#f8f5eb; --ink:#203029; --muted:#68766b; --line:#dce2d6; --red:#b94b38; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; font-family:"Segoe UI",system-ui,sans-serif; color:var(--ink); background:var(--cream); }
+  .auth-shell { min-height:100vh; display:grid; grid-template-columns:minmax(340px, .9fr) minmax(420px, 1.1fr); }
+  .brand-panel { position:relative; overflow:hidden; padding:clamp(2rem, 6vw, 6rem); color:#fff; background:var(--forest); display:flex; flex-direction:column; justify-content:space-between; }
+  .brand-panel::before { content:""; position:absolute; width:420px; height:420px; border:1px solid rgba(183,217,107,.22); border-radius:50%; right:-170px; top:-130px; box-shadow:0 0 0 45px rgba(183,217,107,.04), 0 0 0 90px rgba(183,217,107,.03); }
+  .brand-panel::after { content:""; position:absolute; width:240px; height:240px; border:1px solid rgba(255,255,255,.1); border-radius:50%; left:-120px; bottom:-100px; }
+  .brand-content, .brand-foot { position:relative; z-index:1; max-width:500px; }
+  .brand-mark { display:flex; align-items:center; gap:12px; font-size:1.1rem; font-weight:700; letter-spacing:.02em; }
+  .brand-mark span { display:grid; place-items:center; width:42px; height:42px; border-radius:13px; background:var(--lime); color:var(--forest-deep); font-size:1.35rem; }
+  .brand-content h1 { max-width:520px; margin:clamp(4rem, 14vh, 10rem) 0 1.1rem; font-size:clamp(2.6rem, 5vw, 5.1rem); line-height:.98; letter-spacing:-.05em; }
+  .brand-content h1 em { color:var(--lime); font-style:normal; }
+  .brand-content p { max-width:430px; margin:0; color:rgba(255,255,255,.7); font-size:1.02rem; line-height:1.7; }
+  .feature-row { display:flex; gap:18px; flex-wrap:wrap; margin-top:2.5rem; }
+  .feature { display:flex; align-items:center; gap:8px; color:rgba(255,255,255,.82); font-size:.8rem; }
+  .feature b { color:var(--lime); font-size:1rem; }
+  .brand-foot { color:rgba(255,255,255,.42); font-size:.76rem; }
+  .form-panel { display:grid; place-items:center; padding:2rem; background:#fffdf8; }
+  .form-wrap { width:min(100%, 430px); }
+  .mobile-brand { display:none; }
+  .eyebrow { margin:0 0 .55rem; color:var(--leaf); font-size:.74rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+  .form-wrap h2 { margin:0 0 .55rem; color:var(--forest-deep); font-size:2rem; letter-spacing:-.04em; }
+  .intro { margin:0 0 1.7rem; color:var(--muted); font-size:.9rem; line-height:1.55; }
+  .mode-switch { display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-bottom:1.5rem; padding:4px; border:1px solid var(--line); border-radius:10px; background:#f4f5ed; }
+  .mode-switch button { border:0; border-radius:7px; padding:.7rem; color:var(--muted); background:transparent; font:inherit; font-size:.86rem; font-weight:700; cursor:pointer; }
+  .mode-switch button.active { color:var(--forest-deep); background:#fff; box-shadow:0 2px 8px rgba(23,61,42,.08); }
+  .auth-form { display:grid; gap:1rem; }
+  .field { display:grid; gap:.4rem; }
+  .field label { color:#405047; font-size:.78rem; font-weight:700; }
+  .input-wrap { position:relative; }
+  .field input { width:100%; border:1px solid var(--line); border-radius:8px; padding:.82rem .9rem; outline:0; color:var(--ink); background:#fff; font:inherit; font-size:.9rem; transition:border-color .2s, box-shadow .2s; }
+  .field input:focus { border-color:var(--leaf); box-shadow:0 0 0 3px rgba(109,165,66,.14); }
+  .input-wrap input { padding-right:4rem; }
+  .show-password { position:absolute; top:50%; right:.65rem; transform:translateY(-50%); border:0; color:var(--leaf); background:transparent; font-size:.72rem; font-weight:700; cursor:pointer; }
+  .form-options { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:-.25rem; font-size:.76rem; }
+  .remember { display:flex; align-items:center; gap:6px; color:var(--muted); }
+  .remember input { accent-color:var(--leaf); }
+  a { color:var(--leaf); font-weight:700; text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .primary { border:0; border-radius:8px; padding:.92rem 1rem; color:#fff; background:var(--forest); font:inherit; font-weight:800; cursor:pointer; transition:background .2s, transform .2s; }
+  .primary:hover { background:var(--forest-deep); transform:translateY(-1px); }
+  .primary:disabled { opacity:.6; cursor:wait; transform:none; }
+  .fine-print { margin:1.25rem 0 0; color:#89948a; font-size:.72rem; line-height:1.5; text-align:center; }
+  .message { display:none; margin-bottom:1rem; border-radius:8px; padding:.75rem .85rem; font-size:.8rem; line-height:1.45; }
+  .message.show { display:block; }
+  .message.error { color:var(--red); border:1px solid #efc5bb; background:#fff2ef; }
+  .message.success { color:#3e7430; border:1px solid #c6dfb7; background:#f1faeb; }
+  .message a { display:block; margin-top:.45rem; word-break:break-all; }
+  .hidden { display:none !important; }
+  .back-link { display:inline-block; margin-bottom:1.3rem; color:var(--muted); font-size:.78rem; }
+  @media (max-width: 800px) { .auth-shell { display:block; } .brand-panel { display:none; } .form-panel { min-height:100vh; padding:1.4rem; } .mobile-brand { display:flex; align-items:center; gap:9px; margin-bottom:2.4rem; color:var(--forest); font-weight:800; } .mobile-brand span { font-size:1.35rem; } }
+</style>
+</head>
+<body>
+<main class="auth-shell">
+  <section class="brand-panel" aria-label="AgriSmart introduction">
+    <div class="brand-content">
+      <div class="brand-mark"><span>🌿</span> AgriSmart</div>
+      <h1>Grow with <em>better</em> decisions.</h1>
+      <p>One calm workspace for crop health, market signals, weather context, and the everyday work of farming.</p>
+      <div class="feature-row"><div class="feature"><b>◉</b> AI crop scans</div><div class="feature"><b>◉</b> Saved farm history</div><div class="feature"><b>◉</b> Market context</div></div>
+    </div>
+    <div class="brand-foot">Built for farmers, agronomists, and the people who help fields thrive.</div>
+  </section>
+  <section class="form-panel">
+    <div class="form-wrap">
+      <div class="mobile-brand"><span>🌿</span> AgriSmart</div>
+      <a class="back-link" href="/">← Back to workspace</a>
+      <p class="eyebrow" id="eyebrow">Welcome back</p>
+      <h2 id="title">Sign in to your farm workspace</h2>
+      <p class="intro" id="intro">Your tools, scans, and decisions in one place.</p>
+      <div class="mode-switch"><button type="button" class="active" data-mode="signin">Sign in</button><button type="button" data-mode="signup">Create account</button></div>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+      <form id="auth-form" class="auth-form">
+        <div id="name-field" class="field hidden"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" placeholder="Anita Sharma"></div>
+        <div id="role-field" class="field hidden"><label for="role">Account type</label><select id="role" name="role" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:.82rem .9rem;background:#fff;color:var(--ink);font:inherit;font-size:.9rem;"><option value="farmer">Farmer</option><option value="customer">Customer</option></select></div>
+        <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+        <div id="language-field" class="field">
+          <label for="language">Preferred language</label>
+          <select id="language" name="language" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:.82rem .9rem;background:#fff;color:var(--ink);font:inherit;font-size:.9rem;">
+            <option value="English" selected>English</option>
+            <option value="Hindi">Hindi</option>
+            <option value="Marathi">Marathi</option>
+            <option value="Telugu">Telugu</option>
+            <option value="Tamil">Tamil</option>
+          </select>
+        </div>
+        <div class="field"><label for="password">Password</label><div class="input-wrap"><input id="password" name="password" type="password" autocomplete="current-password" placeholder="At least 8 characters" required><button class="show-password" type="button" id="toggle-password">Show</button></div></div>
+        <div id="otp-field" class="field hidden"><label for="otp-code">OTP code</label><input id="otp-code" name="otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit OTP code"></div>
+        <div id="confirm-field" class="field hidden"><label for="confirm-password">Confirm password</label><input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" placeholder="Repeat your password"></div>
+        <div id="form-options" class="form-options"><label class="remember"><input type="checkbox" id="remember"> Keep me signed in</label><a href="#forgot" id="forgot-link">Forgot password?</a></div>
+        <button class="primary" id="submit-button" type="submit">Sign in</button>
+      </form>
+      <p class="fine-print">By continuing, you agree to use AgriSmart responsibly. Crop diagnoses are guidance, not laboratory confirmation.</p>
+    </div>
+  </section>
+</main>
+<script>
+const state = { mode: 'signin' };
+const form = document.getElementById('auth-form');
+const message = document.getElementById('message');
+const password = document.getElementById('password');
+const submitButton = document.getElementById('submit-button');
+const params = new URLSearchParams(location.search);
+const resetToken = params.get('reset_token');
+
+function showMessage(text, kind = 'error', link = '') {
+  message.className = `message show ${kind}`;
+  message.textContent = text;
+  if (link) { const anchor = document.createElement('a'); anchor.href = link; anchor.textContent = link; message.appendChild(anchor); }
+}
+function clearMessage() { message.className = 'message'; message.textContent = ''; }
+function setMode(mode) {
+  state.mode = mode;
+  document.querySelectorAll('[data-mode]').forEach(button => button.classList.toggle('active', button.dataset.mode === mode));
+  const signup = mode === 'signup';
+  document.getElementById('eyebrow').textContent = signup ? 'Start growing' : 'Welcome back';
+  document.getElementById('title').textContent = signup ? 'Create your farm workspace' : 'Sign in to your farm workspace';
+  document.getElementById('intro').textContent = signup ? 'Keep your crop history and decisions close at hand.' : 'Your tools, scans, and decisions in one place.';
+  document.getElementById('name-field').classList.toggle('hidden', !signup);
+  document.getElementById('role-field').classList.toggle('hidden', !signup);
+  document.getElementById('confirm-field').classList.toggle('hidden', !signup);
+  document.getElementById('otp-field').classList.add('hidden');
+  document.getElementById('email').closest('.field').classList.remove('hidden'); document.getElementById('email').required = true;
+  document.getElementById('language-field').classList.remove('hidden');
+}
+document.querySelectorAll('[data-mode]').forEach(button => button.addEventListener('click', () => setMode(button.dataset.mode)));
+document.getElementById('toggle-password').addEventListener('click', event => {
+  const visible = password.type === 'text'; password.type = visible ? 'password' : 'text'; event.currentTarget.textContent = visible ? 'Show' : 'Hide';
+});
+document.getElementById('forgot-link').addEventListener('click', event => { event.preventDefault(); showForgot(); });
+
+async function send(path, body) {
+  let response;
+  try {
+    response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error('Cannot reach AgriSmart. Start the server and open http://127.0.0.1:8001/ before signing in.');
+    }
+    throw error;
+  }
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.detail || 'Something went wrong.');
+  return data;
+}
+
+form.addEventListener('submit', async event => {
+  if (!['signin', 'signup'].includes(state.mode)) return;
+  event.preventDefault(); clearMessage(); submitButton.disabled = true;
+  const values = Object.fromEntries(new FormData(form));
+  try {
+    if (state.mode === 'signup') {
+      if (values.password !== values['confirm-password']) throw new Error('Passwords do not match.');
+      const result = await send('/api/auth/signup', { name: values.name, email: values.email, password: values.password, language: values.language || 'English', role: values.role || 'farmer' });
+      if (result.user && result.user.preferred_language) {
+        localStorage.setItem('preferred_language', result.user.preferred_language);
+      }
+    } else {
+      const result = await send('/api/auth/login', { email: values.email, password: values.password, remember: document.getElementById('remember').checked, language: values.language || 'English' });
+      if (result.user && result.user.preferred_language) {
+        localStorage.setItem('preferred_language', result.user.preferred_language);
+      }
+    }
+    location.href = '/';
+  } catch (error) { showMessage(error.message); submitButton.disabled = false; }
+});
+
+function showForgot() {
+  state.mode = 'forgot';
+  document.querySelectorAll('[data-mode]').forEach(button => button.classList.remove('active'));
+  document.getElementById('eyebrow').textContent = 'Account recovery';
+  document.getElementById('title').textContent = 'Reset your password';
+  document.getElementById('intro').textContent = 'Enter your email and we will send a 6-digit OTP to your registered mail.';
+  document.getElementById('name-field').classList.add('hidden'); document.getElementById('role-field').classList.add('hidden'); document.getElementById('confirm-field').classList.add('hidden'); document.getElementById('otp-field').classList.add('hidden');
+  document.getElementById('form-options').classList.add('hidden');
+  document.getElementById('language-field').classList.remove('hidden');
+  password.closest('.field').classList.add('hidden'); password.required = false;
+  document.getElementById('confirm-password').required = false;
+  submitButton.textContent = 'Send OTP'; clearMessage();
+}
+
+if (resetToken) {
+  state.mode = 'reset';
+  document.querySelectorAll('[data-mode]').forEach(button => button.classList.remove('active'));
+  document.getElementById('eyebrow').textContent = 'Secure reset'; document.getElementById('title').textContent = 'Choose a new password';
+  document.getElementById('intro').textContent = 'This link expires after 30 minutes and can only be used once.';
+  document.querySelector('#email').closest('.field').classList.add('hidden'); document.getElementById('email').required = false;
+  document.getElementById('language-field').classList.add('hidden');
+  password.closest('.field').classList.remove('hidden'); password.required = true;
+  document.getElementById('confirm-field').classList.remove('hidden'); document.getElementById('confirm-password').required = true; document.getElementById('form-options').classList.add('hidden');
+  document.getElementById('confirm-password').autocomplete = 'new-password'; submitButton.textContent = 'Update password';
+}
+
+form.addEventListener('submit', async event => {
+  if (!['forgot', 'otp-reset', 'reset'].includes(state.mode)) return;
+  event.preventDefault(); clearMessage(); submitButton.disabled = true;
+  const values = Object.fromEntries(new FormData(form));
+  try {
+    if (state.mode === 'forgot') {
+      const result = await send('/api/auth/forgot-password', { email: values.email, language: values.language || 'English' });
+      if (result.otp_code) {
+        state.mode = 'otp-reset';
+        document.getElementById('eyebrow').textContent = 'Verify OTP';
+        document.getElementById('title').textContent = 'Enter the code sent to your mail';
+        document.getElementById('intro').textContent = 'We sent a 6-digit OTP to your email. Enter the code and set a new password.';
+        document.getElementById('language-field').classList.add('hidden');
+        document.getElementById('otp-field').classList.remove('hidden');
+        document.getElementById('password').closest('.field').classList.remove('hidden');
+        password.required = true;
+        document.getElementById('confirm-field').classList.remove('hidden');
+        document.getElementById('confirm-password').required = true;
+        submitButton.textContent = 'Reset password';
+        showMessage(`OTP sent to ${values.email}. Code: ${result.otp_code}`, 'success');
+        return;
+      }
+      showMessage(result.message, 'success', result.reset_url || '');
+    } else if (state.mode === 'otp-reset' || state.mode === 'reset') {
+      if (values.password !== values['confirm-password']) throw new Error('Passwords do not match.');
+      if (state.mode === 'otp-reset') {
+        if (!values.otp || String(values.otp).length !== 6) throw new Error('Enter the 6-digit OTP sent to your email.');
+        await send('/api/auth/reset-password', { email: values.email, otp: values.otp, password: values.password });
+      } else {
+        await send('/api/auth/reset-password', { token: resetToken, password: values.password });
+      }
+      showMessage('Password updated. Sign in with your new password.', 'success');
+      setTimeout(() => { history.replaceState({}, '', '/login.html'); setMode('signin'); }, 900);
+    }
+  } catch (error) { showMessage(error.message); }
+  submitButton.disabled = false;
+});
+</script>
+</body>
+</html>

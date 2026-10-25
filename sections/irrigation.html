@@ -1,0 +1,65 @@
+<!-- IRRIGATION -->
+<section data-roles="farmer admin">
+  <div id="irrigation" class="feature-section">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--teal-50);">💧</div>
+      <div>
+        <h2>Smart Irrigation System</h2>
+        <p>Real-time soil sensor data with automatic water control</p>
+      </div>
+    </div>
+
+    <div class="sensor-grid">
+      <div class="sensor-card">
+        <div class="sensor-icon">🌱</div>
+        <div class="sensor-val" id="moisture-val" style="color:var(--teal-600)">62%</div>
+        <div class="sensor-lbl">Soil Moisture</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">🌡️</div>
+        <div class="sensor-val" id="temp-val" style="color:var(--coral-600)">28°C</div>
+        <div class="sensor-lbl">Temperature</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">☀️</div>
+        <div class="sensor-val" id="light-val" style="color:var(--amber-400)">7.4 lux</div>
+        <div class="sensor-lbl">Sunlight</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-icon">🌧️</div>
+        <div class="sensor-val" id="rain-val" style="color:var(--blue-600)">0 mm</div>
+        <div class="sensor-lbl">Rainfall Today</div>
+      </div>
+    </div>
+
+    <div class="irrigation-status" id="irrigation-status">
+      <div class="status-dot on" id="status-dot"></div>
+      <div>
+        <div style="font-weight:700;font-size:0.95rem" id="status-text">Irrigation is ON — Field A running</div>
+        <div style="font-size:0.8rem;color:var(--gray-600);margin-top:2px" id="status-sub">Moisture below threshold (65%). Auto-mode active.</div>
+      </div>
+    </div>
+
+    <div class="water-slider-wrap">
+      <label>Moisture threshold — trigger irrigation below:</label>
+      <div class="slider-row">
+        <input type="range" class="water" min="30" max="90" value="65" id="threshold-slider"
+          oninput="document.getElementById('threshold-val').textContent=this.value+'%'">
+        <div class="slider-val" id="threshold-val">65%</div>
+      </div>
+    </div>
+    <div class="water-slider-wrap">
+      <label>Water flow rate:</label>
+      <div class="slider-row">
+        <input type="range" class="water" min="1" max="10" value="5" id="flow-slider"
+          oninput="document.getElementById('flow-val').textContent=this.value+' L/min'">
+        <div class="slider-val" id="flow-val">5 L/min</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem">
+      <button class="toggle-btn on" id="irrigation-toggle" onclick="toggleIrrigation()">⏸ Turn OFF Irrigation</button>
+      <button class="toggle-btn" style="background:var(--blue-50);color:var(--blue-600);border:1px solid var(--blue-400)" onclick="refreshSensors()">🔄 Refresh Sensor Data</button>
+    </div>
+  </div>
+</section>

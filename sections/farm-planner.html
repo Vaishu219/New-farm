@@ -1,0 +1,107 @@
+<!-- FARM PLANNER -->
+<section data-roles="farmer admin">
+  <div class="feature-section">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--green-50);">🧭</div>
+      <div>
+        <h2>Farm Planner</h2>
+        <p>Track plots, crop health, and daily work in one place.</p>
+      </div>
+    </div>
+
+    <div style="border:1px solid var(--amber-100);background:var(--amber-50);border-radius:12px;padding:1rem;margin-bottom:1.25rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;">
+        <h3 style="font-size:1rem;">Upcoming task and harvest reminders</h3>
+        <span style="font-size:.78rem;color:var(--gray-600);">Overdue items and dates due within 14 days</span>
+      </div>
+      <div id="farm-reminders" aria-live="polite" style="display:grid;gap:.5rem;margin-top:.75rem;">Loading reminders...</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem;">
+      <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:14px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Add a field</h3>
+        <form id="field-form" onsubmit="submitField(event)">
+          <div style="display:grid;gap:0.75rem;">
+            <input name="name" placeholder="Field name" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <input name="crop" placeholder="Crop" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;">
+              <input name="area_acres" type="number" min="0.1" step="0.1" placeholder="Area acres" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="location" placeholder="Location" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            </div>
+            <input name="status" placeholder="Status e.g. Healthy" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <button type="submit" style="border:none;border-radius:8px;background:var(--green-600);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;">Save field</button>
+          </div>
+        </form>
+      </div>
+
+      <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:14px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Add a task</h3>
+        <form id="task-form" onsubmit="submitTask(event)">
+          <div style="display:grid;gap:0.75rem;">
+            <input name="title" placeholder="Task title" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <input name="due_date" type="date" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;">
+              <select name="priority" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;">
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <select name="status" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;">
+                <option value="Pending" selected>Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
+            <textarea name="notes" placeholder="Notes" rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;resize:vertical;"></textarea>
+            <button type="submit" style="border:none;border-radius:8px;background:var(--green-600);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;">Save task</button>
+          </div>
+        </form>
+      </div>
+
+      <div style="background:var(--gray-50);border:1px solid var(--gray-100);border-radius:14px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Record a crop cycle</h3>
+        <form id="crop-record-form" onsubmit="submitCropRecord(event)">
+          <div style="display:grid;gap:0.65rem;">
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.5rem;">
+              <input name="crop_name" placeholder="Crop name" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="variety" placeholder="Variety" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="sowing_date" type="date" aria-label="Sowing date" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="expected_harvest_date" type="date" aria-label="Expected harvest date" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="quantity_kg" type="number" min="0" step="0.1" placeholder="Expected quantity (kg)" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <select name="health" aria-label="Crop health" style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;"><option>Healthy</option><option>Watch</option><option>At Risk</option></select>
+              <input name="expenses" type="number" min="0" step="0.01" placeholder="Expenses (₹)" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+              <input name="sales_income" type="number" min="0" step="0.01" placeholder="Sales income (₹)" required style="width:100%;min-height:38px;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;" />
+            </div>
+            <textarea name="fertilizer_notes" placeholder="Fertilizer record" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;resize:vertical;"></textarea>
+            <textarea name="pesticide_notes" placeholder="Pesticide record" rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--gray-100);border-radius:7px;font:inherit;resize:vertical;"></textarea>
+            <button type="submit" style="border:none;border-radius:8px;background:var(--green-600);color:#fff;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;">Save crop record</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;">
+      <div style="background:#fff;border:1px solid var(--gray-100);border-radius:12px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Field overview</h3>
+        <div id="field-list" style="display:grid;gap:0.75rem;"></div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--gray-100);border-radius:12px;padding:1rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Upcoming tasks</h3>
+        <div id="task-list" style="display:grid;gap:0.75rem;"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:1rem;background:#fff;border:1px solid var(--gray-100);border-radius:12px;padding:1rem;">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;">Crop and harvest ledger</h3>
+      <div id="crop-record-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.75rem;"></div>
+    </div>
+
+    <div style="margin-top:1rem;background:var(--gray-50);border:1px solid var(--gray-100);border-radius:12px;padding:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <h3 style="font-size:1rem;font-weight:700;">Seasonal crop calendar</h3>
+        <span id="season-badge" style="padding:4px 10px;border-radius:20px;background:var(--green-50);color:var(--green-600);font-size:0.72rem;font-weight:700;">—</span>
+      </div>
+      <div id="seasonal-calendar" style="display:grid;gap:0.75rem;margin-top:0.9rem;"></div>
+    </div>
+  </div>
+</section>

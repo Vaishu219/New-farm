@@ -1,0 +1,5 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+farm_scans.sqlite3
