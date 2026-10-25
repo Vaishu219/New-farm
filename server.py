@@ -208,6 +208,11 @@ class WeatherRequest(BaseModel):
     city: str = Field(min_length=1, max_length=100)
 
 
+class WeatherCoordinates(BaseModel):
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+
+
 class SignupRequest(BaseModel):
     name: str = Field(min_length=2, max_length=80)
     email: str = Field(min_length=5, max_length=160)
@@ -873,26 +878,42 @@ def get_live_weather(city: str) -> dict[str, object] | None:
         return None
 
 
-def get_seven_day_forecast(city: str) -> dict[str, object]:
-    geocode_url = (
-        "https://geocoding-api.open-meteo.com/v1/search?"
-        f"name={urllib.parse.quote(city)}&count=10&language=en&format=json&countryCode=IN"
-    )
-    try:
-        with urllib.request.urlopen(geocode_url, timeout=8) as response:
-            geocode_payload = json.loads(response.read().decode("utf-8"))
-        results = geocode_payload.get("results") or []
-        if not results:
-            raise HTTPException(status_code=404, detail="Village or town not found. Try a nearby town name.")
-        location = next(
-            (result for result in results if str(result.get("name", "")).casefold() == city.casefold()),
-            results[0],
+def get_seven_day_forecast(
+    city: str | None = None,
+    latitude: float | None = None,
+    longitude: float | None = None,
+) -> dict[str, object]:
+    location: dict[str, object] = {"name": "Current location", "admin1": ""}
+    if latitude is None or longitude is None:
+        if not city:
+            raise HTTPException(status_code=422, detail="Enter a village or allow location access.")
+        geocode_url = (
+            "https://geocoding-api.open-meteo.com/v1/search?"
+            f"name={urllib.parse.quote(city)}&count=10&language=en&format=json&countryCode=IN"
         )
-        latitude = location.get("latitude")
-        longitude = location.get("longitude")
-        if latitude is None or longitude is None:
-            raise HTTPException(status_code=502, detail="Weather location lookup returned incomplete data.")
+        try:
+            with urllib.request.urlopen(geocode_url, timeout=8) as response:
+                geocode_payload = json.loads(response.read().decode("utf-8"))
+            results = geocode_payload.get("results") or []
+            if not results:
+                raise HTTPException(status_code=404, detail="Village or town not found. Try a nearby town name.")
+            location = next(
+                (result for result in results if str(result.get("name", "")).casefold() == city.casefold()),
+                results[0],
+            )
+            latitude = location.get("latitude")
+            longitude = location.get("longitude")
+            if latitude is None or longitude is None:
+                raise HTTPException(status_code=502, detail="Weather location lookup returned incomplete data.")
+        except HTTPException:
+            raise
+        except (OSError, TimeoutError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise HTTPException(
+                status_code=502,
+                detail="The weather location lookup is temporarily unavailable. Please try again later.",
+            ) from exc
 
+    try:
         forecast_url = (
             "https://api.open-meteo.com/v1/forecast?"
             f"latitude={latitude}&longitude={longitude}&forecast_days=7&timezone=auto"
@@ -2456,12 +2477,24 @@ async def weather_risk(http_request: Request, request: WeatherRequest) -> dict[s
 
 
 @app.get("/api/weather/forecast")
-def weather_forecast(request: Request, city: str) -> dict[str, object]:
+def weather_forecast(
+    request: Request,
+    city: str | None = None,
+) -> dict[str, object]:
     require_user(request)
-    city = city.strip()
+    city = (city or "").strip()
     if not city or len(city) > 100:
         raise HTTPException(status_code=422, detail="Enter a village or town name up to 100 characters.")
     return get_seven_day_forecast(city)
+
+
+@app.post("/api/weather/forecast/current")
+def current_location_forecast(request: Request, coordinates: WeatherCoordinates) -> dict[str, object]:
+    require_user(request)
+    return get_seven_day_forecast(
+        latitude=coordinates.latitude,
+        longitude=coordinates.longitude,
+    )
 
 
 @app.get("/")

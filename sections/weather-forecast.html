@@ -11,9 +11,10 @@
       <label for="weather-location">Village or town</label>
       <input id="weather-location" name="city" maxlength="100" placeholder="e.g. Nanded" autocomplete="address-level2" required>
       <button type="submit">Show 7-day forecast</button>
+      <button type="button" id="weather-current-location">📍 Use my location</button>
       <button type="button" id="weather-voice" aria-label="Speak village or town name">🎙️ Speak</button>
     </form>
-    <p class="weather-note">Forecasts are estimates, not official warnings or field measurements. Hail is not specifically predicted here; follow local government advisories. SMS and WhatsApp alerts are not connected.</p>
+    <p class="weather-note">Your browser asks permission only when you tap “Use my location.” Your coordinates are sent to the weather service for this forecast and are not saved to your account. Forecasts are estimates, not official warnings or field measurements. Hail is not specifically predicted here; follow local government advisories. SMS and WhatsApp alerts are not connected.</p>
     <p id="weather-status" role="status" aria-live="polite"></p>
     <div id="weather-alerts" class="weather-alerts" aria-live="polite"></div>
     <div id="weather-days" class="weather-days" aria-live="polite">
@@ -23,12 +24,13 @@
   </div>
 </section>
 <style>
-  .weather-search { display:grid; grid-template-columns:minmax(150px,1fr) auto auto; gap:.6rem; align-items:end; }
+  .weather-search { display:grid; grid-template-columns:minmax(150px,1fr) auto auto auto; gap:.6rem; align-items:end; }
   .weather-search label { grid-column:1/-1; color:var(--gray-600); font-size:.85rem; font-weight:700; }
   .weather-search input { width:100%; min-height:46px; padding:.7rem .8rem; border:1px solid var(--gray-100); border-radius:9px; font:inherit; }
   .weather-search button { min-height:46px; border:0; border-radius:9px; padding:.7rem 1rem; background:var(--green-600); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
   .weather-search button:disabled { opacity:.6; cursor:wait; }
   .weather-search #weather-voice { background:var(--blue-600); }
+  .weather-search #weather-current-location { background:var(--teal-600); }
   .weather-note { margin:.75rem 0; color:var(--gray-600); font-size:.8rem; line-height:1.5; }
   .weather-alerts { display:grid; gap:.5rem; }
   .weather-alert { padding:.75rem; border:1px solid var(--amber-100); border-radius:9px; background:var(--amber-50); }
@@ -54,18 +56,25 @@ async function loadSevenDayWeather(city) {
   const source = document.getElementById('weather-source');
   const button = document.querySelector('#weather-forecast-form button[type="submit"]');
   const location = String(city || document.getElementById('weather-location').value || '').trim();
-  if (!location) {
+  const coordinates = window.weatherCoordinates;
+  if (!location && !coordinates) {
     status.textContent = 'Enter a village or town name first.';
     return;
   }
-  document.getElementById('weather-location').value = location;
+  if (location) document.getElementById('weather-location').value = location;
   button.disabled = true;
   status.textContent = 'Loading forecast…';
   daysContainer.replaceChildren();
   alertsContainer.replaceChildren();
   source.textContent = '';
   try {
-    const response = await fetch(`/api/weather/forecast?city=${encodeURIComponent(location)}`);
+    const response = coordinates
+      ? await fetch('/api/weather/forecast/current', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify(coordinates)
+        })
+      : await fetch(`/api/weather/forecast?city=${encodeURIComponent(location)}`);
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || 'Could not load the forecast.');
     daysContainer.innerHTML = data.days.map(day => {
@@ -94,9 +103,43 @@ async function loadSevenDayWeather(city) {
   }
 }
 
+document.getElementById('weather-location').addEventListener('input', () => {
+  window.weatherCoordinates = null;
+});
 document.getElementById('weather-forecast-form').addEventListener('submit', event => {
   event.preventDefault();
   loadSevenDayWeather();
+});
+document.getElementById('weather-current-location').addEventListener('click', () => {
+  const status = document.getElementById('weather-status');
+  if (!navigator.geolocation) {
+    status.textContent = 'Location is not supported in this browser. Type your village or town instead.';
+    return;
+  }
+  const locationButton = document.getElementById('weather-current-location');
+  locationButton.disabled = true;
+  status.textContent = 'Waiting for location permission…';
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      window.weatherCoordinates = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      };
+      document.getElementById('weather-location').value = 'Current location (GPS)';
+      loadSevenDayWeather('');
+      locationButton.disabled = false;
+    },
+    error => {
+      const messages = {
+        1: 'Location permission was not allowed. Type your village or town instead.',
+        2: 'Could not determine your location. Check device location settings or type your village.',
+        3: 'Location lookup timed out. Please try again or type your village.'
+      };
+      status.textContent = messages[error.code] || 'Could not get your location. Please type your village or town.';
+      locationButton.disabled = false;
+    },
+    {enableHighAccuracy:false, timeout:15000, maximumAge:60000}
+  );
 });
 document.getElementById('weather-voice').addEventListener('click', () => {
   const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -109,6 +152,7 @@ document.getElementById('weather-voice').addEventListener('click', () => {
   recognition.lang = language;
   recognition.onresult = event => {
     const location = event.results[0][0].transcript.trim();
+    window.weatherCoordinates = null;
     document.getElementById('weather-location').value = location;
     loadSevenDayWeather(location);
   };

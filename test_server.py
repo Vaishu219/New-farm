@@ -664,6 +664,46 @@ class AgriSmartAPITests(unittest.TestCase):
         response = self.client.get("/api/weather/forecast?city=Nanded")
         self.assertEqual(response.status_code, 401)
 
+    def test_seven_day_forecast_accepts_current_coordinates_without_saving_them(self) -> None:
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def read(self):
+                return json.dumps({
+                    "daily": {
+                        "time": [f"2026-10-{day:02d}" for day in range(25, 32)],
+                        "weather_code": [1] * 7,
+                        "temperature_2m_max": [30] * 7,
+                        "temperature_2m_min": [20] * 7,
+                        "precipitation_sum": [0] * 7,
+                        "precipitation_probability_max": [0] * 7,
+                        "wind_speed_10m_max": [10] * 7,
+                    }
+                }).encode()
+
+        with patch("server.urllib.request.urlopen", return_value=FakeResponse()) as urlopen:
+            response = self.client.post(
+                "/api/weather/forecast/current",
+                json={"latitude": 19.16, "longitude": 77.31},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["location"]["name"], "Current location")
+        self.assertEqual(len(response.json()["days"]), 7)
+        self.assertNotIn("latitude", response.json())
+        self.assertNotIn("longitude", response.json())
+        self.assertEqual(urlopen.call_count, 1)
+
+        incomplete_coordinates = self.client.post(
+            "/api/weather/forecast/current",
+            json={"latitude": 19.16},
+        )
+        self.assertEqual(incomplete_coordinates.status_code, 422)
+
     def test_farm_fields_and_tasks_are_user_specific(self) -> None:
         field = self.client.post(
             "/api/farm/fields",
@@ -912,6 +952,8 @@ class AgriSmartAPITests(unittest.TestCase):
         ):
             self.assertEqual(response.text.count(f'id="{section_id}"'), 1)
         self.assertIn('id="weather-voice"', response.text)
+        self.assertIn('id="weather-current-location"', response.text)
+        self.assertIn("coordinates are sent to the weather service for this forecast and are not saved", response.text)
         self.assertIn("PMFBY official portal", response.text)
         self.assertIn("SMS and WhatsApp alerts are not connected.", response.text)
         self.assertNotIn("INCLUDE:", response.text)
