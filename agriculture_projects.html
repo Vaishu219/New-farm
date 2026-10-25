@@ -64,10 +64,72 @@
     transition: color 0.2s;
   }
   .nav-links a:hover { color: var(--green-600); }
-  .account-menu { display:flex; align-items:center; gap:10px; margin-left:1rem; }
-  .account-name { color:var(--green-600); font-size:.8rem; font-weight:700; max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .logout-btn { border:1px solid var(--gray-100); border-radius:7px; padding:6px 10px; color:var(--gray-600); background:#fff; font:inherit; font-size:.75rem; cursor:pointer; }
+  .account-menu { position:relative; margin-left:1rem; }
+  .account-trigger { display:flex; align-items:center; gap:9px; list-style:none; cursor:pointer; border:1px solid var(--gray-100); border-radius:999px; padding:5px 12px 5px 5px; background:#fff; color:var(--gray-800); }
+  .account-trigger::-webkit-details-marker { display:none; }
+  .account-trigger:hover, .account-menu[open] .account-trigger { border-color:var(--green-400); }
+  .account-avatar { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:var(--green-50); color:var(--green-600); font-size:.8rem; font-weight:700; }
+  .account-name { color:var(--gray-800); font-size:.82rem; font-weight:700; max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .account-chevron { color:var(--gray-600); font-size:.72rem; }
+  .account-alert { display:none; min-width:18px; height:18px; place-items:center; border-radius:50%; padding:0 5px; background:var(--coral-600); color:#fff; font-size:.68rem; font-weight:700; }
+  .account-alert.visible { display:grid; }
+  .profile-panel { position:absolute; top:calc(100% + 10px); right:0; z-index:110; width:min(380px, calc(100vw - 2rem)); max-height:calc(100vh - 85px); overflow:auto; padding:1.2rem; border:1px solid var(--gray-100); border-radius:16px; background:#fff; box-shadow:0 14px 38px rgba(0,0,0,.16); }
+  .profile-panel-header { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; }
+  .profile-panel-header h2 { font-size:1.05rem; margin-bottom:.2rem; }
+  .profile-panel-header p, .profile-email { color:var(--gray-600); font-size:.78rem; }
+  .profile-email { margin-bottom:1rem; overflow-wrap:anywhere; }
+  .profile-fields { display:grid; gap:.8rem; }
+  .profile-fields label { display:grid; gap:.3rem; color:var(--gray-600); font-size:.78rem; font-weight:600; }
+  .profile-fields input, .profile-fields textarea, .profile-fields select { width:100%; min-height:40px; padding:9px 10px; border:1px solid var(--gray-100); border-radius:8px; color:var(--gray-800); background:#fff; font:inherit; font-size:.85rem; }
+  .profile-fields textarea { min-height:76px; resize:vertical; }
+  .profile-fields input:focus, .profile-fields textarea:focus, .profile-fields select:focus { outline:2px solid var(--green-100); border-color:var(--green-400); }
+  .need-toggle-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:.9rem; padding:.8rem; border:1px solid var(--green-100); border-radius:10px; background:var(--green-50); }
+  .need-toggle-copy { display:grid; gap:.2rem; }
+  .need-toggle-copy strong { color:var(--green-800); font-size:.82rem; }
+  .need-toggle-copy span { color:var(--gray-600); font-size:.72rem; }
+  .need-toggle { position:relative; flex:0 0 auto; width:44px; height:25px; }
+  .need-toggle input { position:absolute; width:1px; height:1px; opacity:0; }
+  .need-toggle-track { position:absolute; inset:0; cursor:pointer; border-radius:999px; background:var(--gray-400); transition:background .18s; }
+  .need-toggle-track::before { content:''; position:absolute; left:3px; top:3px; width:19px; height:19px; border-radius:50%; background:#fff; transition:transform .18s; }
+  .need-toggle input:checked + .need-toggle-track { background:var(--green-600); }
+  .need-toggle input:checked + .need-toggle-track::before { transform:translateX(19px); }
+  .need-toggle input:focus-visible + .need-toggle-track { outline:3px solid var(--green-100); outline-offset:2px; }
+  .profile-actions { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin-top:1rem; }
+  .profile-save, .logout-btn { min-height:38px; border:1px solid var(--gray-100); border-radius:8px; padding:7px 12px; color:var(--gray-600); background:#fff; font:inherit; font-size:.78rem; cursor:pointer; }
+  .profile-save:disabled { opacity:.6; cursor:wait; }
+  .profile-save { border-color:var(--green-600); background:var(--green-600); color:#fff; font-weight:700; }
+  .profile-save:hover { background:var(--green-800); }
+  .profile-fulfill { width:100%; min-height:36px; margin-top:.65rem; border:1px solid var(--green-100); border-radius:8px; padding:7px 10px; color:var(--green-800); background:var(--green-50); font:inherit; font-size:.78rem; font-weight:700; cursor:pointer; }
+  .profile-fulfill:disabled { opacity:.55; cursor:not-allowed; }
   .logout-btn:hover { border-color:var(--green-400); color:var(--green-600); }
+  #profile-status { min-height:1.2em; margin-top:.55rem; font-size:.75rem; }
+  .needs-board { margin:1.5rem 0; padding:1.25rem; border:1px solid var(--green-100); border-radius:14px; background:linear-gradient(135deg,#f8fbf3,#fff); }
+  .needs-board-header { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+  .needs-board h3 { margin-bottom:.25rem; font-size:1.05rem; }
+  .needs-board-header p, .need-meta { color:var(--gray-600); font-size:.8rem; }
+  .needs-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)); gap:.8rem; }
+  .need-card, .need-inbox-card { min-width:0; padding:1rem; border:1px solid var(--gray-100); border-radius:12px; background:#fff; }
+  .need-card h4 { margin-bottom:.25rem; font-size:.95rem; }
+  .need-card .need-meta { margin:.25rem 0; }
+  .need-description { margin:.65rem 0; line-height:1.5; overflow-wrap:anywhere; }
+  .need-response-form { display:grid; gap:.5rem; margin-top:.8rem; }
+  .need-response-form textarea { width:100%; min-height:70px; resize:vertical; border:1px solid var(--gray-100); border-radius:8px; padding:.65rem; font:inherit; font-size:.82rem; }
+  .need-response-form button, .need-inbox-actions button { min-height:36px; border:0; border-radius:8px; padding:.55rem .8rem; background:var(--green-600); color:#fff; font:inherit; font-size:.78rem; font-weight:700; cursor:pointer; }
+  .need-response-form button:disabled { opacity:.6; cursor:wait; }
+  .needs-inbox { margin-top:1.2rem; }
+  .needs-inbox-heading { display:flex; align-items:center; justify-content:space-between; gap:.8rem; margin-bottom:.65rem; }
+  .needs-inbox-heading h4 { font-size:.9rem; }
+  .need-inbox-card + .need-inbox-card { margin-top:.55rem; }
+  .need-inbox-card p { margin-top:.35rem; line-height:1.5; overflow-wrap:anywhere; }
+  .need-inbox-card.unread { border-color:var(--amber-100); background:#fffdf7; }
+  .need-inbox-actions { display:flex; align-items:center; gap:.5rem; }
+  .need-inbox-actions button { min-height:30px; padding:.35rem .6rem; color:var(--green-700); background:var(--green-50); }
+  .need-recommendations { margin-top:1rem; }
+  .need-recommendations h4 { margin-bottom:.65rem; font-size:.9rem; }
+  .recommendation-list { display:flex; gap:.55rem; flex-wrap:wrap; }
+  .recommendation-chip { display:flex; align-items:center; gap:.45rem; max-width:100%; padding:.45rem .65rem; border:1px solid var(--green-100); border-radius:9px; background:#fff; font-size:.76rem; }
+  .recommendation-chip button { border:0; border-radius:6px; padding:.35rem .5rem; background:var(--green-600); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+  .need-empty { padding:.75rem; border:1px dashed var(--gray-100); border-radius:9px; color:var(--gray-600); font-size:.82rem; }
   .role-hidden { display:none !important; }
 
   /* HERO */
@@ -178,8 +240,9 @@
   .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--gray-600); }
   .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
   .price-table {
-    width: 100%; border-collapse: collapse; font-size: 0.88rem;
+    width: 100%; min-width: 400px; border-collapse: collapse; font-size: 0.88rem;
   }
+  .price-table-wrap { max-width:100%; overflow-x:auto; border:1px solid var(--gray-100); border-radius:8px; }
   .price-table th {
     text-align: left; padding: 10px 12px; background: var(--gray-50);
     font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
@@ -338,10 +401,14 @@
 
   /* RESPONSIVE */
   @media (max-width: 600px) {
-    nav { padding: 0 1rem; }
-    .nav-links { display: none; }
+    nav { height:auto; min-height:60px; flex-wrap:wrap; padding:0 1rem; }
+    .nav-links { display:flex; order:3; width:100%; gap:1.1rem; overflow-x:auto; padding:.15rem 0 .6rem; white-space:nowrap; scrollbar-width:thin; }
+    .nav-links a { flex:0 0 auto; font-size:.8rem; }
     .account-menu { margin-left:auto; }
     .account-name { display:none; }
+    .profile-panel { right:-.25rem; }
+    .needs-board { padding:.9rem; }
+    .needs-board-header { flex-direction:column; gap:.35rem; }
     section { padding: 2.5rem 1rem; }
     .feature-section { padding: 1.5rem; }
     .hero { padding: 3rem 1rem 2.5rem; }
@@ -358,15 +425,87 @@
     AgriSmart
   </div>
   <div class="nav-links">
-    <a href="#price-prediction">Price Prediction</a>
+    <a href="#weather">Weather</a>
+    <a href="#farm-planner" data-roles="farmer admin">Farm planner</a>
+    <a href="#schemes">Schemes</a>
+    <a href="#farm-calculators">Calculators</a>
+    <a href="#price-prediction">Market prices</a>
     <a href="#irrigation" data-roles="farmer admin">Irrigation</a>
     <a href="#marketplace">Marketplace</a>
+    <a href="#farmer-needs-board" data-roles="farmer admin customer">Needs board</a>
     <a href="#disease-detection">Disease Detection</a>
   </div>
-  <div class="account-menu">
-    <span class="account-name" id="account-name">Your workspace</span>
-    <button class="logout-btn" type="button" onclick="signOut()">Sign out</button>
-  </div>
+  <details class="account-menu" id="account-menu" data-roles="farmer admin customer">
+    <summary class="account-trigger" aria-label="Open profile and farm requirements">
+      <span class="account-avatar" id="account-avatar" aria-hidden="true">F</span>
+      <span class="account-name" id="account-name">Profile</span>
+      <span class="account-alert" id="account-alert" aria-label="Unread responses"></span>
+      <span class="account-chevron" aria-hidden="true">▾</span>
+    </summary>
+    <div class="profile-panel">
+      <div class="profile-panel-header">
+        <div>
+          <h2 data-i18n="profileTitle">Farmer profile</h2>
+          <p data-i18n="profileIntro">Keep your farm details and needs up to date.</p>
+        </div>
+      </div>
+      <p class="profile-email" id="profile-email"></p>
+      <form id="farmer-profile-form" data-roles="farmer admin" onsubmit="saveFarmerProfile(event)">
+        <div class="profile-fields">
+          <label for="profile-location"><span data-i18n="farmLocation">Farm location</span>
+            <input id="profile-location" name="location" maxlength="120" placeholder="Village, district" data-i18n-placeholder="locationPlaceholder">
+          </label>
+          <label for="profile-size"><span data-i18n="farmSize">Farm size (acres)</span>
+            <input id="profile-size" name="farm_size_acres" type="number" min="0.1" max="1000000" step="0.1" placeholder="e.g. 4.5">
+          </label>
+          <label for="profile-crop"><span data-i18n="primaryCrop">Main crop</span>
+            <input id="profile-crop" name="primary_crop" maxlength="60" placeholder="e.g. Cotton" data-i18n-placeholder="cropPlaceholder">
+          </label>
+          <label for="profile-crops"><span data-i18n="cropsGrown">Other crops (comma-separated)</span>
+            <input id="profile-crops" name="crops_grown" maxlength="300" placeholder="e.g. Cotton, wheat" data-i18n-placeholder="cropsPlaceholder">
+          </label>
+          <label for="profile-requirements"><span data-i18n="requirements">What do you need?</span>
+            <textarea id="profile-requirements" name="requirements" maxlength="500" placeholder="Seeds, fertilizer, equipment, or other requirements" data-i18n-placeholder="requirementsPlaceholder"></textarea>
+          </label>
+          <label for="profile-contact"><span data-i18n="contactPreference">Preferred follow-up</span>
+            <select id="profile-contact" name="preferred_contact">
+              <option value="in_app" data-i18n="contactInApp">In-app message</option>
+              <option value="email" data-i18n="contactEmail">Email (kept private)</option>
+              <option value="phone" data-i18n="contactPhone">Phone (kept private)</option>
+            </select>
+          </label>
+          <label for="profile-language"><span data-i18n="language">Language</span>
+            <select id="profile-language" name="preferred_language">
+              <option>English</option><option>Hindi</option><option>Marathi</option><option>Telugu</option><option>Tamil</option>
+            </select>
+          </label>
+        </div>
+        <p class="need-meta" style="margin-top:.75rem;" data-i18n="needPrivacy">
+          Active requests share your location, farm size, crops, requirements, and follow-up preference with signed-in users. Email and phone details stay private.
+        </p>
+        <label class="need-toggle-row" for="profile-in-need">
+          <span class="need-toggle-copy">
+            <strong data-i18n="lookingForHelp">I'm looking for supplies or support</strong>
+            <span data-i18n="lookingForHelpHint">Turn this on when you need help or farm supplies.</span>
+          </span>
+          <span class="need-toggle">
+            <input id="profile-in-need" name="is_in_need" type="checkbox">
+            <span class="need-toggle-track"></span>
+          </span>
+        </label>
+        <p class="need-meta" id="profile-need-status" aria-live="polite"></p>
+        <div class="profile-actions">
+          <button class="profile-save" type="submit" data-i18n="saveProfile">Save profile</button>
+          <button class="logout-btn" type="button" onclick="signOut()" data-i18n="signOut">Sign out</button>
+        </div>
+        <button class="profile-fulfill" id="profile-fulfill" type="button" onclick="markNeedFulfilled()" data-i18n="markFulfilled">Mark request fulfilled</button>
+        <p id="profile-status" role="status" aria-live="polite"></p>
+      </form>
+      <div class="profile-actions role-hidden" data-roles="customer">
+        <button class="logout-btn" type="button" onclick="signOut()" data-i18n="signOut">Sign out</button>
+      </div>
+    </div>
+  </details>
 </nav>
 
 <!-- HERO -->
@@ -786,20 +925,313 @@
 </footer>
 
 <script>
+const dashboardTranslations = {
+  English: {
+    profileTitle: 'Farmer profile', profileIntro: 'Keep your farm details and needs up to date.',
+    farmLocation: 'Farm location', farmSize: 'Farm size (acres)', primaryCrop: 'Main crop',
+    cropsGrown: 'Other crops (comma-separated)', requirements: 'What do you need?',
+    needPrivacy: 'Active requests share your location, farm size, crops, requirements, and follow-up preference with signed-in users. Email and phone details stay private.',
+    contactPreference: 'Preferred follow-up', contactInApp: 'In-app message',
+    contactEmail: 'Email (kept private)', contactPhone: 'Phone (kept private)', language: 'Language',
+    lookingForHelp: "I'm looking for supplies or support",
+    lookingForHelpHint: 'Turn this on when you need help or farm supplies.',
+    saveProfile: 'Save profile', signOut: 'Sign out', markFulfilled: 'Mark request fulfilled',
+    locationPlaceholder: 'Village, district', cropPlaceholder: 'e.g. Cotton',
+    cropsPlaceholder: 'e.g. Cotton, wheat',
+    requirementsPlaceholder: 'Seeds, fertilizer, equipment, or other requirements',
+    needsBoardTitle: 'Farmer needs board',
+    needsBoardIntro: 'See active requests from farmers and reply privately in the app.',
+    loadingNeeds: 'Loading farmer requests...', noNeeds: 'No active farmer requests right now.',
+    recommendedProducts: 'Products that may help', yourResponses: 'Responses to your requests',
+    markRead: 'Mark read', noResponses: 'No responses yet.', yourNeed: 'Your request',
+    acres: 'acres', crops: 'Crops', preferredFollowUp: 'Preferred follow-up',
+    replyPlaceholder: 'Write a helpful reply (5–1000 characters)',
+    sendResponse: 'Send private reply', responseSent: 'Your reply was sent privately.',
+    responseFailed: 'Could not send your reply.', unread: 'unread', noRecommendations: 'Add a crop and request to see matches.',
+    requestStatus: 'Request status', published: 'Request active on the needs board.', paused: 'Request paused.',
+    fulfilled: 'Request marked fulfilled.', active: 'Active', pausedStatus: 'Paused',
+    fulfilledStatus: 'Fulfilled', profileSaved: 'Profile saved.',
+    addRequirements: 'Add your requirements before publishing a need.',
+    noMatch: 'No matching marketplace products found yet.', addToCart: 'Add to cart',
+    newMatchAlert: 'New product matches your farm'
+  },
+  Hindi: {
+    profileTitle: 'किसान प्रोफ़ाइल', profileIntro: 'अपने खेत और ज़रूरतों की जानकारी अपडेट रखें।',
+    farmLocation: 'खेत का स्थान', farmSize: 'खेत का आकार (एकड़)', primaryCrop: 'मुख्य फसल',
+    cropsGrown: 'अन्य फसलें (अल्पविराम से अलग करें)', requirements: 'आपको क्या चाहिए?',
+    needPrivacy: 'सक्रिय अनुरोध में स्थान, खेत का आकार, फसलें, ज़रूरतें और संपर्क की पसंद साइन-इन उपयोगकर्ताओं को दिखेगी। ईमेल और फ़ोन निजी रहेंगे।',
+    contactPreference: 'संपर्क का पसंदीदा तरीका', contactInApp: 'ऐप में संदेश',
+    contactEmail: 'ईमेल (निजी)', contactPhone: 'फ़ोन (निजी)', language: 'भाषा',
+    lookingForHelp: 'मुझे सामग्री या सहायता चाहिए',
+    lookingForHelpHint: 'खेत की सामग्री या सहायता चाहिए तो इसे चालू करें।',
+    saveProfile: 'प्रोफ़ाइल सहेजें', signOut: 'साइन आउट', markFulfilled: 'अनुरोध पूरा हुआ चिह्नित करें',
+    locationPlaceholder: 'गाँव, ज़िला', cropPlaceholder: 'जैसे कपास',
+    cropsPlaceholder: 'जैसे कपास, गेहूँ',
+    requirementsPlaceholder: 'बीज, खाद, उपकरण या अन्य ज़रूरतें',
+    needsBoardTitle: 'किसान ज़रूरत बोर्ड',
+    needsBoardIntro: 'किसानों की सक्रिय ज़रूरतें देखें और ऐप में निजी जवाब दें।',
+    loadingNeeds: 'किसानों के अनुरोध लोड हो रहे हैं...', noNeeds: 'अभी कोई सक्रिय किसान अनुरोध नहीं है।',
+    recommendedProducts: 'काम आ सकने वाले उत्पाद', yourResponses: 'आपके अनुरोधों के जवाब',
+    markRead: 'पढ़ा हुआ चिह्नित करें', noResponses: 'अभी कोई जवाब नहीं है।', yourNeed: 'आपका अनुरोध',
+    acres: 'एकड़', crops: 'फसलें', preferredFollowUp: 'संपर्क का पसंदीदा तरीका',
+    replyPlaceholder: 'उपयोगी जवाब लिखें (5–1000 अक्षर)', sendResponse: 'निजी जवाब भेजें',
+    responseSent: 'आपका जवाब निजी रूप से भेज दिया गया।', responseFailed: 'जवाब नहीं भेजा जा सका।',
+    unread: 'अपठित', noRecommendations: 'सुझाव पाने के लिए फसल और ज़रूरत जोड़ें।',
+    requestStatus: 'अनुरोध स्थिति', published: 'अनुरोध ज़रूरत बोर्ड पर सक्रिय है।', paused: 'अनुरोध रोक दिया गया।',
+    fulfilled: 'अनुरोध पूरा हुआ चिह्नित किया गया।', active: 'सक्रिय', pausedStatus: 'रुका हुआ',
+    fulfilledStatus: 'पूरा हुआ', profileSaved: 'प्रोफ़ाइल सहेजी गई।',
+    addRequirements: 'ज़रूरत प्रकाशित करने से पहले अपनी ज़रूरतें लिखें।', addToCart: 'कार्ट में जोड़ें',
+    newMatchAlert: 'नया उत्पाद आपकी खेती की ज़रूरत से मेल खाता है',
+    noMatch: 'अभी मेल खाते बाज़ार उत्पाद नहीं मिले।'
+  },
+  Marathi: {
+    profileTitle: 'शेतकरी प्रोफाइल', profileIntro: 'शेत आणि गरजांची माहिती अद्ययावत ठेवा.',
+    farmLocation: 'शेताचे ठिकाण', farmSize: 'शेताचे क्षेत्रफळ (एकर)', primaryCrop: 'मुख्य पीक',
+    cropsGrown: 'इतर पिके (स्वल्पविरामाने वेगळी करा)', requirements: 'तुम्हाला काय हवे आहे?',
+    needPrivacy: 'सक्रिय विनंतीतील ठिकाण, क्षेत्रफळ, पिके, गरजा आणि संपर्काची पसंती साइन-इन केलेल्या वापरकर्त्यांना दिसेल. ईमेल आणि फोन खाजगी राहतील.',
+    contactPreference: 'संपर्काची पसंती', contactInApp: 'अ‍ॅपमधील संदेश',
+    contactEmail: 'ईमेल (खाजगी)', contactPhone: 'फोन (खाजगी)', language: 'भाषा',
+    lookingForHelp: 'मला साहित्य किंवा मदत हवी आहे',
+    lookingForHelpHint: 'शेतीसाठी साहित्य किंवा मदत हवी असल्यास सुरू करा.',
+    saveProfile: 'प्रोफाइल जतन करा', signOut: 'साइन आउट', markFulfilled: 'विनंती पूर्ण झाली असे चिन्हांकित करा',
+    locationPlaceholder: 'गाव, जिल्हा', cropPlaceholder: 'उदा. कापूस',
+    cropsPlaceholder: 'उदा. कापूस, गहू',
+    requirementsPlaceholder: 'बियाणे, खते, उपकरणे किंवा इतर गरजा',
+    needsBoardTitle: 'शेतकरी गरज फलक',
+    needsBoardIntro: 'शेतकऱ्यांच्या सक्रिय गरजा पहा आणि अ‍ॅपमध्ये खाजगी उत्तर द्या.',
+    loadingNeeds: 'शेतकऱ्यांच्या विनंत्या लोड होत आहेत...', noNeeds: 'सध्या सक्रिय विनंत्या नाहीत.',
+    recommendedProducts: 'उपयोगी ठरू शकणारी उत्पादने', yourResponses: 'तुमच्या विनंत्यांना उत्तरे',
+    markRead: 'वाचले असे चिन्हांकित करा', noResponses: 'अजून उत्तरे नाहीत.', yourNeed: 'तुमची विनंती',
+    acres: 'एकर', crops: 'पिके', preferredFollowUp: 'संपर्काची पसंती',
+    replyPlaceholder: 'उपयुक्त उत्तर लिहा (5–1000 अक्षरे)', sendResponse: 'खाजगी उत्तर पाठवा',
+    responseSent: 'तुमचे उत्तर खाजगीरित्या पाठवले.', responseFailed: 'उत्तर पाठवता आले नाही.',
+    unread: 'न वाचलेले', noRecommendations: 'सूचना मिळवण्यासाठी पीक आणि गरज लिहा.',
+    requestStatus: 'विनंतीची स्थिती', published: 'विनंती गरज फलकावर सक्रिय आहे.', paused: 'विनंती थांबवली.',
+    fulfilled: 'विनंती पूर्ण झाली असे चिन्हांकित केले.', active: 'सक्रिय', pausedStatus: 'थांबवले',
+    fulfilledStatus: 'पूर्ण', profileSaved: 'प्रोफाइल जतन झाले.',
+    addRequirements: 'गरज प्रकाशित करण्यापूर्वी ती लिहा.',
+    noMatch: 'सध्या जुळणारी बाजारपेठेतील उत्पादने आढळली नाहीत.', addToCart: 'कार्टमध्ये जोडा',
+    newMatchAlert: 'नवीन उत्पादन तुमच्या शेतीच्या गरजेशी जुळते'
+  },
+  Telugu: {
+    profileTitle: 'రైతు ప్రొఫైల్', profileIntro: 'మీ వ్యవసాయ వివరాలు, అవసరాలను నవీకరించండి.',
+    farmLocation: 'పొలం స్థానం', farmSize: 'పొలం విస్తీర్ణం (ఎకరాలు)', primaryCrop: 'ప్రధాన పంట',
+    cropsGrown: 'ఇతర పంటలు (కామాతో వేరు చేయండి)', requirements: 'మీకు ఏమి కావాలి?',
+    needPrivacy: 'క్రియాశీల అభ్యర్థనలో స్థానం, పొలం విస్తీర్ణం, పంటలు, అవసరాలు మరియు సంప్రదింపు ప్రాధాన్యత సైన్-ఇన్ చేసిన వినియోగదారులకు కనిపిస్తాయి. ఇమెయిల్, ఫోన్ వివరాలు గోప్యంగా ఉంటాయి.',
+    contactPreference: 'సంప్రదింపు ప్రాధాన్యత', contactInApp: 'యాప్‌లో సందేశం',
+    contactEmail: 'ఇమెయిల్ (గోప్యం)', contactPhone: 'ఫోన్ (గోప్యం)', language: 'భాష',
+    lookingForHelp: 'నాకు సరఫరాలు లేదా సహాయం కావాలి',
+    lookingForHelpHint: 'వ్యవసాయ సామగ్రి లేదా సహాయం కావాలంటే దీన్ని ఆన్ చేయండి.',
+    saveProfile: 'ప్రొఫైల్‌ను సేవ్ చేయండి', signOut: 'సైన్ అవుట్', markFulfilled: 'అభ్యర్థన పూర్తయినట్లు గుర్తించండి',
+    locationPlaceholder: 'గ్రామం, జిల్లా', cropPlaceholder: 'ఉదా. పత్తి',
+    cropsPlaceholder: 'ఉదా. పత్తి, గోధుమ',
+    requirementsPlaceholder: 'విత్తనాలు, ఎరువులు, పరికరాలు లేదా ఇతర అవసరాలు',
+    needsBoardTitle: 'రైతుల అవసరాల బోర్డు',
+    needsBoardIntro: 'రైతుల క్రియాశీల అభ్యర్థనలను చూసి యాప్‌లో ప్రైవేట్‌గా స్పందించండి.',
+    loadingNeeds: 'రైతుల అభ్యర్థనలు లోడ్ అవుతున్నాయి...', noNeeds: 'ప్రస్తుతం క్రియాశీల అభ్యర్థనలు లేవు.',
+    recommendedProducts: 'ఉపయోగపడే ఉత్పత్తులు', yourResponses: 'మీ అభ్యర్థనలకు స్పందనలు',
+    markRead: 'చదివినట్లు గుర్తించండి', noResponses: 'ఇంకా స్పందనలు లేవు.', yourNeed: 'మీ అభ్యర్థన',
+    acres: 'ఎకరాలు', crops: 'పంటలు', preferredFollowUp: 'సంప్రదింపు ప్రాధాన్యత',
+    replyPlaceholder: 'సహాయకరమైన సమాధానం రాయండి (5–1000 అక్షరాలు)', sendResponse: 'ప్రైవేట్ సమాధానం పంపండి',
+    responseSent: 'మీ సమాధానం ప్రైవేట్‌గా పంపబడింది.', responseFailed: 'సమాధానం పంపలేకపోయాం.',
+    unread: 'చదవనివి', noRecommendations: 'సూచనల కోసం పంట, అవసరాన్ని జోడించండి.',
+    requestStatus: 'అభ్యర్థన స్థితి', published: 'అభ్యర్థన బోర్డులో క్రియాశీలంగా ఉంది.', paused: 'అభ్యర్థన నిలిపివేయబడింది.',
+    fulfilled: 'అభ్యర్థన పూర్తయినట్లు గుర్తించబడింది.', active: 'క్రియాశీలం', pausedStatus: 'నిలిపివేయబడింది',
+    fulfilledStatus: 'పూర్తయింది', profileSaved: 'ప్రొఫైల్ సేవ్ చేయబడింది.',
+    addRequirements: 'అవసరాన్ని ప్రచురించడానికి ముందు వివరాలు జోడించండి.',
+    noMatch: 'ప్రస్తుతం సరిపోలే మార్కెట్ ఉత్పత్తులు లేవు.', addToCart: 'కార్ట్‌కు జోడించండి',
+    newMatchAlert: 'కొత్త ఉత్పత్తి మీ వ్యవసాయ అవసరాలకు సరిపోతుంది'
+  },
+  Tamil: {
+    profileTitle: 'விவசாயி சுயவிவரம்', profileIntro: 'உங்கள் பண்ணை விவரங்களையும் தேவைகளையும் புதுப்பிக்கவும்.',
+    farmLocation: 'பண்ணை அமைவிடம்', farmSize: 'பண்ணை அளவு (ஏக்கர்)', primaryCrop: 'முக்கிய பயிர்',
+    cropsGrown: 'பிற பயிர்கள் (காற்புள்ளியால் பிரிக்கவும்)', requirements: 'உங்களுக்கு என்ன தேவை?',
+    needPrivacy: 'செயலில் உள்ள கோரிக்கையில் அமைவிடம், பண்ணை அளவு, பயிர்கள், தேவைகள் மற்றும் தொடர்பு விருப்பம் உள்நுழைந்த பயனர்களுடன் பகிரப்படும். மின்னஞ்சல், தொலைபேசி விவரங்கள் தனிப்பட்டவை.',
+    contactPreference: 'விருப்பமான தொடர்பு', contactInApp: 'செயலியில் செய்தி',
+    contactEmail: 'மின்னஞ்சல் (தனிப்பட்டது)', contactPhone: 'தொலைபேசி (தனிப்பட்டது)', language: 'மொழி',
+    lookingForHelp: 'எனக்கு பொருட்கள் அல்லது உதவி தேவை',
+    lookingForHelpHint: 'பண்ணை பொருட்கள் அல்லது உதவி தேவைப்பட்டால் இதை இயக்கவும்.',
+    saveProfile: 'சுயவிவரத்தைச் சேமி', signOut: 'வெளியேறு', markFulfilled: 'கோரிக்கை நிறைவேறியது எனக் குறி',
+    locationPlaceholder: 'கிராமம், மாவட்டம்', cropPlaceholder: 'எ.கா. பருத்தி',
+    cropsPlaceholder: 'எ.கா. பருத்தி, கோதுமை',
+    requirementsPlaceholder: 'விதைகள், உரம், கருவிகள் அல்லது பிற தேவைகள்',
+    needsBoardTitle: 'விவசாயத் தேவைகள் பலகை',
+    needsBoardIntro: 'விவசாயிகளின் செயலில் உள்ள கோரிக்கைகளைப் பார்த்து செயலியில் தனிப்பட்ட முறையில் பதிலளிக்கவும்.',
+    loadingNeeds: 'விவசாயிகளின் கோரிக்கைகள் ஏற்றப்படுகின்றன...', noNeeds: 'இப்போது செயலில் உள்ள கோரிக்கைகள் இல்லை.',
+    recommendedProducts: 'உதவக்கூடிய பொருட்கள்', yourResponses: 'உங்கள் கோரிக்கைகளுக்கான பதில்கள்',
+    markRead: 'படித்ததாகக் குறி', noResponses: 'இன்னும் பதில்கள் இல்லை.', yourNeed: 'உங்கள் கோரிக்கை',
+    acres: 'ஏக்கர்', crops: 'பயிர்கள்', preferredFollowUp: 'விருப்பமான தொடர்பு',
+    replyPlaceholder: 'பயனுள்ள பதிலை எழுதவும் (5–1000 எழுத்துகள்)', sendResponse: 'தனிப்பட்ட பதிலை அனுப்பு',
+    responseSent: 'உங்கள் பதில் தனிப்பட்ட முறையில் அனுப்பப்பட்டது.', responseFailed: 'பதிலை அனுப்ப முடியவில்லை.',
+    unread: 'படிக்காதவை', noRecommendations: 'பரிந்துரைகளுக்கு பயிரையும் தேவையையும் சேர்க்கவும்.',
+    requestStatus: 'கோரிக்கை நிலை', published: 'கோரிக்கை பலகையில் செயலில் உள்ளது.', paused: 'கோரிக்கை இடைநிறுத்தப்பட்டது.',
+    fulfilled: 'கோரிக்கை நிறைவேறியது எனக் குறிக்கப்பட்டது.', active: 'செயலில்', pausedStatus: 'இடைநிறுத்தம்',
+    fulfilledStatus: 'நிறைவேற்றப்பட்டது', profileSaved: 'சுயவிவரம் சேமிக்கப்பட்டது.',
+    addRequirements: 'தேவையை வெளியிடுவதற்கு முன் விவரங்களைச் சேர்க்கவும்.',
+    noMatch: 'பொருந்தும் சந்தைப் பொருட்கள் இப்போது இல்லை.', addToCart: 'கூடையில் சேர்',
+    newMatchAlert: 'புதிய பொருள் உங்கள் பண்ணைத் தேவைக்கு பொருந்துகிறது'
+  }
+};
+
+function dashboardText(key) {
+  return dashboardTranslations[window.dashboardLanguage]?.[key]
+    || dashboardTranslations.English[key]
+    || key;
+}
+
+function applyDashboardLanguage(language) {
+  window.dashboardLanguage = dashboardTranslations[language] ? language : 'English';
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    element.textContent = dashboardText(element.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+    element.placeholder = dashboardText(element.dataset.i18nPlaceholder);
+  });
+  updateNeedStatusLabel();
+  renderNeedsBoard();
+  renderNeedInbox();
+  renderNeedRecommendations();
+}
+
 async function loadAccount() {
   const response = await fetch('/api/auth/me');
   if (!response.ok) { location.href = '/login.html'; return; }
   const data = await response.json();
   const role = data.user.role || 'farmer';
   window.currentAccount = data.user;
-  document.getElementById('account-name').textContent = `${data.user.name} - ${role}`;
+  window.dashboardLanguage = data.user.preferred_language || 'English';
+  document.getElementById('account-name').textContent = data.user.name;
+  document.getElementById('account-avatar').textContent = data.user.name.trim().charAt(0).toUpperCase();
+  document.getElementById('profile-email').textContent = data.user.email;
   document.querySelectorAll('[data-roles]').forEach(element => {
     element.classList.toggle('role-hidden', !element.dataset.roles.split(/\s+/).includes(role));
   });
+  applyDashboardLanguage(window.dashboardLanguage);
+  if (role === 'farmer' || role === 'admin') {
+    await loadFarmerProfile();
+    await loadNeedInbox();
+  }
   await loadMarketplace();
+  await loadNeedsBoard();
+  window.needBoardRefresh = window.setInterval(refreshFarmerDiscoveries, 60000);
   if (role === 'farmer' || role === 'admin') await loadFarmPlanner();
   if (role === 'admin') await loadAdminOverview();
 }
+
+async function loadFarmerProfile() {
+  const status = document.getElementById('profile-status');
+  try {
+    const response = await fetch('/api/farm/profile');
+    const profile = await response.json();
+    if (!response.ok) throw new Error(profile.detail || 'Could not load your farm profile.');
+    window.currentFarmProfile = profile;
+    document.getElementById('profile-location').value = profile.location;
+    document.getElementById('profile-crop').value = profile.primary_crop;
+    document.getElementById('profile-requirements').value = profile.requirements;
+    document.getElementById('profile-size').value = profile.farm_size_acres ?? '';
+    document.getElementById('profile-crops').value = profile.crops_grown;
+    document.getElementById('profile-contact').value = profile.preferred_contact;
+    document.getElementById('profile-language').value = profile.preferred_language || 'English';
+    document.getElementById('profile-in-need').checked = profile.need_status === 'active';
+    applyDashboardLanguage(profile.preferred_language || 'English');
+    updateNeedStatusLabel();
+    renderNeedRecommendations();
+    if (profile.location && typeof loadSevenDayWeather === 'function') {
+      loadSevenDayWeather(profile.location);
+    }
+  } catch (error) {
+    status.textContent = error.message;
+    status.style.color = 'var(--coral-600)';
+  }
+}
+
+async function saveFarmerProfile(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById('profile-status');
+  const button = form.querySelector('.profile-save');
+  const values = Object.fromEntries(new FormData(form));
+  button.disabled = true;
+  status.textContent = 'Saving profile...';
+  status.style.color = 'var(--gray-600)';
+  try {
+    const response = await fetch('/api/farm/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...values,
+        farm_size_acres: values.farm_size_acres ? Number(values.farm_size_acres) : null,
+        is_in_need: document.getElementById('profile-in-need').checked
+      })
+    });
+    const profile = await response.json();
+    if (!response.ok) throw new Error(profile.detail || 'Could not save your farm profile.');
+    window.currentFarmProfile = profile;
+    window.currentAccount.preferred_language = profile.preferred_language;
+    status.textContent = dashboardText('profileSaved');
+    status.style.color = 'var(--green-600)';
+    updateNeedStatusLabel();
+    applyDashboardLanguage(profile.preferred_language);
+    await Promise.all([loadNeedsBoard(), loadNeedInbox()]);
+    if (profile.location && typeof loadSevenDayWeather === 'function') {
+      await loadSevenDayWeather(profile.location);
+    }
+    window.recommendedProductIds = new Set(getRecommendedProducts().map(item => item.product.id));
+    window.recommendationBaselineReady = true;
+  } catch (error) {
+    status.textContent = error.message;
+    status.style.color = 'var(--coral-600)';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function updateNeedStatusLabel() {
+  const profile = window.currentFarmProfile;
+  const label = document.getElementById('profile-need-status');
+  const fulfillButton = document.getElementById('profile-fulfill');
+  if (!profile || !label || !fulfillButton) return;
+  const statusKey = profile.need_status === 'active'
+    ? 'active'
+    : profile.need_status === 'fulfilled' ? 'fulfilledStatus' : 'pausedStatus';
+  label.textContent = `${dashboardText('requestStatus')}: ${dashboardText(statusKey)}`;
+  fulfillButton.disabled = profile.need_status === 'fulfilled';
+}
+
+async function markNeedFulfilled() {
+  const status = document.getElementById('profile-status');
+  try {
+    const response = await fetch('/api/farm/profile/need-status', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'fulfilled' })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.detail || 'Could not update the request.');
+    window.currentFarmProfile.need_status = result.status;
+    window.currentFarmProfile.is_in_need = false;
+    document.getElementById('profile-in-need').checked = false;
+    status.textContent = dashboardText('fulfilled');
+    status.style.color = 'var(--green-600)';
+    updateNeedStatusLabel();
+    await loadNeedsBoard();
+  } catch (error) {
+    status.textContent = error.message;
+    status.style.color = 'var(--coral-600)';
+  }
+}
+
+document.getElementById('profile-language').addEventListener('change', event => {
+  applyDashboardLanguage(event.target.value);
+});
+
+document.addEventListener('click', event => {
+  const menu = document.getElementById('account-menu');
+  if (menu.open && !menu.contains(event.target)) menu.open = false;
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') document.getElementById('account-menu').open = false;
+});
 
 async function loadAdminOverview() {
   const response = await fetch('/api/admin/overview');
@@ -991,6 +1423,7 @@ async function loadFarmCrops() {
     const net = Number(record.sales_income) - Number(record.expenses);
     return `<article style="border:1px solid var(--gray-100);border-radius:8px;padding:.85rem;background:var(--gray-50);">
       <div style="display:flex;justify-content:space-between;gap:.5rem;"><strong>${escapeHtml(record.crop_name)}${record.variety ? ` · ${escapeHtml(record.variety)}` : ''}</strong><span>${escapeHtml(record.health)}</span></div>
+      <div style="font-size:.78rem;color:var(--green-600);margin-top:.25rem;">${escapeHtml(record.season)} season</div>
       <div style="font-size:.8rem;color:var(--gray-600);margin-top:.4rem;">Sown ${escapeHtml(record.sowing_date)} · Harvest ${escapeHtml(record.expected_harvest_date || 'not set')}</div>
       <div style="font-size:.8rem;color:var(--gray-600);margin-top:.25rem;">${Number(record.quantity_kg).toLocaleString('en-IN')} kg · Expenses ₹${Number(record.expenses).toLocaleString('en-IN')} · Income ₹${Number(record.sales_income).toLocaleString('en-IN')} · Net ₹${net.toLocaleString('en-IN')}</div>
       ${record.fertilizer_notes ? `<div style="font-size:.78rem;margin-top:.35rem;">Fertilizer: ${escapeHtml(record.fertilizer_notes)}</div>` : ''}
@@ -1017,12 +1450,12 @@ async function loadFarmCalendar() {
   container.innerHTML = (data.recommendations || []).map(item => `
     <div style="border:1px solid var(--gray-100);border-radius:10px;padding:0.75rem;background:#fff;">
       <div style="display:flex;justify-content:space-between;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-        <strong style="font-size:0.88rem;">${item.field_name}</strong>
-        <span style="padding:3px 8px;border-radius:12px;background:var(--green-50);color:var(--green-600);font-size:0.68rem;font-weight:700;">${item.season}</span>
+        <strong style="font-size:0.88rem;">${escapeHtml(item.field_name)}</strong>
+        <span style="padding:3px 8px;border-radius:12px;background:var(--green-50);color:var(--green-600);font-size:0.68rem;font-weight:700;">${escapeHtml(item.season)}</span>
       </div>
-      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.35rem;">${item.crop}</div>
-      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.25rem;">💧 ${item.irrigation_hint}</div>
-      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.25rem;">📌 ${item.advice}</div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.35rem;">${escapeHtml(item.crop)}</div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.25rem;">💧 ${escapeHtml(item.irrigation_hint)}</div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.25rem;">📌 ${escapeHtml(item.advice)}</div>
     </div>
   `).join('');
 }
@@ -1105,11 +1538,11 @@ function renderFields(fields) {
   container.innerHTML = fields.map(field => `
     <div style="border:1px solid var(--gray-100);border-radius:10px;padding:0.75rem;background:var(--gray-50);">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
-        <strong style="font-size:0.9rem;">${field.name}</strong>
-        <span style="padding:3px 8px;border-radius:12px;background:var(--green-50);color:var(--green-600);font-size:0.7rem;font-weight:700;">${field.status}</span>
+        <strong style="font-size:0.9rem;">${escapeHtml(field.name)}</strong>
+        <span style="padding:3px 8px;border-radius:12px;background:var(--green-50);color:var(--green-600);font-size:0.7rem;font-weight:700;">${escapeHtml(field.status)}</span>
       </div>
-      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.4rem;">${field.crop} · ${field.area_acres} acres</div>
-      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.15rem;">📍 ${field.location}</div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.4rem;">${escapeHtml(field.crop)} · ${field.area_acres} acres · ${escapeHtml(field.season)} season</div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.15rem;">📍 ${escapeHtml(field.location)}</div>
     </div>
   `).join('');
 }
@@ -1133,6 +1566,15 @@ function renderTasks(tasks) {
   `).join('');
 }
 
+function toggleCustomCrop(select, inputId) {
+  const input = document.getElementById(inputId);
+  const isCustom = select.value === 'Other';
+  input.hidden = !isCustom;
+  input.disabled = !isCustom;
+  input.required = isCustom;
+  if (!isCustom) input.value = '';
+}
+
 async function completeFarmTask(taskId) {
   const response = await fetch(`/api/farm/tasks/${taskId}`, {
     method: 'PATCH',
@@ -1151,12 +1593,14 @@ async function submitField(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const data = Object.fromEntries(new FormData(form).entries());
+  const crop = data.crop_selection === 'Other' ? data.custom_crop.trim() : data.crop_selection;
   const response = await fetch('/api/farm/fields', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: data.name,
-      crop: data.crop,
+      crop,
+      season: data.season,
       area_acres: Number(data.area_acres),
       location: data.location,
       status: data.status
@@ -1168,6 +1612,7 @@ async function submitField(event) {
     return;
   }
   form.reset();
+  toggleCustomCrop(form.elements.crop_selection, 'field-custom-crop');
   await loadFarmPlanner();
 }
 
@@ -1200,11 +1645,14 @@ async function submitCropRecord(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const data = Object.fromEntries(new FormData(form).entries());
+  const cropName = data.crop_selection === 'Other' ? data.custom_crop.trim() : data.crop_selection;
   const response = await fetch('/api/farm/crops', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       ...data,
+      crop_name: cropName,
+      season: data.season,
       expected_harvest_date: data.expected_harvest_date || null,
       quantity_kg: Number(data.quantity_kg),
       expenses: Number(data.expenses),
@@ -1217,6 +1665,7 @@ async function submitCropRecord(event) {
     return;
   }
   form.reset();
+  toggleCustomCrop(form.elements.crop_selection, 'crop-custom-name');
   await loadFarmCrops();
 }
 
@@ -1461,6 +1910,11 @@ async function loadMarketplace() {
     products = productData;
     renderProducts();
     renderMarketplaceOrders(orderData);
+    renderNeedRecommendations();
+    if (!window.recommendationBaselineReady) {
+      window.recommendedProductIds = new Set(getRecommendedProducts().map(item => item.product.id));
+      window.recommendationBaselineReady = true;
+    }
     status.textContent = '';
   } catch (error) {
     status.textContent = error.message;
@@ -1585,6 +2039,195 @@ function renderMarketplaceOrders(orders) {
       <div class="market-order-items">${order.items.map(item => `${escapeHtml(item.name)} × ${Number(item.quantity)}`).join(', ')}</div>
     </div>
   `).join('');
+}
+
+async function loadNeedsBoard() {
+  const container = document.getElementById('needs-board-list');
+  const status = document.getElementById('needs-board-status');
+  try {
+    const response = await fetch('/api/farm/needs');
+    const needs = await response.json();
+    if (!response.ok) throw new Error(needs.detail || 'Could not load farmer requests.');
+    window.farmerNeeds = needs;
+    renderNeedsBoard();
+    renderNeedRecommendations();
+    status.textContent = '';
+  } catch (error) {
+    container.textContent = error.message;
+    status.textContent = error.message;
+    status.style.color = 'var(--coral-600)';
+  }
+}
+
+function renderNeedsBoard() {
+  const container = document.getElementById('needs-board-list');
+  const count = document.getElementById('needs-board-count');
+  if (!container) return;
+  const needs = window.farmerNeeds || [];
+  count.textContent = String(needs.length);
+  if (!needs.length) {
+    container.innerHTML = `<div class="need-empty">${escapeHtml(dashboardText('noNeeds'))}</div>`;
+    return;
+  }
+  container.innerHTML = needs.map(need => {
+    const details = [
+      need.location && `📍 ${escapeHtml(need.location)}`,
+      need.farm_size_acres && `${Number(need.farm_size_acres).toLocaleString()} ${escapeHtml(dashboardText('acres'))}`,
+      (need.primary_crop || need.crops_grown) && `${escapeHtml(dashboardText('crops'))}: ${escapeHtml([need.primary_crop, need.crops_grown].filter(Boolean).join(', '))}`
+    ].filter(Boolean).join(' · ');
+    const contactLabel = {
+      in_app: dashboardText('contactInApp'),
+      email: dashboardText('contactEmail'),
+      phone: dashboardText('contactPhone')
+    }[need.preferred_contact] || dashboardText('contactInApp');
+    return `<article class="need-card">
+      <h4>${escapeHtml(need.farmer_name)}${need.is_own_need ? ` · ${escapeHtml(dashboardText('yourNeed'))}` : ''}</h4>
+      <p class="need-meta">${details || ''}</p>
+      <p class="need-description">${escapeHtml(need.requirements)}</p>
+      <p class="need-meta">${escapeHtml(dashboardText('preferredFollowUp'))}: ${escapeHtml(contactLabel)}</p>
+      ${need.is_own_need ? '' : `<form class="need-response-form" onsubmit="submitNeedResponse(event, ${Number(need.farmer_id)})">
+        <textarea name="message" minlength="5" maxlength="1000" required placeholder="${escapeHtml(dashboardText('replyPlaceholder'))}"></textarea>
+        <button type="submit">${escapeHtml(dashboardText('sendResponse'))}</button>
+      </form>`}
+    </article>`;
+  }).join('');
+}
+
+async function submitNeedResponse(event, farmerId) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('button[type="submit"]');
+  const message = new FormData(form).get('message');
+  button.disabled = true;
+  try {
+    const response = await fetch(`/api/farm/needs/${farmerId}/responses`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.detail || dashboardText('responseFailed'));
+    form.reset();
+    document.getElementById('needs-board-status').textContent = dashboardText('responseSent');
+    document.getElementById('needs-board-status').style.color = 'var(--green-600)';
+  } catch (error) {
+    document.getElementById('needs-board-status').textContent = error.message;
+    document.getElementById('needs-board-status').style.color = 'var(--coral-600)';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function loadNeedInbox() {
+  const list = document.getElementById('needs-inbox-list');
+  try {
+    const response = await fetch('/api/farm/needs/responses');
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.detail || 'Could not load request responses.');
+    window.needInbox = result;
+    const badge = document.getElementById('account-alert');
+    badge.textContent = result.unread_count > 9 ? '9+' : String(result.unread_count || '');
+    badge.classList.toggle('visible', result.unread_count > 0);
+    badge.setAttribute('aria-label', `${result.unread_count} ${dashboardText('unread')} responses`);
+    document.getElementById('needs-unread-label').textContent = result.unread_count
+      ? `${result.unread_count} ${dashboardText('unread')}`
+      : '';
+    document.getElementById('mark-responses-read').disabled = result.unread_count === 0;
+    if (list) renderNeedInbox();
+  } catch (error) {
+    if (list) list.textContent = error.message;
+  }
+}
+
+function renderNeedInbox() {
+  const list = document.getElementById('needs-inbox-list');
+  if (!list) return;
+  const responses = window.needInbox?.responses || [];
+  if (!responses.length) {
+    list.innerHTML = `<div class="need-empty">${escapeHtml(dashboardText('noResponses'))}</div>`;
+    return;
+  }
+  list.innerHTML = responses.map(item => `
+    <article class="need-inbox-card ${item.read ? '' : 'unread'}">
+      <strong>${escapeHtml(item.responder_name)}</strong>
+      <span class="need-meta"> · ${escapeHtml(new Date(item.created_at).toLocaleString())}</span>
+      <p>${escapeHtml(item.message)}</p>
+    </article>
+  `).join('');
+}
+
+async function markNeedResponsesRead() {
+  const status = document.getElementById('needs-board-status');
+  try {
+    const response = await fetch('/api/farm/needs/responses/read', { method: 'PATCH' });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.detail || 'Could not mark responses as read.');
+    await loadNeedInbox();
+  } catch (error) {
+    status.textContent = error.message;
+    status.style.color = 'var(--coral-600)';
+  }
+}
+
+function renderNeedRecommendations() {
+  const container = document.getElementById('need-recommendation-list');
+  if (!container) return;
+  const profile = window.currentFarmProfile;
+  if (!profile) {
+    container.innerHTML = `<span class="need-meta">${escapeHtml(dashboardText('noRecommendations'))}</span>`;
+    return;
+  }
+  const ranked = getRecommendedProducts();
+  if (!ranked.length) {
+    container.innerHTML = `<span class="need-meta">${escapeHtml(dashboardText(profile.primary_crop || profile.requirements ? 'noMatch' : 'noRecommendations'))}</span>`;
+    return;
+  }
+  container.innerHTML = ranked.map(({ product }) => `
+    <div class="recommendation-chip">
+      <span>${escapeHtml(product.emoji)} ${escapeHtml(product.name)} · ₹${Number(product.price).toFixed(2)}</span>
+      <button type="button" onclick="addToCart(${Number(product.id)})">${escapeHtml(dashboardText('addToCart'))}</button>
+    </div>
+  `).join('');
+}
+
+function getRecommendedProducts() {
+  const profile = window.currentFarmProfile;
+  if (!profile) return [];
+  const cropText = `${profile.primary_crop || ''} ${profile.crops_grown || ''}`.toLowerCase();
+  const requirementTerms = `${cropText} ${profile.requirements || ''}`
+    .toLowerCase().split(/[^a-z0-9]+/).filter(term => term.length > 2);
+  const cropCategory = /tomato|onion|potato|spinach|vegetable|brinjal|okra|chilli|pepper|cabbage|cauliflower/.test(cropText)
+    ? 'vegetables'
+    : /mango|banana|orange|apple|grape|fruit|pomegranate/.test(cropText)
+      ? 'fruits'
+      : /wheat|rice|maize|corn|grain|millet/.test(cropText)
+        ? 'grains'
+        : /lentil|chana|pulse|dal|bean|pea/.test(cropText) ? 'pulses' : '';
+  return (products || []).map(product => {
+    const searchable = `${product.name} ${product.category}`.toLowerCase();
+    const score = requirementTerms.reduce((total, term) => total + (searchable.includes(term) ? 2 : 0), 0)
+      + (cropCategory && product.category === cropCategory ? 2 : 0);
+    return { product, score };
+  }).filter(item => item.score > 0).sort((left, right) => right.score - left.score).slice(0, 3);
+}
+
+async function refreshFarmerDiscoveries() {
+  const previousProductIds = window.recommendedProductIds || new Set();
+  await Promise.all([
+    loadNeedsBoard(),
+    loadMarketplace(),
+    window.currentAccount?.role === 'farmer' || window.currentAccount?.role === 'admin'
+      ? loadNeedInbox()
+      : Promise.resolve()
+  ]);
+  const recommendations = getRecommendedProducts();
+  const newlyMatched = recommendations.filter(item => !previousProductIds.has(item.product.id));
+  window.recommendedProductIds = new Set(recommendations.map(item => item.product.id));
+  if (newlyMatched.length && window.currentFarmProfile) {
+    const status = document.getElementById('needs-board-status');
+    status.textContent = `${dashboardText('newMatchAlert')}: ${newlyMatched.map(item => item.product.name).join(', ')}`;
+    status.style.color = 'var(--green-600)';
+  }
 }
 
 </script>

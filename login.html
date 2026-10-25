@@ -84,13 +84,18 @@
         <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
         <div id="language-field" class="field">
           <label for="language">Preferred language</label>
-          <select id="language" name="language" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:.82rem .9rem;background:#fff;color:var(--ink);font:inherit;font-size:.9rem;">
-            <option value="English" selected>English</option>
+          <select id="language" name="language" autocomplete="off" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:.82rem .9rem;background:#fff;color:var(--ink);font:inherit;font-size:.9rem;">
+            <option value="" selected>Use saved language</option>
+            <option value="English">English</option>
             <option value="Hindi">Hindi</option>
             <option value="Marathi">Marathi</option>
             <option value="Telugu">Telugu</option>
             <option value="Tamil">Tamil</option>
           </select>
+          <label class="remember" id="language-override-field" style="margin-top:.5rem;">
+            <input type="checkbox" id="override-language">
+            Change language for this sign-in
+          </label>
         </div>
         <div class="field"><label for="password">Password</label><div class="input-wrap"><input id="password" name="password" type="password" autocomplete="current-password" placeholder="At least 8 characters" required><button class="show-password" type="button" id="toggle-password">Show</button></div></div>
         <div id="otp-field" class="field hidden"><label for="otp-code">OTP code</label><input id="otp-code" name="otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-digit OTP code"></div>
@@ -108,8 +113,11 @@ const form = document.getElementById('auth-form');
 const message = document.getElementById('message');
 const password = document.getElementById('password');
 const submitButton = document.getElementById('submit-button');
+const languageSelect = document.getElementById('language');
+const languageOverride = document.getElementById('override-language');
 const params = new URLSearchParams(location.search);
 const resetToken = params.get('reset_token');
+languageSelect.value = '';
 
 function showMessage(text, kind = 'error', link = '') {
   message.className = `message show ${kind}`;
@@ -121,6 +129,9 @@ function setMode(mode) {
   state.mode = mode;
   document.querySelectorAll('[data-mode]').forEach(button => button.classList.toggle('active', button.dataset.mode === mode));
   const signup = mode === 'signup';
+  languageSelect.value = signup ? 'English' : '';
+  languageOverride.checked = false;
+  document.getElementById('language-override-field').classList.toggle('hidden', signup);
   document.getElementById('eyebrow').textContent = signup ? 'Start growing' : 'Welcome back';
   document.getElementById('title').textContent = signup ? 'Create your farm workspace' : 'Sign in to your farm workspace';
   document.getElementById('intro').textContent = signup ? 'Keep your crop history and decisions close at hand.' : 'Your tools, scans, and decisions in one place.';
@@ -164,7 +175,7 @@ form.addEventListener('submit', async event => {
         localStorage.setItem('preferred_language', result.user.preferred_language);
       }
     } else {
-      const result = await send('/api/auth/login', { email: values.email, password: values.password, remember: document.getElementById('remember').checked, language: values.language || 'English' });
+      const result = await send('/api/auth/login', { email: values.email, password: values.password, remember: document.getElementById('remember').checked, language: languageOverride.checked ? values.language || 'English' : null });
       if (result.user && result.user.preferred_language) {
         localStorage.setItem('preferred_language', result.user.preferred_language);
       }

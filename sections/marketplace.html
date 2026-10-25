@@ -23,6 +23,36 @@
       <p id="market-listing-status" role="status" aria-live="polite"></p>
     </form>
 
+    <div class="needs-board" id="farmer-needs-board" data-roles="farmer admin customer">
+      <div class="needs-board-header">
+        <div>
+          <h3 data-i18n="needsBoardTitle">Farmer needs board</h3>
+          <p data-i18n="needsBoardIntro">See active requests from farmers and reply privately in the app.</p>
+        </div>
+        <span id="needs-board-count" class="need-meta" aria-live="polite"></span>
+      </div>
+      <div id="needs-board-list" class="needs-grid" aria-live="polite">
+        <div class="need-empty" data-i18n="loadingNeeds">Loading farmer requests...</div>
+      </div>
+      <div class="need-recommendations role-hidden" id="need-recommendations" data-roles="farmer admin">
+        <h4 data-i18n="recommendedProducts">Products that may help</h4>
+        <div id="need-recommendation-list" class="recommendation-list"></div>
+      </div>
+      <div class="needs-inbox role-hidden" id="needs-inbox" data-roles="farmer admin">
+        <div class="needs-inbox-heading">
+          <h4 data-i18n="yourResponses">Responses to your requests</h4>
+          <div class="need-inbox-actions">
+            <span id="needs-unread-label" class="need-meta"></span>
+            <button type="button" id="mark-responses-read" onclick="markNeedResponsesRead()" data-i18n="markRead">Mark read</button>
+          </div>
+        </div>
+        <div id="needs-inbox-list" aria-live="polite">
+          <div class="need-empty" data-i18n="noResponses">No responses yet.</div>
+        </div>
+      </div>
+      <p id="needs-board-status" role="status" aria-live="polite"></p>
+    </div>
+
     <div class="market-filters">
       <button class="filter-btn active" onclick="filterProducts('all', this)">All Products</button>
       <button class="filter-btn" onclick="filterProducts('grains', this)">🌾 Grains</button>

@@ -326,6 +326,145 @@ class AgriSmartAPITests(unittest.TestCase):
             )
         self.assertIn("secure", response.headers["set-cookie"].lower())
 
+    def test_farmer_profile_requirements_and_need_toggle_are_persisted(self) -> None:
+        empty_profile = self.client.get("/api/farm/profile")
+        self.assertEqual(empty_profile.status_code, 200)
+        self.assertEqual(empty_profile.json()["location"], "")
+        self.assertFalse(empty_profile.json()["is_in_need"])
+        self.assertEqual(empty_profile.json()["need_status"], "paused")
+        self.assertEqual(empty_profile.json()["preferred_contact"], "in_app")
+
+        updated = self.client.put(
+            "/api/farm/profile",
+            json={
+                "location": "  Nashik, Maharashtra  ",
+                "primary_crop": "  Onion ",
+                "requirements": "Seeds and drip irrigation",
+                "is_in_need": True,
+                "farm_size_acres": 4.5,
+                "crops_grown": " Onion, Wheat, Onion ",
+                "preferred_contact": "email",
+                "preferred_language": "Marathi",
+            },
+        )
+        self.assertEqual(updated.status_code, 200)
+        self.assertEqual(updated.json()["location"], "Nashik, Maharashtra")
+        self.assertEqual(updated.json()["primary_crop"], "Onion")
+        self.assertTrue(updated.json()["is_in_need"])
+        self.assertEqual(updated.json()["need_status"], "active")
+        self.assertEqual(updated.json()["farm_size_acres"], 4.5)
+        self.assertEqual(updated.json()["crops_grown"], "Onion, Wheat")
+        self.assertEqual(updated.json()["preferred_contact"], "email")
+        self.assertEqual(updated.json()["preferred_language"], "Marathi")
+        self.assertEqual(self.client.get("/api/farm/profile").json(), updated.json())
+        self.assertEqual(
+            self.client.get("/api/auth/me").json()["user"]["preferred_language"],
+            "Marathi",
+        )
+        self.client.post("/api/auth/logout")
+        signin = self.client.post(
+            "/api/auth/login",
+            json={"email": "farmer@example.com", "password": "strong-pass-123"},
+        )
+        self.assertEqual(signin.status_code, 200)
+        self.assertEqual(signin.json()["user"]["preferred_language"], "Marathi")
+
+        invalid = self.client.put(
+            "/api/farm/profile",
+            json={"location": "x" * 121, "primary_crop": "", "requirements": "", "is_in_need": False},
+        )
+        self.assertEqual(invalid.status_code, 422)
+        missing_requirements = self.client.put(
+            "/api/farm/profile",
+            json={"location": "", "primary_crop": "", "requirements": "", "is_in_need": True},
+        )
+        self.assertEqual(missing_requirements.status_code, 422)
+
+    def test_farmer_needs_board_private_replies_and_request_lifecycle(self) -> None:
+        farmer = self.client.get("/api/auth/me").json()["user"]
+        farmer_id = farmer["id"]
+        published = self.client.put(
+            "/api/farm/profile",
+            json={
+                "location": "Nashik",
+                "primary_crop": "Onion",
+                "requirements": "Need onion seeds",
+                "is_in_need": True,
+            },
+        )
+        self.assertEqual(published.status_code, 200)
+
+        board = self.client.get("/api/farm/needs")
+        self.assertEqual(board.status_code, 200)
+        self.assertEqual(len(board.json()), 1)
+        self.assertTrue(board.json()[0]["is_own_need"])
+        self.assertNotIn("email", board.json()[0])
+
+        self.client.post("/api/auth/logout")
+        signup = self.client.post(
+            "/api/auth/signup",
+            json={
+                "name": "Supply Neighbor",
+                "email": "supplier@example.com",
+                "password": "strong-pass-123",
+                "role": "customer",
+            },
+        )
+        self.assertEqual(signup.status_code, 200)
+        self.assertEqual(self.client.get("/api/farm/needs").status_code, 200)
+        self.assertEqual(self.client.get("/api/farm/needs/responses").status_code, 403)
+        reply = self.client.post(
+            f"/api/farm/needs/{farmer_id}/responses",
+            json={"message": "I can provide onion seeds."},
+        )
+        self.assertEqual(reply.status_code, 200)
+        self.assertEqual(reply.json()["message"], "I can provide onion seeds.")
+        self.assertEqual(
+            self.client.post(
+                f"/api/farm/needs/{farmer_id}/responses",
+                json={"message": "No"},
+            ).status_code,
+            422,
+        )
+        self.assertEqual(
+            self.client.post(
+                f"/api/farm/needs/{self.client.get('/api/auth/me').json()['user']['id']}/responses",
+                json={"message": "Cannot reply to self"},
+            ).status_code,
+            400,
+        )
+
+        self.client.post("/api/auth/logout")
+        self.client.post(
+            "/api/auth/login",
+            json={"email": "farmer@example.com", "password": "strong-pass-123"},
+        )
+        inbox = self.client.get("/api/farm/needs/responses")
+        self.assertEqual(inbox.status_code, 200)
+        self.assertEqual(inbox.json()["unread_count"], 1)
+        self.assertEqual(inbox.json()["responses"][0]["responder_name"], "Supply Neighbor")
+        self.assertEqual(self.client.patch("/api/farm/needs/responses/read").json()["marked_read"], 1)
+        self.assertEqual(self.client.get("/api/farm/needs/responses").json()["unread_count"], 0)
+
+        paused = self.client.patch(
+            "/api/farm/profile/need-status",
+            json={"status": "paused"},
+        )
+        self.assertEqual(paused.status_code, 200)
+        self.assertEqual(self.client.get("/api/farm/needs").json(), [])
+        resumed = self.client.patch(
+            "/api/farm/profile/need-status",
+            json={"status": "active"},
+        )
+        self.assertEqual(resumed.status_code, 200)
+        fulfilled = self.client.patch(
+            "/api/farm/profile/need-status",
+            json={"status": "fulfilled"},
+        )
+        self.assertEqual(fulfilled.status_code, 200)
+        self.assertEqual(self.client.get("/api/farm/profile").json()["need_status"], "fulfilled")
+        self.assertEqual(self.client.get("/api/farm/needs").json(), [])
+
     def test_customer_role_cannot_access_farmer_management(self) -> None:
         farmer = self.client.get("/api/auth/me").json()["user"]
         self.assertEqual(farmer["role"], "farmer")
@@ -346,6 +485,14 @@ class AgriSmartAPITests(unittest.TestCase):
         self.assertEqual(self.client.get("/api/market-live").status_code, 200)
         self.assertEqual(self.client.get("/api/farm/summary").status_code, 403)
         self.assertEqual(self.client.get("/api/farm/crops").status_code, 403)
+        self.assertEqual(self.client.get("/api/farm/profile").status_code, 403)
+        self.assertEqual(
+            self.client.put(
+                "/api/farm/profile",
+                json={"location": "", "primary_crop": "", "requirements": "", "is_in_need": True},
+            ).status_code,
+            403,
+        )
         self.assertEqual(self.client.get("/api/farm/reminders").status_code, 403)
         self.assertEqual(self.client.get("/api/admin/overview").status_code, 403)
         self.assertEqual(self.client.get("/api/admin/users").status_code, 403)
@@ -375,6 +522,7 @@ class AgriSmartAPITests(unittest.TestCase):
             "/api/farm/crops",
             json={
                 "crop_name": "Cotton",
+                "season": "Kharif",
                 "variety": "Bt Hybrid",
                 "sowing_date": "2026-06-15",
                 "expected_harvest_date": "2026-11-20",
@@ -388,13 +536,28 @@ class AgriSmartAPITests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["variety"], "Bt Hybrid")
+        self.assertEqual(response.json()["season"], "Kharif")
         self.assertEqual(response.json()["expenses"], 22500)
 
         records = self.client.get("/api/farm/crops")
         self.assertEqual(records.status_code, 200)
         self.assertEqual(records.json()[0]["crop_name"], "Cotton")
+        self.assertEqual(records.json()[0]["season"], "Kharif")
         self.assertEqual(records.json()[0]["expected_harvest_date"], "2026-11-20")
         self.assertEqual(records.json()[0]["fertilizer_notes"], "NPK applied in split doses")
+
+        invalid_season = self.client.post(
+            "/api/farm/crops",
+            json={
+                "crop_name": "Wheat",
+                "season": "Monsoon",
+                "sowing_date": "2026-10-01",
+                "quantity_kg": 0,
+                "expenses": 0,
+                "sales_income": 0,
+            },
+        )
+        self.assertEqual(invalid_season.status_code, 422)
     def test_signup_tracks_language_and_otp_reset_flow(self) -> None:
         signup = self.client.post(
             "/api/auth/signup",
@@ -451,18 +614,70 @@ class AgriSmartAPITests(unittest.TestCase):
         self.assertEqual(response.json()["city"], "Nanded")
         self.assertTrue(response.json()["riskLevel"] in {"low", "medium", "high"})
 
+    def test_seven_day_forecast_returns_rule_based_alerts(self) -> None:
+        class FakeResponse:
+            def __init__(self, payload):
+                self.payload = payload
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, tb):
+                return False
+
+            def read(self):
+                return json.dumps(self.payload).encode()
+
+        geocoding = {
+            "results": [
+                {"name": "Nanded", "admin1": "Maharashtra", "latitude": 19.15, "longitude": 77.32}
+            ]
+        }
+        forecast = {
+            "daily": {
+                "time": [f"2026-10-{day:02d}" for day in range(25, 32)],
+                "weather_code": [95, 3, 3, 3, 3, 3, 3],
+                "temperature_2m_max": [22, 24, 24, 25, 25, 25, 25],
+                "temperature_2m_min": [4, 14, 14, 14, 14, 14, 14],
+                "precipitation_sum": [70, 0, 0, 0, 0, 0, 0],
+                "precipitation_probability_max": [90, 0, 0, 0, 0, 0, 0],
+                "wind_speed_10m_max": [30, 10, 10, 10, 10, 10, 10],
+            }
+        }
+        with patch(
+            "server.urllib.request.urlopen",
+            side_effect=[FakeResponse(geocoding), FakeResponse(forecast)],
+        ):
+            response = self.client.get("/api/weather/forecast?city=Nanded")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["location"]["name"], "Nanded")
+        self.assertEqual(len(response.json()["days"]), 7)
+        self.assertEqual(
+            {alert["title"] for alert in response.json()["alerts"]},
+            {"Heavy rain possible", "Thunderstorm forecast", "Cold conditions possible"},
+        )
+        self.assertIn("hail", response.json()["alerts"][1]["detail"].lower())
+
+    def test_seven_day_forecast_requires_a_signed_in_user(self) -> None:
+        self.client.post("/api/auth/logout")
+        response = self.client.get("/api/weather/forecast?city=Nanded")
+        self.assertEqual(response.status_code, 401)
+
     def test_farm_fields_and_tasks_are_user_specific(self) -> None:
         field = self.client.post(
             "/api/farm/fields",
             json={
                 "name": "North Plot",
                 "crop": "Cotton",
+                "season": "Kharif",
                 "area_acres": 2.5,
                 "location": "Nanded",
                 "status": "Healthy",
             },
         )
         self.assertEqual(field.status_code, 200)
+        self.assertEqual(field.json()["season"], "Kharif")
         field_id = field.json()["id"]
 
         task = self.client.post(
@@ -481,12 +696,14 @@ class AgriSmartAPITests(unittest.TestCase):
         summary = self.client.get("/api/farm/summary")
         self.assertEqual(summary.status_code, 200)
         self.assertEqual(summary.json()["fields"][0]["name"], "North Plot")
+        self.assertEqual(summary.json()["fields"][0]["season"], "Kharif")
         self.assertEqual(summary.json()["tasks"][0]["title"], "Irrigate plot")
 
         calendar = self.client.get("/api/farm/calendar")
         self.assertEqual(calendar.status_code, 200)
         self.assertIn("season", calendar.json())
         self.assertTrue(calendar.json()["recommendations"])
+        self.assertEqual(calendar.json()["recommendations"][0]["season"], "Kharif")
 
     def test_farm_reminders_include_due_tasks_and_harvest_dates(self) -> None:
         today = server.date.today()
@@ -682,15 +899,26 @@ class AgriSmartAPITests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         for section_id in (
             "admin-overview",
+            "weather",
             "field-form",
             "crop-record-form",
+            "schemes",
+            "farm-calculators",
             "price-prediction",
             "irrigation",
             "marketplace",
+            "farmer-needs-board",
             "farm-scan-app",
         ):
             self.assertEqual(response.text.count(f'id="{section_id}"'), 1)
+        self.assertIn('id="weather-voice"', response.text)
+        self.assertIn("PMFBY official portal", response.text)
+        self.assertIn("SMS and WhatsApp alerts are not connected.", response.text)
         self.assertNotIn("INCLUDE:", response.text)
+        login = self.client.get("/login.html")
+        self.assertEqual(login.headers["cache-control"], "no-store")
+        self.assertIn("language: languageOverride.checked ? values.language || 'English' : null", login.text)
+        self.assertIn('<option value="" selected>Use saved language</option>', login.text)
 
 if __name__ == "__main__":
     unittest.main()

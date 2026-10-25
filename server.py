@@ -282,13 +282,53 @@ class ResetPasswordRequest(BaseModel):
 class FarmFieldCreate(BaseModel):
     name: str = Field(min_length=2, max_length=80)
     crop: str = Field(min_length=2, max_length=60)
+    season: Literal["Kharif", "Rabi", "Zaid", "Perennial", "Other"] = "Other"
     area_acres: float = Field(gt=0, le=10000)
     location: str = Field(min_length=2, max_length=120)
     status: str = Field(min_length=2, max_length=40)
 
 
+class FarmProfileUpdate(BaseModel):
+    location: str = Field(default="", max_length=120)
+    primary_crop: str = Field(default="", max_length=60)
+    requirements: str = Field(default="", max_length=500)
+    is_in_need: bool = False
+    farm_size_acres: float | None = Field(default=None, gt=0, le=1_000_000)
+    crops_grown: str = Field(default="", max_length=300)
+    preferred_contact: Literal["in_app", "email", "phone"] = "in_app"
+    preferred_language: Literal["English", "Hindi", "Marathi", "Telugu", "Tamil"] = "English"
+
+    @field_validator("location", "primary_crop", "requirements")
+    @classmethod
+    def clean_profile_text(cls, value: str) -> str:
+        return value.strip()
+
+    @field_validator("crops_grown")
+    @classmethod
+    def clean_crops_grown(cls, value: str) -> str:
+        crops = [crop.strip() for crop in value.split(",") if crop.strip()]
+        return ", ".join(dict.fromkeys(crops))
+
+
+class FarmerNeedStatusUpdate(BaseModel):
+    status: Literal["active", "paused", "fulfilled"]
+
+
+class FarmerNeedResponseCreate(BaseModel):
+    message: str = Field(min_length=5, max_length=1000)
+
+    @field_validator("message")
+    @classmethod
+    def clean_message(cls, value: str) -> str:
+        value = value.strip()
+        if len(value) < 5:
+            raise ValueError("Please write a little more in your response.")
+        return value
+
+
 class FarmCropCreate(BaseModel):
     crop_name: str = Field(min_length=2, max_length=60)
+    season: Literal["Kharif", "Rabi", "Zaid", "Perennial", "Other"] = "Other"
     variety: str = Field(default="", max_length=80)
     sowing_date: date
     expected_harvest_date: date | None = None
@@ -385,6 +425,52 @@ async def lifespan(_: FastAPI):
             connection.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'farmer'")
         connection.execute(
             """
+            CREATE TABLE IF NOT EXISTS farmer_profiles (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+                location TEXT NOT NULL DEFAULT '',
+                primary_crop TEXT NOT NULL DEFAULT '',
+                requirements TEXT NOT NULL DEFAULT '',
+                is_in_need INTEGER NOT NULL DEFAULT 0,
+                farm_size_acres REAL,
+                crops_grown TEXT NOT NULL DEFAULT '',
+                preferred_contact TEXT NOT NULL DEFAULT 'in_app',
+                need_status TEXT NOT NULL DEFAULT 'paused'
+            )
+            """
+        )
+        profile_columns = {
+            column[1] for column in connection.execute("PRAGMA table_info(farmer_profiles)").fetchall()
+        }
+        for column_name, definition in (
+            ("farm_size_acres", "REAL"),
+            ("crops_grown", "TEXT NOT NULL DEFAULT ''"),
+            ("preferred_contact", "TEXT NOT NULL DEFAULT 'in_app'"),
+            ("need_status", "TEXT NOT NULL DEFAULT 'paused'"),
+        ):
+            if column_name not in profile_columns:
+                connection.execute(f"ALTER TABLE farmer_profiles ADD COLUMN {column_name} {definition}")
+        connection.execute(
+            "UPDATE farmer_profiles SET need_status = 'active' "
+            "WHERE is_in_need = 1 AND need_status = 'paused'"
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS farmer_need_responses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                farmer_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                responder_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                message TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                read_at TEXT
+            )
+            """
+        )
+        connection.execute(
+            "CREATE INDEX IF NOT EXISTS idx_farmer_need_responses_farmer "
+            "ON farmer_need_responses (farmer_id, created_at DESC)"
+        )
+        connection.execute(
+            """
             CREATE TABLE IF NOT EXISTS sessions (
                 token_hash TEXT PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -421,6 +507,7 @@ async def lifespan(_: FastAPI):
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 name TEXT NOT NULL,
                 crop TEXT NOT NULL,
+                season TEXT NOT NULL DEFAULT 'Other',
                 area_acres REAL NOT NULL CHECK (area_acres > 0),
                 location TEXT NOT NULL,
                 status TEXT NOT NULL,
@@ -428,6 +515,11 @@ async def lifespan(_: FastAPI):
             )
             """
         )
+        field_columns = connection.execute("PRAGMA table_info(farm_fields)").fetchall()
+        if not any(column[1] == "season" for column in field_columns):
+            connection.execute(
+                "ALTER TABLE farm_fields ADD COLUMN season TEXT NOT NULL DEFAULT 'Other'"
+            )
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS farm_tasks (
@@ -449,6 +541,7 @@ async def lifespan(_: FastAPI):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 crop_name TEXT NOT NULL,
+                season TEXT NOT NULL DEFAULT 'Other',
                 variety TEXT NOT NULL DEFAULT '',
                 sowing_date TEXT NOT NULL,
                 expected_harvest_date TEXT,
@@ -462,6 +555,11 @@ async def lifespan(_: FastAPI):
             )
             """
         )
+        crop_columns = connection.execute("PRAGMA table_info(farm_crops)").fetchall()
+        if not any(column[1] == "season" for column in crop_columns):
+            connection.execute(
+                "ALTER TABLE farm_crops ADD COLUMN season TEXT NOT NULL DEFAULT 'Other'"
+            )
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS scans (
@@ -775,6 +873,123 @@ def get_live_weather(city: str) -> dict[str, object] | None:
         return None
 
 
+def get_seven_day_forecast(city: str) -> dict[str, object]:
+    geocode_url = (
+        "https://geocoding-api.open-meteo.com/v1/search?"
+        f"name={urllib.parse.quote(city)}&count=10&language=en&format=json&countryCode=IN"
+    )
+    try:
+        with urllib.request.urlopen(geocode_url, timeout=8) as response:
+            geocode_payload = json.loads(response.read().decode("utf-8"))
+        results = geocode_payload.get("results") or []
+        if not results:
+            raise HTTPException(status_code=404, detail="Village or town not found. Try a nearby town name.")
+        location = next(
+            (result for result in results if str(result.get("name", "")).casefold() == city.casefold()),
+            results[0],
+        )
+        latitude = location.get("latitude")
+        longitude = location.get("longitude")
+        if latitude is None or longitude is None:
+            raise HTTPException(status_code=502, detail="Weather location lookup returned incomplete data.")
+
+        forecast_url = (
+            "https://api.open-meteo.com/v1/forecast?"
+            f"latitude={latitude}&longitude={longitude}&forecast_days=7&timezone=auto"
+            "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,"
+            "precipitation_probability_max,wind_speed_10m_max"
+        )
+        with urllib.request.urlopen(forecast_url, timeout=8) as response:
+            forecast_payload = json.loads(response.read().decode("utf-8"))
+    except HTTPException:
+        raise
+    except (OSError, TimeoutError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="The 7-day forecast is temporarily unavailable. Please try again later.",
+        ) from exc
+
+    daily = forecast_payload.get("daily") or {}
+    dates = daily.get("time") or []
+    forecast_days = []
+    for index, forecast_date in enumerate(dates[:7]):
+        try:
+            code = int(daily["weather_code"][index])
+            high = float(daily["temperature_2m_max"][index])
+            low = float(daily["temperature_2m_min"][index])
+            rainfall = float(daily["precipitation_sum"][index])
+            rain_chance = float(daily["precipitation_probability_max"][index])
+            wind = float(daily["wind_speed_10m_max"][index])
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            raise HTTPException(status_code=502, detail="The weather provider returned incomplete forecast data.") from exc
+        condition, icon = weather_code_to_label(code)
+        forecast_days.append(
+            {
+                "date": forecast_date,
+                "condition": condition,
+                "icon": icon,
+                "high_c": round(high, 1),
+                "low_c": round(low, 1),
+                "rain_mm": round(rainfall, 1),
+                "rain_chance": round(rain_chance),
+                "wind_kmh": round(wind, 1),
+                "weather_code": code,
+            }
+        )
+    if len(forecast_days) != 7:
+        raise HTTPException(status_code=502, detail="The weather provider did not return seven forecast days.")
+
+    alerts: list[dict[str, str]] = []
+    for forecast in forecast_days:
+        if forecast["rain_mm"] >= 64.5:
+            alerts.append(
+                {
+                    "level": "warning",
+                    "date": str(forecast["date"]),
+                    "title": "Heavy rain possible",
+                    "detail": f"{forecast['rain_mm']} mm is forecast. Check local advisories and drainage.",
+                }
+            )
+        if forecast["weather_code"] in {95, 96, 99}:
+            alerts.append(
+                {
+                    "level": "warning",
+                    "date": str(forecast["date"]),
+                    "title": "Thunderstorm forecast",
+                    "detail": "Storm forecasts do not confirm hail; follow official local warnings.",
+                }
+            )
+        if forecast["low_c"] <= 5:
+            alerts.append(
+                {
+                    "level": "warning",
+                    "date": str(forecast["date"]),
+                    "title": "Cold conditions possible",
+                    "detail": f"Minimum temperature may reach {forecast['low_c']}°C. Check crop-specific local guidance.",
+                }
+            )
+    if all(forecast["rain_mm"] < 1 for forecast in forecast_days):
+        alerts.append(
+            {
+                "level": "notice",
+                "date": str(forecast_days[0]["date"]),
+                "title": "Little or no rain forecast",
+                "detail": "No meaningful rain is forecast in this 7-day outlook; check soil moisture and your local irrigation plan.",
+            }
+        )
+
+    return {
+        "location": {
+            "name": str(location.get("name") or city),
+            "admin1": str(location.get("admin1") or ""),
+        },
+        "source": "Open-Meteo",
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "days": forecast_days,
+        "alerts": alerts,
+    }
+
+
 def image_signature_matches(media_type: str, image_bytes: bytes) -> bool:
     if media_type == "image/webp":
         return image_bytes.startswith(b"RIFF") and image_bytes[8:12] == b"WEBP"
@@ -1007,6 +1222,220 @@ def login(request: LoginRequest) -> Response:
 @app.get("/api/auth/me")
 def me(request: Request) -> dict[str, object]:
     return {"user": require_user(request)}
+
+
+@app.get("/api/farm/profile")
+def get_farm_profile(request: Request) -> dict[str, object]:
+    user = require_role(request, "farmer", "admin")
+    with database_connection() as connection:
+        row = connection.execute(
+            "SELECT location, primary_crop, requirements, is_in_need, farm_size_acres, "
+            "crops_grown, preferred_contact, need_status "
+            "FROM farmer_profiles WHERE user_id = ?",
+            (user["id"],),
+        ).fetchone()
+    if row is None:
+        return {
+            "location": "",
+            "primary_crop": "",
+            "requirements": "",
+            "is_in_need": False,
+            "farm_size_acres": None,
+            "crops_grown": "",
+            "preferred_contact": "in_app",
+            "need_status": "paused",
+            "preferred_language": user["preferred_language"],
+        }
+    return {
+        "location": row[0],
+        "primary_crop": row[1],
+        "requirements": row[2],
+        "is_in_need": bool(row[3]),
+        "farm_size_acres": row[4],
+        "crops_grown": row[5],
+        "preferred_contact": row[6],
+        "need_status": row[7],
+        "preferred_language": user["preferred_language"],
+    }
+
+
+@app.put("/api/farm/profile")
+def update_farm_profile(request: Request, payload: FarmProfileUpdate) -> dict[str, object]:
+    user = require_role(request, "farmer", "admin")
+    profile = payload.model_dump()
+    if profile["is_in_need"] and not profile["requirements"]:
+        raise HTTPException(status_code=422, detail="Add your requirements before publishing a need.")
+    with database_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO farmer_profiles (
+                user_id, location, primary_crop, requirements, is_in_need, farm_size_acres,
+                crops_grown, preferred_contact, need_status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                location = excluded.location,
+                primary_crop = excluded.primary_crop,
+                requirements = excluded.requirements,
+                is_in_need = excluded.is_in_need,
+                farm_size_acres = excluded.farm_size_acres,
+                crops_grown = excluded.crops_grown,
+                preferred_contact = excluded.preferred_contact,
+                need_status = CASE
+                    WHEN excluded.is_in_need = 1 THEN 'active'
+                    WHEN farmer_profiles.need_status = 'fulfilled' THEN 'fulfilled'
+                    ELSE 'paused'
+                END
+            """,
+            (
+                user["id"],
+                profile["location"],
+                profile["primary_crop"],
+                profile["requirements"],
+                int(profile["is_in_need"]),
+                profile["farm_size_acres"],
+                profile["crops_grown"],
+                profile["preferred_contact"],
+                "active" if profile["is_in_need"] else "paused",
+            ),
+        )
+        connection.execute(
+            "UPDATE users SET preferred_language = ? WHERE id = ?",
+            (profile["preferred_language"], user["id"]),
+        )
+        status_row = connection.execute(
+            "SELECT need_status FROM farmer_profiles WHERE user_id = ?",
+            (user["id"],),
+        ).fetchone()
+    return {**profile, "need_status": status_row[0]}
+
+
+@app.patch("/api/farm/profile/need-status")
+def update_farmer_need_status(
+    request: Request, payload: FarmerNeedStatusUpdate
+) -> dict[str, str]:
+    user = require_role(request, "farmer", "admin")
+    with database_connection() as connection:
+        profile = connection.execute(
+            "SELECT requirements FROM farmer_profiles WHERE user_id = ?",
+            (user["id"],),
+        ).fetchone()
+        if payload.status == "active" and (profile is None or not profile[0].strip()):
+            raise HTTPException(status_code=422, detail="Add your requirements before publishing a need.")
+        connection.execute(
+            """
+            INSERT INTO farmer_profiles (user_id, is_in_need, need_status)
+            VALUES (?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                is_in_need = excluded.is_in_need,
+                need_status = excluded.need_status
+            """,
+            (user["id"], int(payload.status == "active"), payload.status),
+        )
+    return {"status": payload.status}
+
+
+@app.get("/api/farm/needs")
+def list_farmer_needs(request: Request) -> list[dict[str, object]]:
+    user = require_user(request)
+    with database_connection() as connection:
+        rows = connection.execute(
+            """
+            SELECT p.user_id, u.name, p.location, p.primary_crop, p.crops_grown,
+                   p.farm_size_acres, p.requirements, p.preferred_contact
+            FROM farmer_profiles p
+            JOIN users u ON u.id = p.user_id
+            WHERE p.need_status = 'active' AND p.is_in_need = 1
+              AND length(trim(p.requirements)) > 0
+            ORDER BY p.user_id = ? DESC, u.name COLLATE NOCASE
+            """,
+            (user["id"],),
+        ).fetchall()
+    return [
+        {
+            "farmer_id": row[0],
+            "farmer_name": row[1],
+            "location": row[2],
+            "primary_crop": row[3],
+            "crops_grown": row[4],
+            "farm_size_acres": row[5],
+            "requirements": row[6],
+            "preferred_contact": row[7],
+            "is_own_need": row[0] == user["id"],
+        }
+        for row in rows
+    ]
+
+
+@app.post("/api/farm/needs/{farmer_id}/responses")
+def create_farmer_need_response(
+    farmer_id: int, request: Request, payload: FarmerNeedResponseCreate
+) -> dict[str, object]:
+    responder = require_user(request)
+    if farmer_id == responder["id"]:
+        raise HTTPException(status_code=400, detail="You cannot respond to your own need.")
+    now = datetime.now(timezone.utc).isoformat()
+    with database_connection() as connection:
+        active_need = connection.execute(
+            "SELECT 1 FROM farmer_profiles WHERE user_id = ? AND need_status = 'active' "
+            "AND is_in_need = 1 AND length(trim(requirements)) > 0",
+            (farmer_id,),
+        ).fetchone()
+        if active_need is None:
+            raise HTTPException(status_code=404, detail="This farmer need is no longer available.")
+        cursor = connection.execute(
+            """
+            INSERT INTO farmer_need_responses (farmer_id, responder_id, message, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (farmer_id, responder["id"], payload.message, now),
+        )
+    return {"id": cursor.lastrowid, "created_at": now, "message": payload.message}
+
+
+@app.get("/api/farm/needs/responses")
+def list_farmer_need_responses(request: Request) -> dict[str, object]:
+    farmer = require_role(request, "farmer", "admin")
+    with database_connection() as connection:
+        unread_count = connection.execute(
+            "SELECT COUNT(*) FROM farmer_need_responses WHERE farmer_id = ? AND read_at IS NULL",
+            (farmer["id"],),
+        ).fetchone()[0]
+        rows = connection.execute(
+            """
+            SELECT r.id, u.name, r.message, r.created_at, r.read_at
+            FROM farmer_need_responses r
+            JOIN users u ON u.id = r.responder_id
+            WHERE r.farmer_id = ?
+            ORDER BY r.created_at DESC, r.id DESC
+            LIMIT 50
+            """,
+            (farmer["id"],),
+        ).fetchall()
+    return {
+        "unread_count": unread_count,
+        "responses": [
+            {
+                "id": row[0],
+                "responder_name": row[1],
+                "message": row[2],
+                "created_at": row[3],
+                "read": row[4] is not None,
+            }
+            for row in rows
+        ],
+    }
+
+
+@app.patch("/api/farm/needs/responses/read")
+def mark_farmer_need_responses_read(request: Request) -> dict[str, int]:
+    farmer = require_role(request, "farmer", "admin")
+    with database_connection() as connection:
+        updated = connection.execute(
+            "UPDATE farmer_need_responses SET read_at = ? WHERE farmer_id = ? AND read_at IS NULL",
+            (datetime.now(timezone.utc).isoformat(), farmer["id"]),
+        )
+    return {"marked_read": updated.rowcount}
 
 
 @app.get("/api/admin/overview")
@@ -1471,7 +1900,7 @@ def farm_summary(request: Request) -> dict[str, list[dict[str, object]]]:
     with database_connection() as connection:
         fields = connection.execute(
             """
-            SELECT id, name, crop, area_acres, location, status, created_at
+            SELECT id, name, crop, season, area_acres, location, status, created_at
             FROM farm_fields
             WHERE user_id = ?
             ORDER BY created_at DESC
@@ -1493,10 +1922,11 @@ def farm_summary(request: Request) -> dict[str, list[dict[str, object]]]:
             "id": row[0],
             "name": row[1],
             "crop": row[2],
-            "area_acres": float(row[3]),
-            "location": row[4],
-            "status": row[5],
-            "created_at": row[6],
+            "season": row[3],
+            "area_acres": float(row[4]),
+            "location": row[5],
+            "status": row[6],
+            "created_at": row[7],
         }
         for row in fields
     ]
@@ -1522,7 +1952,7 @@ def list_farm_fields(request: Request) -> list[dict[str, object]]:
     with database_connection() as connection:
         rows = connection.execute(
             """
-            SELECT id, name, crop, area_acres, location, status, created_at
+            SELECT id, name, crop, season, area_acres, location, status, created_at
             FROM farm_fields
             WHERE user_id = ?
             ORDER BY created_at DESC
@@ -1534,10 +1964,11 @@ def list_farm_fields(request: Request) -> list[dict[str, object]]:
             "id": row[0],
             "name": row[1],
             "crop": row[2],
-            "area_acres": float(row[3]),
-            "location": row[4],
-            "status": row[5],
-            "created_at": row[6],
+            "season": row[3],
+            "area_acres": float(row[4]),
+            "location": row[5],
+            "status": row[6],
+            "created_at": row[7],
         }
         for row in rows
     ]
@@ -1549,13 +1980,14 @@ def create_farm_field(request: Request, payload: FarmFieldCreate) -> dict[str, o
     with database_connection() as connection:
         cursor = connection.execute(
             """
-            INSERT INTO farm_fields (user_id, name, crop, area_acres, location, status, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO farm_fields (user_id, name, crop, season, area_acres, location, status, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 user["id"],
                 payload.name.strip(),
                 payload.crop.strip(),
+                payload.season,
                 payload.area_acres,
                 payload.location.strip(),
                 payload.status.strip(),
@@ -1567,6 +1999,7 @@ def create_farm_field(request: Request, payload: FarmFieldCreate) -> dict[str, o
         "id": field_id,
         "name": payload.name.strip(),
         "crop": payload.crop.strip(),
+        "season": payload.season,
         "area_acres": payload.area_acres,
         "location": payload.location.strip(),
         "status": payload.status.strip(),
@@ -1691,20 +2124,30 @@ def farm_calendar(request: Request) -> dict[str, object]:
 
     with database_connection() as connection:
         rows = connection.execute(
-            "SELECT id, name, crop, area_acres, location, status FROM farm_fields WHERE user_id = ? ORDER BY created_at DESC",
+            "SELECT id, name, crop, area_acres, location, status, season "
+            "FROM farm_fields WHERE user_id = ? ORDER BY created_at DESC",
             (user["id"],),
         ).fetchall()
 
-    recommendations = [
-        {
-            "field_name": row[1],
-            "crop": row[2],
-            "season": season,
-            "advice": f"{reminder} Current field status: {row[5]}.",
-            "irrigation_hint": "Check soil moisture before dawn and schedule drip irrigation if the field feels dry.",
-        }
-        for row in rows
-    ]
+    season_reminders = {
+        "Kharif": "Monitor monsoon drainage and check standing water after heavy rain.",
+        "Rabi": "Keep irrigation intervals steady and watch for cool-weather disease pressure.",
+        "Zaid": "Schedule irrigation during heat stress and apply mulching to reduce evaporation.",
+        "Perennial": "Monitor crop growth regularly and adjust irrigation and care to its current growth stage.",
+    }
+    recommendations = []
+    for row in rows:
+        field_season = row[6] if row[6] != "Other" else season
+        field_reminder = season_reminders.get(field_season, reminder)
+        recommendations.append(
+            {
+                "field_name": row[1],
+                "crop": row[2],
+                "season": field_season,
+                "advice": f"{field_reminder} Current field status: {row[5]}.",
+                "irrigation_hint": "Check soil moisture before dawn and schedule drip irrigation if the field feels dry.",
+            }
+        )
 
     if not recommendations:
         recommendations = [{
@@ -1823,7 +2266,7 @@ def list_farm_crops(request: Request) -> list[dict[str, object]]:
     user = require_role(request, "farmer", "admin")
     with database_connection() as connection:
         rows = connection.execute(
-            "SELECT id, crop_name, variety, sowing_date, expected_harvest_date, quantity_kg, "
+            "SELECT id, crop_name, season, variety, sowing_date, expected_harvest_date, quantity_kg, "
             "expenses, sales_income, health, fertilizer_notes, pesticide_notes "
             "FROM farm_crops WHERE user_id = ? ORDER BY expected_harvest_date, created_at DESC",
             (user["id"],),
@@ -1832,15 +2275,16 @@ def list_farm_crops(request: Request) -> list[dict[str, object]]:
         {
             "id": row[0],
             "crop_name": row[1],
-            "variety": row[2],
-            "sowing_date": row[3],
-            "expected_harvest_date": row[4],
-            "quantity_kg": row[5],
-            "expenses": row[6],
-            "sales_income": row[7],
-            "health": row[8],
-            "fertilizer_notes": row[9],
-            "pesticide_notes": row[10],
+            "season": row[2],
+            "variety": row[3],
+            "sowing_date": row[4],
+            "expected_harvest_date": row[5],
+            "quantity_kg": row[6],
+            "expenses": row[7],
+            "sales_income": row[8],
+            "health": row[9],
+            "fertilizer_notes": row[10],
+            "pesticide_notes": row[11],
         }
         for row in rows
     ]
@@ -1860,12 +2304,13 @@ def create_farm_crop(request: Request, payload: FarmCropCreate) -> dict[str, obj
     crop["pesticide_notes"] = payload.pesticide_notes.strip()
     with database_connection() as connection:
         cursor = connection.execute(
-            "INSERT INTO farm_crops (user_id, crop_name, variety, sowing_date, expected_harvest_date, "
+            "INSERT INTO farm_crops (user_id, crop_name, season, variety, sowing_date, expected_harvest_date, "
             "quantity_kg, expenses, sales_income, health, fertilizer_notes, pesticide_notes, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 user["id"],
                 crop["crop_name"],
+                crop["season"],
                 crop["variety"],
                 crop["sowing_date"],
                 crop["expected_harvest_date"],
@@ -2010,6 +2455,15 @@ async def weather_risk(http_request: Request, request: WeatherRequest) -> dict[s
     return parse_json_response(raw_text)
 
 
+@app.get("/api/weather/forecast")
+def weather_forecast(request: Request, city: str) -> dict[str, object]:
+    require_user(request)
+    city = city.strip()
+    if not city or len(city) > 100:
+        raise HTTPException(status_code=422, detail="Enter a village or town name up to 100 characters.")
+    return get_seven_day_forecast(city)
+
+
 @app.get("/")
 def home(request: Request) -> Response:
     if not current_user(request):
@@ -2019,7 +2473,7 @@ def home(request: Request) -> Response:
 
 @app.get("/login.html")
 def login_page() -> FileResponse:
-    return FileResponse(BASE_DIR / "login.html")
+    return FileResponse(BASE_DIR / "login.html", headers={"Cache-Control": "no-store"})
 
 
 @app.get("/agriculture_projects.html")
@@ -2034,7 +2488,10 @@ def render_dashboard() -> HTMLResponse:
     partial_dir = BASE_DIR / "sections"
     section_names = (
         "admin-overview",
+        "weather-forecast",
         "farm-planner",
+        "schemes",
+        "farm-tools",
         "project-overview",
         "market-prices",
         "irrigation",

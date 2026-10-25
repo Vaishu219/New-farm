@@ -1,0 +1,120 @@
+<section>
+  <div id="weather" class="feature-section weather-feature">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--blue-50);">🌦️</div>
+      <div>
+        <h2>7-day village weather</h2>
+        <p>Forecast and practical weather alerts for your village or nearby town.</p>
+      </div>
+    </div>
+    <form id="weather-forecast-form" class="weather-search">
+      <label for="weather-location">Village or town</label>
+      <input id="weather-location" name="city" maxlength="100" placeholder="e.g. Nanded" autocomplete="address-level2" required>
+      <button type="submit">Show 7-day forecast</button>
+      <button type="button" id="weather-voice" aria-label="Speak village or town name">🎙️ Speak</button>
+    </form>
+    <p class="weather-note">Forecasts are estimates, not official warnings or field measurements. Hail is not specifically predicted here; follow local government advisories. SMS and WhatsApp alerts are not connected.</p>
+    <p id="weather-status" role="status" aria-live="polite"></p>
+    <div id="weather-alerts" class="weather-alerts" aria-live="polite"></div>
+    <div id="weather-days" class="weather-days" aria-live="polite">
+      <p class="weather-empty">Enter your village or use your saved farm location to load the forecast.</p>
+    </div>
+    <p id="weather-source" class="weather-note"></p>
+  </div>
+</section>
+<style>
+  .weather-search { display:grid; grid-template-columns:minmax(150px,1fr) auto auto; gap:.6rem; align-items:end; }
+  .weather-search label { grid-column:1/-1; color:var(--gray-600); font-size:.85rem; font-weight:700; }
+  .weather-search input { width:100%; min-height:46px; padding:.7rem .8rem; border:1px solid var(--gray-100); border-radius:9px; font:inherit; }
+  .weather-search button { min-height:46px; border:0; border-radius:9px; padding:.7rem 1rem; background:var(--green-600); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+  .weather-search button:disabled { opacity:.6; cursor:wait; }
+  .weather-search #weather-voice { background:var(--blue-600); }
+  .weather-note { margin:.75rem 0; color:var(--gray-600); font-size:.8rem; line-height:1.5; }
+  .weather-alerts { display:grid; gap:.5rem; }
+  .weather-alert { padding:.75rem; border:1px solid var(--amber-100); border-radius:9px; background:var(--amber-50); }
+  .weather-alert.notice { border-color:var(--blue-400); background:var(--blue-50); }
+  .weather-alert strong { display:block; margin-bottom:.2rem; }
+  .weather-days { display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:.65rem; margin-top:.75rem; }
+  .weather-day { padding:.8rem; border:1px solid var(--gray-100); border-radius:10px; background:#fff; }
+  .weather-day strong, .weather-day span { display:block; }
+  .weather-day .weather-icon { margin:.35rem 0; font-size:1.5rem; }
+  .weather-day p { margin-top:.28rem; color:var(--gray-600); font-size:.78rem; line-height:1.45; }
+  #weather-status { min-height:1.2em; color:var(--coral-600); font-size:.82rem; }
+  @media(max-width:600px) {
+    .weather-search { grid-template-columns:1fr 1fr; }
+    .weather-search input { grid-column:1/-1; }
+    .weather-search button { padding:.65rem .5rem; }
+  }
+</style>
+<script>
+async function loadSevenDayWeather(city) {
+  const status = document.getElementById('weather-status');
+  const daysContainer = document.getElementById('weather-days');
+  const alertsContainer = document.getElementById('weather-alerts');
+  const source = document.getElementById('weather-source');
+  const button = document.querySelector('#weather-forecast-form button[type="submit"]');
+  const location = String(city || document.getElementById('weather-location').value || '').trim();
+  if (!location) {
+    status.textContent = 'Enter a village or town name first.';
+    return;
+  }
+  document.getElementById('weather-location').value = location;
+  button.disabled = true;
+  status.textContent = 'Loading forecast…';
+  daysContainer.replaceChildren();
+  alertsContainer.replaceChildren();
+  source.textContent = '';
+  try {
+    const response = await fetch(`/api/weather/forecast?city=${encodeURIComponent(location)}`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Could not load the forecast.');
+    daysContainer.innerHTML = data.days.map(day => {
+      const date = new Date(`${day.date}T00:00:00`).toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric'});
+      return `<article class="weather-day">
+        <strong>${escapeHtml(date)}</strong>
+        <span class="weather-icon" aria-hidden="true">${escapeHtml(day.icon)}</span>
+        <span>${escapeHtml(day.condition)}</span>
+        <p>High ${Number(day.high_c).toFixed(0)}° · Low ${Number(day.low_c).toFixed(0)}°</p>
+        <p>Rain ${Number(day.rain_mm).toFixed(1)} mm · chance ${Number(day.rain_chance)}%</p>
+        <p>Wind ${Number(day.wind_kmh).toFixed(0)} km/h</p>
+      </article>`;
+    }).join('');
+    alertsContainer.innerHTML = data.alerts.length
+      ? data.alerts.map(alert => `<article class="weather-alert ${alert.level === 'notice' ? 'notice' : ''}">
+          <strong>${escapeHtml(alert.title)} · ${escapeHtml(alert.date)}</strong>
+          <span>${escapeHtml(alert.detail)}</span>
+        </article>`).join('')
+      : '<p class="weather-note">No rule-based alerts in this forecast. Continue checking local advisories.</p>';
+    source.textContent = `Forecast for ${[data.location.name, data.location.admin1].filter(Boolean).map(escapeHtml).join(', ')} · Source: ${escapeHtml(data.source)} · Updated ${new Date(data.updated_at).toLocaleString()}.`;
+    status.textContent = 'Forecast loaded.';
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+document.getElementById('weather-forecast-form').addEventListener('submit', event => {
+  event.preventDefault();
+  loadSevenDayWeather();
+});
+document.getElementById('weather-voice').addEventListener('click', () => {
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    document.getElementById('weather-status').textContent = 'Voice input is not supported in this browser. Please type your village or town.';
+    return;
+  }
+  const recognition = new Recognition();
+  const language = {Hindi:'hi-IN', Marathi:'mr-IN', English:'en-IN', Telugu:'te-IN', Tamil:'ta-IN'}[window.dashboardLanguage] || 'en-IN';
+  recognition.lang = language;
+  recognition.onresult = event => {
+    const location = event.results[0][0].transcript.trim();
+    document.getElementById('weather-location').value = location;
+    loadSevenDayWeather(location);
+  };
+  recognition.onerror = () => {
+    document.getElementById('weather-status').textContent = 'Could not recognize the village name. Please try again or type it.';
+  };
+  recognition.start();
+});
+</script>

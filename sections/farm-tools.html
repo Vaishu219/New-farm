@@ -1,0 +1,102 @@
+<section data-roles="farmer admin customer">
+  <div id="farm-calculators" class="feature-section calculator-feature">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--teal-50);">🧮</div>
+      <div>
+        <h2>Farm calculators</h2>
+        <p>Quick estimates you can use before planning a purchase, irrigation, or loan.</p>
+      </div>
+    </div>
+    <p class="calculator-note">These are arithmetic estimates, not agronomic or financial advice. Use local crop recommendations and confirm loan terms with your lender. Fertilizer and seed rates should come from your soil test, package label, or agriculture officer.</p>
+    <div class="calculator-grid">
+      <article class="calculator-card">
+        <h3>Crop profit and loss</h3>
+        <form data-calculator="profit">
+          <label>Total crop costs (₹)<input name="cost" type="number" min="0" step="0.01" value="0" required></label>
+          <label>Harvest quantity (kg)<input name="quantity" type="number" min="0" step="0.1" required></label>
+          <label>Sale price (₹ per kg)<input name="price" type="number" min="0" step="0.01" required></label>
+          <button type="submit">Calculate crop result</button>
+        </form>
+        <p class="calculator-result" aria-live="polite">Enter your crop figures.</p>
+      </article>
+      <article class="calculator-card">
+        <h3>Seed and fertilizer quantity</h3>
+        <form data-calculator="inputs">
+          <label>Area (acres)<input name="area" type="number" min="0.01" step="0.01" required></label>
+          <label>Seed rate (kg per acre)<input name="seed_rate" type="number" min="0" step="0.01" required></label>
+          <label>Fertilizer rate (kg per acre)<input name="fertilizer_rate" type="number" min="0" step="0.01" required></label>
+          <button type="submit">Calculate quantities</button>
+        </form>
+        <p class="calculator-result" aria-live="polite">Use rates recommended for your crop and soil.</p>
+      </article>
+      <article class="calculator-card">
+        <h3>Irrigation water estimate</h3>
+        <form data-calculator="water">
+          <label>Area (acres)<input name="area" type="number" min="0.01" step="0.01" required></label>
+          <label>Water depth (mm)<input name="depth" type="number" min="0" step="0.1" required></label>
+          <button type="submit">Estimate water volume</button>
+        </form>
+        <p class="calculator-result" aria-live="polite">1 mm over 1 acre is about 4,047 litres before field losses.</p>
+      </article>
+      <article class="calculator-card">
+        <h3>Loan EMI estimate</h3>
+        <form data-calculator="emi">
+          <label>Loan amount (₹)<input name="principal" type="number" min="1" step="1" required></label>
+          <label>Annual interest rate (%)<input name="rate" type="number" min="0" max="100" step="0.01" required></label>
+          <label>Repayment period (months)<input name="months" type="number" min="1" max="600" step="1" required></label>
+          <button type="submit">Estimate monthly EMI</button>
+        </form>
+        <p class="calculator-result" aria-live="polite">Actual lender charges and repayment schedules may differ.</p>
+      </article>
+    </div>
+    <div class="diary-shortcut" data-roles="farmer admin">
+      <strong>Farm diary and season report</strong>
+      <span>Record crop expenses, sales, harvest, and input notes in your existing crop ledger.</span>
+      <a href="#farm-planner">Open farm diary in Farm Planner ↓</a>
+    </div>
+  </div>
+</section>
+<style>
+  .calculator-note { margin-bottom:1rem; padding:.8rem; border-radius:8px; background:var(--amber-50); color:var(--gray-800); font-size:.82rem; line-height:1.5; }
+  .calculator-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:.75rem; }
+  .calculator-card { padding:1rem; border:1px solid var(--gray-100); border-radius:12px; background:#fff; }
+  .calculator-card h3 { margin-bottom:.7rem; font-size:1rem; }
+  .calculator-card form { display:grid; gap:.6rem; }
+  .calculator-card label { display:grid; gap:.3rem; color:var(--gray-600); font-size:.78rem; font-weight:700; }
+  .calculator-card input { width:100%; min-height:44px; padding:.6rem; border:1px solid var(--gray-100); border-radius:8px; font:inherit; }
+  .calculator-card button { min-height:46px; border:0; border-radius:8px; padding:.65rem; background:var(--green-600); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+  .calculator-result { min-height:2.8em; margin-top:.7rem; padding:.65rem; border-radius:8px; background:var(--green-50); color:var(--green-800); font-size:.83rem; font-weight:600; line-height:1.5; }
+  .diary-shortcut { display:grid; gap:.35rem; margin-top:1rem; padding:1rem; border:1px solid var(--teal-400); border-radius:10px; background:var(--teal-50); }
+  .diary-shortcut span { color:var(--gray-600); font-size:.83rem; }
+  .diary-shortcut a { font-size:.85rem; }
+</style>
+<script>
+document.querySelectorAll('.calculator-card form').forEach(form => {
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const values = Object.fromEntries(new FormData(form));
+    const number = key => Number(values[key]);
+    const result = form.parentElement.querySelector('.calculator-result');
+    const money = value => `₹${value.toLocaleString('en-IN', {maximumFractionDigits:2})}`;
+    if (form.dataset.calculator === 'profit') {
+      const revenue = number('quantity') * number('price');
+      const net = revenue - number('cost');
+      result.textContent = `Sales estimate: ${money(revenue)} · Net ${net < 0 ? 'loss' : 'surplus'}: ${money(Math.abs(net))}.`;
+    } else if (form.dataset.calculator === 'inputs') {
+      const area = number('area');
+      result.textContent = `Estimated seed: ${(area * number('seed_rate')).toLocaleString('en-IN', {maximumFractionDigits:2})} kg · Fertilizer: ${(area * number('fertilizer_rate')).toLocaleString('en-IN', {maximumFractionDigits:2})} kg. Verify both rates locally before buying.`;
+    } else if (form.dataset.calculator === 'water') {
+      const litres = number('area') * number('depth') * 4046.856;
+      result.textContent = `Estimated volume: ${(litres / 1000).toLocaleString('en-IN', {maximumFractionDigits:2})} m³ (${Math.round(litres).toLocaleString('en-IN')} litres), before runoff and application losses.`;
+    } else {
+      const principal = number('principal');
+      const months = number('months');
+      const monthlyRate = number('rate') / 1200;
+      const emi = monthlyRate === 0
+        ? principal / months
+        : principal * monthlyRate * ((1 + monthlyRate) ** months) / (((1 + monthlyRate) ** months) - 1);
+      result.textContent = `Estimated monthly EMI: ${money(emi)} · Total repayment: ${money(emi * months)}. Check the lender's final schedule and fees.`;
+    }
+  });
+});
+</script>

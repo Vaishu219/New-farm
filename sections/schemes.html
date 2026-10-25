@@ -1,0 +1,113 @@
+<section>
+  <div id="schemes" class="feature-section scheme-feature">
+    <div class="feature-header">
+      <div class="feature-icon" style="background:var(--green-50);">🏛️</div>
+      <div>
+        <h2>Government scheme guide</h2>
+        <p>Start with official scheme information, then confirm local rules before applying.</p>
+      </div>
+    </div>
+    <p class="scheme-disclaimer">Eligibility, documents, enrollment windows, and deadlines can change by state, crop, and season. This guide does not confirm eligibility or submit applications. Use the official portal or your local agriculture office for current details.</p>
+    <div class="scheme-grid">
+      <article class="scheme-card">
+        <div class="scheme-icon" aria-hidden="true">🌾</div>
+        <h3>PM-KISAN</h3>
+        <p>Check current beneficiary status, e-KYC requirements, and official payment or registration guidance.</p>
+        <a href="https://pmkisan.gov.in/" target="_blank" rel="noopener noreferrer">Open PM-KISAN official portal ↗</a>
+      </article>
+      <article class="scheme-card">
+        <div class="scheme-icon" aria-hidden="true">🛡️</div>
+        <h3>Crop insurance (PMFBY)</h3>
+        <p>Check notified crops, insurance unit, season enrollment dates, premium, and claim instructions for your area.</p>
+        <a href="https://pmfby.gov.in/" target="_blank" rel="noopener noreferrer">Open PMFBY official portal ↗</a>
+      </article>
+      <article class="scheme-card">
+        <div class="scheme-icon" aria-hidden="true">🏦</div>
+        <h3>Kisan Credit Card</h3>
+        <p>Review current KCC guidance and ask a participating bank about documents, limits, and interest terms.</p>
+        <a href="https://www.myscheme.gov.in/schemes/kcc" target="_blank" rel="noopener noreferrer">Open myScheme KCC guide ↗</a>
+      </article>
+      <article class="scheme-card">
+        <div class="scheme-icon" aria-hidden="true">🧪</div>
+        <h3>Soil Health Card</h3>
+        <p>Learn how soil testing and nutrient recommendations are arranged through the official programme.</p>
+        <a href="https://soilhealth.dac.gov.in/" target="_blank" rel="noopener noreferrer">Open Soil Health Card portal ↗</a>
+      </article>
+    </div>
+    <details class="scheme-checklist">
+      <summary>Prepare before visiting an office</summary>
+      <p>Ask which documents are required for this scheme and season. Commonly requested items may include identity, bank, land, crop, and contact details, but the official checklist is the one to follow. Keep copies and ask for an application or complaint reference number.</p>
+    </details>
+    <div class="scheme-reminder" data-roles="farmer admin">
+      <h3>Remind me before a deadline</h3>
+      <p>Enter a deadline you have confirmed from an official source. We will add it to your farm planner reminders.</p>
+      <form id="scheme-reminder-form" class="scheme-reminder-form">
+        <label>Scheme
+          <select name="scheme" required>
+            <option>PM-KISAN follow-up</option>
+            <option>PMFBY enrollment or claim</option>
+            <option>Kisan Credit Card follow-up</option>
+            <option>Soil Health Card / soil test</option>
+            <option>Other government scheme</option>
+          </select>
+        </label>
+        <label>Confirmed deadline
+          <input name="due_date" type="date" required>
+        </label>
+        <button type="submit">Add planner reminder</button>
+      </form>
+      <p id="scheme-reminder-status" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+<style>
+  .scheme-disclaimer { margin-bottom:1rem; padding:.85rem; border-left:4px solid var(--amber-400); border-radius:6px; background:var(--amber-50); color:var(--gray-800); font-size:.84rem; line-height:1.5; }
+  .scheme-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:.75rem; }
+  .scheme-card { padding:1rem; border:1px solid var(--gray-100); border-radius:12px; background:#fff; }
+  .scheme-icon { font-size:1.5rem; }
+  .scheme-card h3 { margin:.3rem 0; font-size:1rem; }
+  .scheme-card p, .scheme-checklist p, .scheme-reminder p { margin:.45rem 0; color:var(--gray-600); font-size:.82rem; line-height:1.55; }
+  .scheme-card a { display:inline-block; margin-top:.55rem; font-size:.82rem; }
+  .scheme-checklist { margin-top:.85rem; padding:.85rem; border:1px solid var(--gray-100); border-radius:10px; background:var(--gray-50); }
+  .scheme-checklist summary { min-height:32px; cursor:pointer; font-size:.88rem; font-weight:700; }
+  .scheme-reminder { margin-top:1rem; padding:1rem; border:1px solid var(--green-100); border-radius:12px; background:var(--green-50); }
+  .scheme-reminder h3 { font-size:1rem; }
+  .scheme-reminder-form { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr)); gap:.75rem; align-items:end; margin-top:.75rem; }
+  .scheme-reminder-form label { display:grid; gap:.35rem; color:var(--gray-600); font-size:.8rem; font-weight:700; }
+  .scheme-reminder-form input, .scheme-reminder-form select { min-height:44px; width:100%; padding:.65rem; border:1px solid var(--gray-100); border-radius:8px; background:#fff; font:inherit; }
+  .scheme-reminder-form button { min-height:44px; border:0; border-radius:8px; padding:.65rem .85rem; background:var(--green-600); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+  #scheme-reminder-status { min-height:1.2em; }
+</style>
+<script>
+document.getElementById('scheme-reminder-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById('scheme-reminder-status');
+  const button = form.querySelector('button[type="submit"]');
+  const values = Object.fromEntries(new FormData(form));
+  button.disabled = true;
+  status.textContent = 'Saving reminder…';
+  try {
+    const response = await fetch('/api/farm/tasks', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        title: `${values.scheme} deadline`,
+        due_date: values.due_date,
+        priority: 'High',
+        status: 'Pending',
+        notes: 'Deadline entered by farmer. Confirm current requirements with the official scheme portal.'
+      })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.detail || 'Could not save the reminder.');
+    status.textContent = 'Reminder added to your farm planner.';
+    form.reset();
+    if (typeof loadFarmPlanner === 'function') await loadFarmPlanner();
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+</script>

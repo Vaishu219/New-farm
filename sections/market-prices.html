@@ -59,19 +59,21 @@
       <canvas id="priceChart" width="700" height="180" style="width:100%;max-width:100%;height:180px;"></canvas>
     </div>
 
-    <table class="price-table">
-      <thead>
-        <tr>
-          <th>Crop</th>
-          <th>Current (₹/q)</th>
-          <th>Last Month</th>
-          <th>Forecast (30d)</th>
-          <th>Trend</th>
-        </tr>
-      </thead>
-      <tbody id="price-summary">
-        <tr><td colspan="5">Add verified market observations to build a price history.</td></tr>
-      </tbody>
-    </table>
+    <div class="price-table-wrap" role="region" aria-label="Market price comparison" tabindex="0">
+      <table class="price-table">
+        <thead>
+          <tr>
+            <th>Crop</th>
+            <th>Current (₹/q)</th>
+            <th>Last Month</th>
+            <th>Forecast (30d)</th>
+            <th>Trend</th>
+          </tr>
+        </thead>
+        <tbody id="price-summary">
+          <tr><td colspan="5">Add verified market observations to build a price history.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
